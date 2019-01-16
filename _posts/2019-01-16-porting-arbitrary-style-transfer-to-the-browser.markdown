@@ -2,7 +2,7 @@
 layout: post
 title:  "Porting arbitrary style transfer to the browser"
 image: 
-  path: "images/stylize.png"
+  path: "images/null.png"
   thumbnail: "images/stylize.png"
 date:   2019-01-16
 ---

@@ -79,11 +79,14 @@ author:
   name:
   picture:
   email:
-  twitter:
+  twitter: ReiiYoda
   links:
-    - title:
-      url:
-      icon:
+    - title: Twitter
+      url: https://twitter.com/ReiiYoda
+      icon: fab fa-twitter-square
+    - title: GitHub
+      url: https://github.com/reiinakano
+      icon: fab fa-github-square
 
 # Footer Links
 footer_links:
