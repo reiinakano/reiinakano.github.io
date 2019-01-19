@@ -66,7 +66,12 @@ This idea of constraints being beneficial to creativity turns out to be one that
 
 To be clear, I am not declaring this is all there is to style, nor am I saying it is better than the statistical style loss mentioned above. Artistic style is obviously much, much deeper than this. I am merely suggesting that this point of view *could* help us build neural networks with a more human-like understanding of style.
 
-It is with this mindset that I read [Ha, et. al.][2]'s work on [World Models].
+It is with this mindset that I read [Ha, et. al.][2]'s work on [World Models]. It was not a big logical leap from here to the next step. To produce art in the way we described, an agent would need to interact with a particular constrained medium. This constrained medium could be represented by a world model.
+
+To see if the approach has promise, I tried to see if an agent could learn to work with the constraints of using a paintbrush, purely by interacting with a world model of a [real painting program][MyPaint]. I chose this task as I was aware of [Ganin, et. al.][3]'s work with [SPIRAL], that had indeed shown a neural network learning to work with a paintbrush. It would be a good goal to replicate their experiment results using a world model approach.
+
+Note that the rest of this blog post assumes you have read and understood the excellent [World Models] article. I reuse most of the terminology from that article in this blog post.
+{: .notice--info}
 
 [style-transfer-browser]: /2018/12/20/porting-arbitrary-style-transfer-to-the-browser.html
 [World Models]: https://worldmodels.github.io
@@ -75,6 +80,8 @@ It is with this mindset that I read [Ha, et. al.][2]'s work on [World Models].
 [reddit-gaming]: https://www.reddit.com/r/gaming/comments/a5zwbs/was_this_worth_my_time_probably_not/
 [constraints]: https://www.fastcompany.com/3027379/the-psychology-of-limitations-how-and-why-constraints-can-make-you-more-creative
 [Phil Hansen]: http://www.philinthecircle.com/
+[SPIRAL]: https://deepmind.com/blog/learning-to-generate-images/
 
 [1]: https://arxiv.org/abs/1508.06576
 [2]: https://arxiv.org/abs/1803.10122
+[3]: https://arxiv.org/abs/1804.01118
