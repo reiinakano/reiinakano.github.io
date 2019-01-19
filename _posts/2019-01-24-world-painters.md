@@ -52,12 +52,29 @@ However, there was a particular comment in the thread that caught my attention (
 
 This comment summarized in the best way possible what I had been thinking of. Style can be seen as something that emerges from constraints. The Family Guy characters created above have a distinct style from the actual animated characters, simply because they were constrained to the options the game's character creation process provides. The glass shard paintings have a distinct style from regular paintings since they were constrained to use glass shards stuck to a portrait. We can extend this idea to regular 2D portraits. Oil paintings have different constraints from pencil sketches. Impressionist paintings, like the famous "Starry Night", have been constrained to use small and thin brush strokes.
 
-To be clear, I am not declaring this is all there is to artistic style, nor am I saying it is better than the statistical style loss mentioned above. This is obviously untrue. I am merely suggesting that, hey, this point of view *could* help neural networks develop a better understanding of style.
+<figure class="align-center">
+  <a href="#"><img src="{{ '/images/starry.jpeg' | absolute_url }}" alt=""></a>
+  <figcaption>The Starry Night by Vincent van Gogh</figcaption>
+</figure>
+
+This idea of constraints being beneficial to creativity turns out to be one that has been explored before. Here is [an article][constraints] showing some nice examples of constraints resulting in unique works of art. One of my favorites is the story of [Phil Hansen], an artist who suffered a debilitating injury and ended up being unable to keep his hand from shaking. This prevented him from ever drawing again with his usual pointillist style. He eventually incorporated the squiggly lines into his artwork, resulting in his own unique style.
+
+<figure class="align-center">
+  <a href="#"><img src="{{ '/images/bruce.jpeg' | absolute_url }}" alt=""></a>
+  <figcaption>Painting of Bruce Lee by Phil Hansen. This was painted by <a href="https://www.youtube.com/watch?v=CbvSms-1yj4">dipping his forearms in paint and "striking" the canvas</a> - an appropriate constraint for a portrait of the martial artist.</figcaption>
+</figure>
+
+To be clear, I am not declaring this is all there is to style, nor am I saying it is better than the statistical style loss mentioned above. Artistic style is obviously much, much deeper than this. I am merely suggesting that this point of view *could* help us build neural networks with a more human-like understanding of style.
+
+It is with this mindset that I read [Ha, et. al.][2]'s work on [World Models].
 
 [style-transfer-browser]: /2018/12/20/porting-arbitrary-style-transfer-to-the-browser.html
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
 [Hakone Open-Air Museum]: https://www.japan-guide.com/e/e5208.html
 [reddit-gaming]: https://www.reddit.com/r/gaming/comments/a5zwbs/was_this_worth_my_time_probably_not/
+[constraints]: https://www.fastcompany.com/3027379/the-psychology-of-limitations-how-and-why-constraints-can-make-you-more-creative
+[Phil Hansen]: http://www.philinthecircle.com/
 
 [1]: https://arxiv.org/abs/1508.06576
+[2]: https://arxiv.org/abs/1803.10122
