@@ -31,9 +31,9 @@ I recently visited the [Hakone Open-Air Museum] and found myself fascinated by s
   <figcaption>Not exactly what I saw, but like this.</figcaption>
 </figure>
 
-The resulting styles were beautiful, unique, and could never be replicated with brushstrokes alone. And all it took to achieve this new, unique style was one thing: changing the medium.
+The resulting portraits were beautiful, unique, and could never be replicated with brushstrokes alone. And all it took to achieve this new, unique style was one thing: changing the medium.
 
-At this point, I started to get an inkling that perhaps the artistic medium had something to do with defining style. It wasn't until I saw a random Reddit post a few weeks later (on r/gaming of all places) that the idea solidified itself in my mind.
+At this point, I started to get an inkling that perhaps the artistic medium had a large part in defining style. It wasn't until I saw a random Reddit post a few weeks later (on r/gaming of all places) that the idea solidified itself in my mind.
 
 [The post][reddit-gaming] was quite amusing in itself. Somebody had (very painstakingly) created custom characters in Super Smash Bros. that looked like the characters from Family Guy.
 
@@ -42,7 +42,7 @@ At this point, I started to get an inkling that perhaps the artistic medium had 
   <figcaption>Pretty standard mildly amusing Reddit content</figcaption>
 </figure>
 
-However, there was a particular comment in the thread that caught my attention (and thousands of others that had seen the same).
+However, there was a particular comment in the thread that caught my attention (and thousands of others).
 
 <figure class="align-center">
   <a href="#"><img src="{{ '/images/reddit-comment.png' | absolute_url }}" alt=""></a>
@@ -50,9 +50,9 @@ However, there was a particular comment in the thread that caught my attention (
 
 "All great art is a response to the limitations of the medium."
 
-This comment summarized in the best way possible what I had been thinking of for the last few weeks. Style can be seen as something that emerges from constraints. The Family Guy characters created above have a distinct style from the actual animated characters, simply because they were constrained to the options the character creation process provides. The glass shard paintings have a distinct style from regular paintings since they were constrained to use glass shards stuck to a portrait. Impressionist paintings like the famous "Starry Night" are constrained to use small, thin, yet visible brush strokes.
+This comment summarized in the best way possible what I had been thinking of for the last few weeks. Style can be seen as something that emerges from constraints. The Family Guy characters created above have a distinct style from the actual animated characters, simply because they were constrained to the options the game's character creation process provides. The glass shard paintings have a distinct style from regular paintings since they were constrained to use glass shards stuck to a portrait. We can extend this idea to regular 2D brushstroke paintings. Impressionist paintings like the famous "Starry Night" are constrained to use small and thin brush strokes.
 
-Please note that I am not declaring this is all there is to artistic style. This is obviously untrue. I am merely suggesting that, in the context of style transfer, this could be one way to define *style*.
+**Note**: I am not declaring this is all there is to artistic style, nor that it is better than the statistical style loss mentioned above. This is obviously untrue. I am merely suggesting that, hey, this *could* be one way of looking at it.
 {: .notice--warning}
 
 [style-transfer-browser]: /2018/12/20/porting-arbitrary-style-transfer-to-the-browser.html
