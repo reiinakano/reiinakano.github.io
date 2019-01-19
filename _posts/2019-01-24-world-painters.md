@@ -33,7 +33,7 @@ I recently visited the [Hakone Open-Air Museum] and found myself fascinated by s
 
 The resulting portraits were beautiful, unique, and could never be replicated with brushstrokes alone. And all it took to achieve this new, unique style was one thing: changing the medium.
 
-At this point, I started to get an inkling that perhaps the artistic medium had a large part in defining style. It wasn't until I saw a random Reddit post a few weeks later (on r/gaming of all places) that the idea solidified itself in my mind.
+At this point, I started to think that perhaps the artistic medium had a large part in defining style. It wasn't until I saw a random Reddit post a few weeks later (on r/gaming of all places) that the idea solidified itself in my mind.
 
 [The post][reddit-gaming] was quite amusing in itself. Somebody had (very painstakingly) created custom characters in Super Smash Bros. that looked like the characters from Family Guy.
 
@@ -50,10 +50,9 @@ However, there was a particular comment in the thread that caught my attention (
 
 "All great art is a response to the limitations of the medium."
 
-This comment summarized in the best way possible what I had been thinking of for the last few weeks. Style can be seen as something that emerges from constraints. The Family Guy characters created above have a distinct style from the actual animated characters, simply because they were constrained to the options the game's character creation process provides. The glass shard paintings have a distinct style from regular paintings since they were constrained to use glass shards stuck to a portrait. We can extend this idea to regular 2D brushstroke paintings. Impressionist paintings like the famous "Starry Night" are constrained to use small and thin brush strokes.
+This comment summarized in the best way possible what I had been thinking of. Style can be seen as something that emerges from constraints. The Family Guy characters created above have a distinct style from the actual animated characters, simply because they were constrained to the options the game's character creation process provides. The glass shard paintings have a distinct style from regular paintings since they were constrained to use glass shards stuck to a portrait. We can extend this idea to regular 2D portraits. Oil paintings have different constraints from pencil sketches. Impressionist paintings, like the famous "Starry Night", have been constrained to use small and thin brush strokes.
 
-**Note**: I am not declaring this is all there is to artistic style, nor that it is better than the statistical style loss mentioned above. This is obviously untrue. I am merely suggesting that, hey, this *could* be one way of looking at it.
-{: .notice--warning}
+To be clear, I am not declaring this is all there is to artistic style, nor am I saying it is better than the statistical style loss mentioned above. This is obviously untrue. I am merely suggesting that, hey, this point of view *could* help neural networks develop a better understanding of style.
 
 [style-transfer-browser]: /2018/12/20/porting-arbitrary-style-transfer-to-the-browser.html
 [World Models]: https://worldmodels.github.io
