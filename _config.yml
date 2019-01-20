@@ -81,12 +81,12 @@ author:
   email:
   twitter: ReiiYoda
   links:
-    - title: Twitter
-      url: https://twitter.com/ReiiYoda
-      icon: fab fa-twitter-square
-    - title: GitHub
-      url: https://github.com/reiinakano
-      icon: fab fa-github-square
+    #- title: Twitter
+    #  url: https://twitter.com/ReiiYoda
+    #  icon: fab fa-twitter-square
+    #- title: GitHub
+    #  url: https://github.com/reiinakano
+    #  icon: fab fa-github-square
 
 # Footer Links
 footer_links:

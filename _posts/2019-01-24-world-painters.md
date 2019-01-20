@@ -53,16 +53,36 @@ This idea of constraints being beneficial to creativity turns out to be one that
   <figcaption>Painting of Bruce Lee by Phil Hansen. This was painted by <a href="https://www.youtube.com/watch?v=CbvSms-1yj4">dipping his forearms in paint and "striking" the canvas</a> - an appropriate constraint for a portrait of the martial artist.</figcaption>
 </figure>
 
-Today, neural networks have been used by artists, with great success, to generate 2D images that look like paintings (e.g. neural style transfer, GANs that generate portraits sold in auctions for thousands of dollars). Most of these networks are set up to directly generate each pixel of the output. While the results are generally good, this strikes me as odd, because artists don't create paintings by calculating pixels one by one, they create paintings by *painting*. 
+Today, neural networks have been used by artists, with great success, to generate 2D images that look like paintings (e.g. neural style transfer, GANs that [generate portraits sold in auctions for thousands of dollars][christies-sell]). Most of these networks are set up to directly generate each pixel of the output. While the results are generally good, the approach strikes me as odd, because artists don't create paintings by calculating pixels one by one, they create paintings by *painting*. 
 
-While per-pixel calculation is in itself a constraint (in fact, I'd say the artifacts present in GAN outputs give them their own distinct *style*), if we wanted to have an agent replicate a piece of artwork (a painting), we'd get more realistic outputs by providing it with the same medium (a paintbrush).
+While per-pixel calculation is in itself a constraint (in fact, I'd say the artifacts present in GAN outputs give them their own distinct *style*), if we wanted to have an agent replicate a piece of artwork (a painting), I imagine we'd get more realistic outputs by providing it with the same medium (a paintbrush).
 
 It is with this mindset that I read [Ha, et. al.][2]'s work on [World Models]. It was not a big logical leap from here to the next step. To produce art in the way we described, an agent would need to interact with a particular constrained medium. This constrained medium could be represented by a world model.
 
 As a proof of concept, I tried to see if an agent could learn to work with the constraints of using a paintbrush, purely by interacting with a world model of a [real painting program][MyPaint]. I chose this task as I was aware of [Ganin, et. al.][3]'s work with [SPIRAL], that had indeed shown a neural network learning to work with a paintbrush. It would be a good goal to replicate their experiment results using a world model approach.
 
-Note that the rest of this blog post assumes you have read and understood the excellent [World Models] article. I reuse most of the terminology from that article in this blog post.
+<small>Note that the rest of this blog post assumes you have read and understood the excellent [World Models] article. I reuse most of the terminology from that article in this blog post.</small>
 {: .notice--info}
+
+# Naively throwing the World Models code at the task
+
+The full code for World Models is available at [this repository][world-models-code]. The first thing I did was apply the code with the bare minimum modifications to run on my task. There were two options: I could train a world model on the environment then train the agent purely on the world model (as in the Doom task), or I could train a world model but still use the outputs from the real environment during agent training (as in the CarRacing task). Since I do all my training on a single free GPU from [Google Colaboratory], I opted to go for the Doom approach, as running the paint program during training would considerably slow things down. It turns out this choice would be crucial, as I would eventually need full gradients from the world model during agent training, something I would not have in the CarRacing approach.
+
+For the paint program environment, I reused code from the [SPIRAL implementation by Taehoon Kim][SPIRAL-code]. The implementation provides a Gym environment wrapping [MyPaint] and maps actions to brushstrokes and applies them to a 64x64 canvas. The following table shows the environment's action space.
+
+| Action Parameter | Description |
+|------------------|-------------|
+| Pressure | Two options: 0.5 or 0.8. Determines the pressure applied to the brush. |
+| Size | Two options: 0.2 or 0.7. Determines the size of the brush. |
+| Jump | Binary choice 0 or 1 to determine whether or not to lift the brush for a certain stroke. |
+| Color | 3D integer vector from 0-255 determining the RGB color of the brush stroke. |
+| Endpoint | 2D point determining where to end the brush stroke. |
+| Control point | 2D point determining the trajectory of the brush stroke. View the [SPIRAL paper][3] for more details on how the stroke trajectory is calculated. |
+
+<small>This action space simply mirrors that described in the [SPIRAL paper][3]. The notable exceptions are the two rather specific choices for Pressure (0.5 or 0.8) and Size (0.2 or 0.7). There is no special reason for this other than that the [SPIRAL implementation][SPIRAL-code] I used had the environment set this way.</small>
+{: .notice}
+
+As a standard sanity check, my first goal was to reproduce MNIST characters with my agent. For this purpose, I disregard any Color input into the painting environment and fix everything to black.
 
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
@@ -70,7 +90,11 @@ Note that the rest of this blog post assumes you have read and understood the ex
 [reddit-gaming]: https://www.reddit.com/r/gaming/comments/a5zwbs/was_this_worth_my_time_probably_not/
 [constraints]: https://www.fastcompany.com/3027379/the-psychology-of-limitations-how-and-why-constraints-can-make-you-more-creative
 [Phil Hansen]: http://www.philinthecircle.com/
+[christies-sell]: https://www.theverge.com/2018/10/25/18023266/ai-art-portrait-christies-obvious-sold
 [SPIRAL]: https://deepmind.com/blog/learning-to-generate-images/
+[world-models-code]: https://github.com/worldmodels/worldmodels.github.io
+[Google Colaboratory]: https://colab.research.google.com/
+[SPIRAL-code]: https://github.com/carpedm20/SPIRAL-tensorflow
 
 [1]: https://arxiv.org/abs/1508.06576
 [2]: https://arxiv.org/abs/1803.10122
