@@ -2,8 +2,8 @@
 layout: post
 title:  "Teaching agents to paint inside their own dreams"
 image: 
-  path: "images/world_painter.gif"
-  thumbnail: "images/world_painter.gif"
+  path: "images/wp/s1/world_painter.gif"
+  thumbnail: "images/wp/s1/world_painter.gif"
 date:   2019-01-16
 ---
 
@@ -16,7 +16,7 @@ In this post, I talk about using [World Models] to train agents to paint with [r
 A few months ago, I visited the [Hakone Open-Air Museum] and found myself fascinated by some "paintings" that used glass shards in lieu of paint.
 
 <figure class="align-center">
-  <a href="#"><img src="{{ '/images/shard-painting.jpg' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s1/shard-painting.jpg' | absolute_url }}" alt=""></a>
   <figcaption>Not exactly what I saw, but like this.</figcaption>
 </figure>
 
@@ -27,14 +27,14 @@ At this point, I started to think that perhaps the artistic medium had a large p
 [The post][reddit-gaming] was quite amusing in itself. Somebody had (very painstakingly) created custom characters in Super Smash Bros. that looked like the characters from Family Guy.
 
 <figure class="align-center">
-  <a href="#"><img src="{{ '/images/ssb-fg.jpg' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s1/ssb-fg.jpg' | absolute_url }}" alt=""></a>
   <figcaption>Pretty standard mildly amusing Reddit content</figcaption>
 </figure>
 
 However, there was a particular comment in the thread that caught my attention (and thousands of others).
 
 <figure class="align-center">
-  <a href="#"><img src="{{ '/images/reddit-comment.png' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s1/reddit-comment.png' | absolute_url }}" alt=""></a>
 </figure>
 
 "All great art is a response to the limitations of the medium."
@@ -42,14 +42,14 @@ However, there was a particular comment in the thread that caught my attention (
 This comment summarized in the best way possible what I had been thinking of. Style can be seen as something that emerges from constraints. The Family Guy characters created above have a distinct style from the actual animated characters, simply because they were constrained to the options the game's character creation process provides. The glass shard paintings have a distinct style from regular paintings since they were constrained to use glass shards stuck to a portrait. We can extend this idea to regular 2D portraits. Oil paintings are created with different constraints from pencil sketches. Impressionist paintings, like the famous "Starry Night", have been constrained to use small and thin brush strokes.
 
 <figure class="align-center">
-  <a href="#"><img src="{{ '/images/starry.jpeg' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s1/starry.jpeg' | absolute_url }}" alt=""></a>
   <figcaption>The Starry Night by Vincent van Gogh</figcaption>
 </figure>
 
 This idea of constraints being beneficial to creativity turns out to be one that has been thoroughly explored. Here is [an article][constraints] showing some nice examples of constraints resulting in unique works of art. One of my favorites is the story of [Phil Hansen], an artist who suffered a debilitating injury and ended up being unable to keep his hand from shaking. This prevented him from ever drawing again with his usual pointillist style. He eventually incorporated the squiggly lines into his artwork, resulting in his own unique style.
 
 <figure class="align-center">
-  <a href="#"><img src="{{ '/images/bruce.jpeg' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s1/bruce.jpeg' | absolute_url }}" alt=""></a>
   <figcaption>Painting of Bruce Lee by Phil Hansen. This was painted by <a href="https://www.youtube.com/watch?v=CbvSms-1yj4">dipping his forearms in paint and "striking" the canvas</a> - an appropriate constraint for a portrait of the martial artist.</figcaption>
 </figure>
 
@@ -68,7 +68,7 @@ As a proof of concept, I tried to see if an agent could learn to work with the c
 
 The full code for World Models is available at [this repository][world-models-code]. The first thing I did was apply the code with the bare minimum modifications to run on my task. There were two options: I could train a world model on the environment then train the agent purely on the world model (as in the Doom task), or I could train a world model but still use the outputs from the real environment during agent training (as in the CarRacing task). Since I do all my training on a single free GPU from [Google Colaboratory], I opted to go for the Doom approach, as running the paint program during training would considerably slow things down. It turns out this choice would be crucial, as I would eventually need full gradients from the world model during agent training, something I would not have in the CarRacing approach.
 
-For the paint program environment, I reused code from the [SPIRAL implementation by Taehoon Kim][SPIRAL-code]. The implementation provides a Gym environment wrapping [MyPaint] and maps actions to brushstrokes and applies them to a 64x64 canvas. The following table shows the environment's action space.
+For the paint program environment, I reused code from the [SPIRAL implementation by Taehoon Kim][SPIRAL-code]. The implementation provides a Gym environment wrapping [MyPaint] and maps actions to brushstrokes and applies them to a 64x64 pixel canvas. The following table shows the environment's action space. 
 
 | Action Parameter | Description |
 |------------------|-------------|
@@ -84,6 +84,22 @@ For the paint program environment, I reused code from the [SPIRAL implementation
 
 As a standard sanity check, my first goal was to reproduce MNIST characters with my agent. For this purpose, I disregard any Color input into the painting environment and fix everything to black.
 
+### Generate episodes
+
+The first step is to generate episodes for training data. An episode is generated by feeding a random action to a canvas 10 times. I do this 10000 times, resulting in 10000 10-step episodes.
+
+<figure class="align-center">
+  <a href="#"><img src="{{ '/images/wp/s2/episode.png' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s2/episode_2.png' | absolute_url }}" alt=""></a>
+  <figcaption>2 10-step episodes. Note how the canvas remains unchanged during certain actions. These are actions where the Jump parameter has been set.</figcaption>
+</figure>
+
+One thing to note is that the first action in an episode never generates a visible stroke, regardless of the value of the Jump parameter. This allows an agent to properly select the starting position of the brush (as opposed to always starting from (0, 0)).
+
+### Training the VAE
+
+
+
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
 [Hakone Open-Air Museum]: https://www.japan-guide.com/e/e5208.html
@@ -91,7 +107,7 @@ As a standard sanity check, my first goal was to reproduce MNIST characters with
 [constraints]: https://www.fastcompany.com/3027379/the-psychology-of-limitations-how-and-why-constraints-can-make-you-more-creative
 [Phil Hansen]: http://www.philinthecircle.com/
 [christies-sell]: https://www.theverge.com/2018/10/25/18023266/ai-art-portrait-christies-obvious-sold
-[SPIRAL]: https://deepmind.com/blog/learning-to-generate-images/
+[SPIRAL]: https://deepmind.com/blog/learning-to-generate-images/wp/s1/
 [world-models-code]: https://github.com/worldmodels/worldmodels.github.io
 [Google Colaboratory]: https://colab.research.google.com/
 [SPIRAL-code]: https://github.com/carpedm20/SPIRAL-tensorflow
