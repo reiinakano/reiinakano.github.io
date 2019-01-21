@@ -2,8 +2,8 @@
 layout: post
 title:  "Teaching agents to paint inside their own dreams"
 image: 
-  path: "images/wp/s1/world_painter.gif"
-  thumbnail: "images/wp/s1/world_painter.gif"
+  path: "images/wp/world_painter.gif"
+  thumbnail: "images/wp/world_painter.gif"
 date:   2019-01-16
 ---
 
@@ -151,6 +151,53 @@ The VAE does a lot better in this case, and we can see it preserve the various p
 </figure>
 
 Some more observations: we can see the VAE "smoothening" out the brush strokes. It also shows a bit of trouble with highly curved brush strokes that end right next to the starting point.
+
+### Training the RNN World Model
+
+The RNN world model also does a lot better. The results are slightly off when compared to the actual VAE reconstructions, but overall, the stroke properties seem to be captured well.
+
+<figure class="align-center">
+  <img src="{{ '/images/wp/s3/episode.png' | absolute_url }}" alt="">
+  <img src="{{ '/images/wp/s3/episode_rnn.png' | absolute_url }}" alt="">
+  <img src="{{ '/images/wp/s3/episode_2.png' | absolute_url }}" alt="">
+  <img src="{{ '/images/wp/s3/episode_2_rnn.png' | absolute_url }}" alt="">
+  <figcaption>Top row contains the actual canvas images. Bottom row contains the decoded canvas states as predicted by the RNN world model.</figcaption>
+</figure>
+
+There are two things about the RNN world model I want to note here. 
+
+First, an RNN may not actually be the optimal architecture for a world model of a painting program. Although the generated brush stroke is dependent on the *previous position* of the brush, we can just as easily extend the action space to take the starting position of the brush. This way, we can train a single non-recurrent network to directly map an action to a 64x64x3 image of the brush stroke.
+
+Second, the RNN world model has a Mixture Density Network as an output layer. This adds a non-deterministic property to the output. Although this property may be useful for simulating environments with highly random behavior (Doom and CarRacing), it feels unnecessary for a world model of a relatively well-behaved paint program. Removing the MDN could result in more stable brush stroke predictions and a smaller model.
+
+### Combining brush strokes
+
+Now that we have an RNN that can reliably predict individual brush strokes, we are missing only one more element to complete the world model of our painting program: some mechanism that applies successive brush strokes to a canvas. For our world model that generates only black strokes, I find a simple but effective approach to combine strokes is by choosing a pixel from either the current canvas or the new brush stroke, whichever one is darker. This is illustrated by the TensorFlow code below (assuming black is 0 and white is 255):
+
+```python
+# Tensor containing the current state of the canvas on which to draw the stroke.
+canvas = tf.placeholder(tf.float32)
+
+# Tensor containing the brush stroke. Same shape as canvas.
+stroke = tf.placeholder(tf.float32)
+
+# mask contains a boolean Tensor with the same shape as canvas and stroke.
+# mask contains True at positions where stroke > canvas (if stroke is lighter in color than canvas)
+mask = tf.greater(stroke, canvas)
+
+# out is a Tensor with the same shape as canvas and stroke
+# out contains values from stroke and canvas, whichever one
+# has a lower value (darker) at that point.
+out = tf.where(mask, canvas, stroke)
+```
+
+The results of combination are shown below and compared with the actual output of the paint program.
+
+<figure class="align-center">
+  <img src="{{ '/images/wp/s3/combiner_actual.png' | absolute_url }}" alt="">
+  <img src="{{ '/images/wp/s3/combiner.png' | absolute_url }}" alt="">
+  <figcaption>First column: previous canvas state. Second column: brush stroke to apply to the canvas. Third column: result of the combination. <br>The first row shows combination done by the actual paint program. The second row shows combination done by our combination code. Can you tell the difference?</figcaption>
+</figure>
 
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
