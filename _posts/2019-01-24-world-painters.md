@@ -94,11 +94,35 @@ The first step is to generate episodes for training data. An episode is generate
   <figcaption>2 10-step episodes. Note how the canvas remains unchanged during certain actions. These are actions where the Jump parameter has been set.</figcaption>
 </figure>
 
-One thing to note is that the first action in an episode never generates a visible stroke, regardless of the value of the Jump parameter. This allows an agent to properly select the starting position of the brush (as opposed to always starting from (0, 0)).
+One thing to note is that the first action in an episode never generates a visible stroke, regardless of the value of the Jump parameter. This feature was baked in to the environment I used. I assume its purpose is to allow an agent to properly select the starting position of the brush (as opposed to always starting from (0, 0)).
 
 ### Training the VAE
 
+The next step is to train the VAE on the intermediate canvas states. The VAE's job is to compress the 64x64x3 canvas state into a single vector of length 64. To evaluate the VAE's effectiveness in preserving the main features of the canvas, we look at the original image and its respective reconstruction.
 
+<figure class="align-center">
+  <a href="#"><img src="{{ '/images/wp/s2/episode.png' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s2/episode_vae.png' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s2/episode_2.png' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s2/episode_2_vae.png' | absolute_url }}" alt=""></a>
+  <figcaption>Top row contains the canvas images. Bottom row contains the reconstructed images after passing through the VAE.</figcaption>
+</figure>
+
+The reconstruction seems to capture the overall shape reasonably well, but finer details are lost, especially in the later stages of an episode with multiple strokes. This result is a red flag for the approach, as it is clearly not scalable, especially as we start to deal with canvases with multiple colors and >10 strokes. A VAE simply cannot reasonably compress the domain of all multi-stroke combinations on a canvas.
+
+### Training the RNN World Model
+
+I went ahead and tried training the RNN on the 10-step episodes anyway. Given a sequence of actions, the RNN tries to predict the VAE-encoded canvas state at each step. This is then run through the VAE decoder to retrieve the actual predicted canvas. 
+
+<figure class="align-center">
+  <a href="#"><img src="{{ '/images/wp/s2/episode.png' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s2/episode_rnn.png' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s2/episode_2.png' | absolute_url }}" alt=""></a>
+  <a href="#"><img src="{{ '/images/wp/s2/episode_2_rnn.png' | absolute_url }}" alt=""></a>
+  <figcaption>Top row contains the actual canvas images. Bottom row contains the decoded canvas states as predicted by the RNN world model.</figcaption>
+</figure>
+
+Although the RNN learned quickly that the first action never generates a stroke, the rest of the predictions are much noisier than the target images. The approach shows promise, as the predicted images do vaguely resemble the targets, but a better method is clearly needed.
 
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
