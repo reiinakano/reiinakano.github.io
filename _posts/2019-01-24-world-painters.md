@@ -168,11 +168,11 @@ There are two things about the RNN world model I want to note here.
 
 First, an RNN may not actually be the optimal architecture for a world model of a painting program. Although the generated brush stroke is dependent on the *previous position* of the brush, we can just as easily extend the action space to take the starting position of the brush. This way, we can train a single non-recurrent network to directly map an action to a 64x64x3 image of the brush stroke.
 
-Second, the RNN world model has a Mixture Density Network as an output layer. This adds a non-deterministic property to the output. Although this property may be useful for simulating environments with highly random behavior (Doom and CarRacing), it feels unnecessary for a world model of a relatively well-behaved paint program. Removing the MDN could result in more stable brush stroke predictions and a smaller model.
+Second, the RNN world model has a Mixture Density Network as an output layer. This adds a non-deterministic property to the output. Although this may be useful for simulating environments with highly random behavior (Doom and CarRacing), it feels unnecessary for a world model of a relatively well-behaved paint program. Removing the MDN could result in stabler brush stroke predictions and a smaller model.
 
 ### Combining brush strokes
 
-Now that we have an RNN that can reliably predict individual brush strokes, we are missing only one more element to complete the world model of our painting program: some mechanism that applies successive brush strokes to a canvas. For our world model that generates only black strokes, I find a simple but effective approach to combine strokes is by choosing a pixel from either the current canvas or the new brush stroke, whichever one is darker. This is illustrated by the TensorFlow code below (assuming black is 0 and white is 255):
+Now that we have an RNN that can reliably predict individual brush strokes, we are missing only one more element to complete the world model of our painting program: some mechanism by which to apply successive brush strokes to a canvas. For our world model that generates only black strokes, I find a simple but effective approach to combine strokes is by choosing a pixel from either the current canvas or the new brush stroke, whichever one is darker. This is illustrated by the TensorFlow code below (assuming black is 0 and white is 255):
 
 ```python
 # Tensor containing the current state of the canvas on which to draw the stroke.
@@ -199,6 +199,48 @@ The results of combination are shown below and compared with the actual output o
   <figcaption>First column: previous canvas state. Second column: brush stroke to apply to the canvas. Third column: result of the combination. <br>The first row shows combination done by the actual paint program. The second row shows combination done by our combination code. Can you tell the difference?</figcaption>
 </figure>
 
+### Training the agent
+
+The last step is to train the painting agent itself using the world model. 
+
+Following the original world models approach, my first agent was a small fully-connected neural network with a single hidden layer trained using [CMA-ES]. The network takes as input the RNN's hidden state, the VAE encoded current state of the canvas, and the VAE encoded target MNIST image. It outputs 7 values, representing a full action. The architecture looked like this:
+
+image
+
+I experimented with a few different loss functions for the optimization: L2 loss between target and generated images, change in L2 loss per step (my reasoning was to reward the incremental improvement provided by each stroke), MSE between VAE-encoded target and generated images, etc. Unfortunately, this agent never learned to draw a digit. I even tried to reduce its scope by keeping only one image from the entire dataset, effectively trying to make it overfit to a single image, but this didn't work either.
+
+<figure class="align-center">
+  <img src="{{ '/images/wp/s3/cma_results.png' | absolute_url }}" alt="">
+  <figcaption>Left: Target image. Right: Stroke sequence found by my simplistic agent. It tries its best.</figcaption>
+</figure>
+
+Here's my intuition for why the approach failed. 
+
+I believe the agent was far too small and simple to actually learn how to paint over multiple time steps. Why then, was this agent enough to solve the Doom and CarRacing tasks? I believe it's because the RNN world model trained for those environments inherently captured information directly related to "winning" these tasks. The Doom world model learned to predict when death occurs. The CarRacing world model learned which states/actions are likely to spin a car out onto the grass. This is why, given the RNN's hidden state, a small neural network was enough to generate an appropriate action. 
+
+On the other hand, our painter world model does not know what digits are, let alone the dynamics of drawing them. All it knows is a simple mapping from actions to brush strokes. The RNN hidden state contains far less information relating to the actual task, and thus, a more complex agent is needed to actually learn *how* to use the world model. (Feel free to comment below if you think this is incorrect.)
+
+So to learn the task of drawing, I decide to make the agent much, much bigger.
+
+I adopt the architecture of the policy network in Figure 12 of the [SPIRAL paper][3], which was a combination of convolutional layers, MLP layers, residual blocks, and an LSTM. I tweak it a bit for my use case. The network takes as inputs the target image, the world model RNN hidden state, the previous action, and the current canvas image. Instead of an autoregressive decoder, I use a simple fully connected layer at the end that outputs the 7 values for a complete action. I did not implement the autoregressive decoder since I didn't really understand why it was necessary, and I was quite short on time at this point (Winter break was coming to a close, and I hadn't even cracked MNIST!).
+
+image?
+
+Since this agent has a lot more parameters (>>10k), CMA-ES is no longer a viable optimization technique. I opt for the more standard backpropagation algorithm since the painter world model is fully differentiable and gradients from the world model output to the agent input are available. I use a WGAN-GP adversarial training procedure similar to the one used by SPIRAL to train my agent. The main difference is I could backpropagate through the painter program, so I could directly learn the agent parameters instead of using a reinforcement learning algorithm. Finally, as my goal was to reconstruct target images, I [condition the network][4] by supplying both the agent and the discriminator with the target image. The figure below shows the complete architecture.
+
+picture
+
+Unfortunately, when I tried training this model, it very quickly converged to not generating any strokes at all! Trying to figure out what was happening, I noticed that the Jump action parameter generated by my agent was always on, resulting in no visible strokes. Instead of trying to solve the problem, I simply sidestepped it by hardcoding the Jump parameter to 0 (I go into more depth about this behavior in the [next section]). This was the last missing piece, and after restarting training, my agent finally learned how to write! 
+
+<figure class="align-center" style="display:block; box-sizing: inherit;">
+  <img src="{{ '/images/wp/s3/mnist_success.gif' | absolute_url }}" alt="">
+  <figcaption>Successful reconstructions. Since our agent outputs the same action space as the actual painting environment, we can perform the agent's world model actions on the real environment and get back the result. <br> Left: Target image. Middle: World model output. Right: Generated actions transferred back to real painter environment.</figcaption>
+</figure>
+
+Another remarkable result is how quickly the training method converges compared to SPIRAL. I show below the L2 reconstruction loss during training.
+
+tensorboard
+
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
 [Hakone Open-Air Museum]: https://www.japan-guide.com/e/e5208.html
@@ -210,7 +252,9 @@ The results of combination are shown below and compared with the actual output o
 [world-models-code]: https://github.com/worldmodels/worldmodels.github.io
 [Google Colaboratory]: https://colab.research.google.com/
 [SPIRAL-code]: https://github.com/carpedm20/SPIRAL-tensorflow
+[CMA-ES]: https://en.wikipedia.org/wiki/CMA-ES
 
 [1]: https://arxiv.org/abs/1508.06576
 [2]: https://arxiv.org/abs/1803.10122
 [3]: https://arxiv.org/abs/1804.01118
+[4]: https://arxiv.org/abs/1411.1784
