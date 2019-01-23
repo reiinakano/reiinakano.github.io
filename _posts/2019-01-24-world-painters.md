@@ -276,11 +276,16 @@ We can observe the same continuous behavior to a less extreme extent for brush s
 
 In this case, the world model interpolates brush sizes between 0.2 and 0.7. Unlike the Jump action, the transition here is smoother, and so does not kill training with bad gradients. Unfortunately, this interpolation means the world model *thinks* there are brush sizes between 0.2 and 0.7, even when these do not exist in the real environment. This can result in some reconstructions looking slightly thicker or thinner when the world model actions are transferred back to the real environment.
 
-Another related consequence of using the world model instead of the real environment for training is the agent learning to exploit imperfections in the world environment. In this MNIST reconstruction task, this is evident when the agent tries to draw thick digits.
+Another related consequence of using the world model instead of the real environment for training is the agent learning to exploit imperfections in the world environment. In the MNIST reconstruction task, this is evident when the agent tries to draw thick digits.
 
-pic
+<figure class="align-center" style="display:block; box-sizing: inherit;">
+  <img src="{{ '/images/wp/s4/imperfect_mnist.gif' | absolute_url }}" alt="">
+  <figcaption>Agent learning to exploit imperfections in the world model.</figcaption>
+</figure>
 
-The digit being drawn here is thicker than the largest brush size the environment provides (0.7). Even in this case, our agent is somehow able to "force" the world model to output strokes thicker than 0.7.
+The digit being drawn here is thicker than the largest brush size the environment provides (0.7). Even in this case, our agent is somehow able to "force" the world model to output strokes thicker than 0.7 by using short, highly curved strokes. This is a glitch in the world model that does not exist in the real environment, so the actual reconstruction does not at all look like the world model's output.
+
+I believe that figuring out how to handle these discrete actions will be an interesting research direction moving forward. Unfortunately, we cannot always side step this issue as I have done in this case by completely ignoring the Jump action. Many interesting problems (including the MuJoCo Scenes environment solved by SPIRAL) will have discrete actions, and if we want to apply this approach to those tasks, solving this problem will be necessary.
 
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
