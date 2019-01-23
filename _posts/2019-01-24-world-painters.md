@@ -124,7 +124,7 @@ I went ahead and tried training the RNN on the 10-step episodes anyway. Given a 
 
 Although the RNN learned quickly that the first action never generates a stroke, the rest of the predictions are much noisier than the target images. The approach shows promise, as the predicted images do vaguely resemble the targets, but a better method is clearly needed.
 
-# Predicting individual brush strokes
+# A better method: predicting individual brush strokes
 
 The solution was simple. Instead of predicting canvases with a combination of multiple strokes, we have the world model learn only the single brush stroke produced by a particular action. This is a much smaller task for the VAE and RNN to learn.
 
@@ -248,7 +248,39 @@ A remarkable result is how quickly the training method converges compared to SPI
   <img src="{{ '/images/wp/s3/tensorboard.png' | absolute_url }}" alt="">
 </figure>
 
-The graph shows the algorithm quickly reaching a mean squared error of ~0.01 (the TensorBoard value is multiplied by 10) in about ~11k steps before tapering off. I stopped things early since I was happy with the results, but it's clear the loss was *still* going down. This took around 9 hours to complete on [Google Colab's][Google Colaboratory] free Tesla K80 GPU. In comparison, the SPIRAL agent takes on the order of 10^8 training frames, distributed among "12 training instances with each instance running 64 CPU actor jobs and 2 GPU jobs" (How much do I have to pay for this on GCP?). 
+The graph shows the algorithm quickly reaching a mean squared error of ~0.01 (the TensorBoard value is multiplied by 10) in about ~11k steps before tapering off. I stopped things early since I was happy with the results, but it's clear the loss was *still* going down. This took around 9 hours to complete on [Google Colab's][Google Colaboratory] free Tesla K80 GPU. In comparison, the SPIRAL agent takes on the order of 10^8 training frames, distributed among "12 training instances with each instance running 64 CPU actor jobs and 2 GPU jobs" (How much do I have to pay for this on GCP?).
+
+# On discrete actions causing imperfections in the world model
+
+I talked about the Jump action parameter and how it killed the entire training process. To understand why this happens, we have to examine one of the main differences between a real environment and our learned world model.
+
+**A real environment can have discrete inputs and outputs, while a learned world model must learn a continuous mapping from inputs to outputs.**
+
+Our painting program environment takes only discrete actions for brush pressure (0.5 or 0.8), size (0.2 or 0.7), and jump (0 or 1). On the other hand, our world model, being a neural network, can still take values in-between, and has to dream up a smooth, continuous transition from one valid input to another. What it does in this space is up to the world model and can lead to strange results.
+
+To test this, we generate a single visible (Jump = 0) stroke using the real environment. We then perform the same action on the world environment, while gradually increasing the Jump input from 0 to 1. As expected, the stroke is visible at 0 while invisible at 1, but what happens in between is interesting.
+
+<figure class="align-center" style="display:block; box-sizing: inherit;">
+  <img src="{{ '/images/wp/s4/cont_jump.gif' | absolute_url }}" alt="">
+  <figcaption>Left: Real paint program output at Jump=0. Right: World model output as Jump moves from 0 to 1.</figcaption>
+</figure>
+
+Observe how the stroke starts curving and getting fainter as we move up from 0, eventually disappearing at ~0.35. We don't know why the world model chose this transition, but seeing as we do not give it inputs between 0 and 1 during training, we can't really blame it for behaving this way either. So why does this behavior result in an untrainable agent? I attribute this to the flat region from 0.35-1 where the world model doesn't produce any strokes. My guess is that once the agent gets into a state where it predicts any value >0.35 for Jump, the stroke becomes invisible, the gradients drop to 0, and the agent gets stuck.
+
+We can observe the same continuous behavior to a less extreme extent for brush size and pressure (not shown).
+
+<figure class="align-center" style="display:block; box-sizing: inherit;">
+  <img src="{{ '/images/wp/s4/cont_size.gif' | absolute_url }}" alt="">
+  <figcaption>Left: Real paint program output at Size=0. Middle: World model output as Size moves from 0 to 1. Right: Real paint program output at Size=1</figcaption>
+</figure>
+
+In this case, the world model interpolates brush sizes between 0.2 and 0.7. Unlike the Jump action, the transition here is smoother, and so does not kill training with bad gradients. Unfortunately, this interpolation means the world model *thinks* there are brush sizes between 0.2 and 0.7, even when these do not exist in the real environment. This can result in some reconstructions looking slightly thicker or thinner when the world model actions are transferred back to the real environment.
+
+Another related consequence of using the world model instead of the real environment for training is the agent learning to exploit imperfections in the world environment. In this MNIST reconstruction task, this is evident when the agent tries to draw thick digits.
+
+pic
+
+The digit being drawn here is thicker than the largest brush size the environment provides (0.7). Even in this case, our agent is somehow able to "force" the world model to output strokes thicker than 0.7.
 
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
