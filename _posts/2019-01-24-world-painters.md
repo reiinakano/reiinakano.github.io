@@ -214,7 +214,7 @@ I experimented with a few different loss functions for the optimization: L2 loss
   <figcaption>Left: Target image. Right: Stroke sequence found by my simplistic agent. It tries its best.</figcaption>
 </figure>
 
-Here's my intuition for why the approach failed. 
+Here's my hypothesis for why the approach failed. 
 
 I believe the agent was far too small and simple to actually learn how to paint over multiple time steps. Why then, was this agent enough to solve the Doom and CarRacing tasks? I believe it's because the RNN world model trained for those environments inherently captured information directly related to "winning" these tasks. The Doom world model learned to predict when death occurs. The CarRacing world model learned which states/actions are likely to spin a car out onto the grass. This is why, given the RNN's hidden state, a small neural network was enough to generate an appropriate action. 
 
@@ -285,7 +285,109 @@ Another related consequence of using the world model instead of the real environ
 
 The digit being drawn here is thicker than the largest brush size the environment provides (0.7). Even in this case, our agent is somehow able to "force" the world model to output strokes thicker than 0.7 by using short, highly curved strokes. This is a glitch in the world model that does not exist in the real environment, so the actual reconstruction does not at all look like the world model's output.
 
-I believe that figuring out how to handle these discrete actions will be an interesting research direction moving forward. Unfortunately, we cannot always side step this issue as I have done in this case by completely ignoring the Jump action. Many interesting problems (including the MuJoCo Scenes environment solved by SPIRAL) will have discrete actions, and if we want to apply this approach to those tasks, solving this problem will be necessary.
+I believe that figuring out how to handle these discrete actions will be an interesting research direction moving forward. Unfortunately, we cannot always side step this issue as I have done in this case by completely ignoring the Jump action. Many interesting environments (including the MuJoCo Scenes environment solved by SPIRAL) will have discrete actions, and if we want to apply this approach to those tasks, solving this problem will be necessary.
+
+# Extending the approach to a full-color environment
+
+Since we've proven the approach works on MNIST in a black and white environment, the next step is to try a full-color environment.
+
+Also, based on the issues with discrete actions faced above, I modified the MyPaint environment to have the following action space:
+
+| Action Parameter | Description |
+|------------------|-------------|
+| Pressure | ~~Two options: 0.5 or 0.8.~~ Continuous 0 to 0.8. Determines the pressure applied to the brush. |
+| Size | ~~Two options: 0.2 or 0.7.~~ Continuous 0 to 2. Determines the size of the brush. |
+| ~~Jump~~ | ~~Binary choice 0 or 1 to determine whether or not to lift the brush for a certain stroke.~~ |
+| Color | 3D integer vector from 0-255 determining the RGB color of the brush stroke. |
+| Endpoint | 2D point determining where to end the brush stroke. |
+| Control point | 2D point determining the trajectory of the brush stroke. View the [SPIRAL paper][3] for more details on how the stroke trajectory is calculated. |
+
+### Training the VAE and RNN world model
+
+After generating new episodes using this new modified environment, we train the VAE and RNN world model. No change in model architecture was made, aside from modifying the inputs for the new action space.
+
+The following figure shows the results of training the brush stroke world model:
+
+<figure class="align-center">
+  <img src="{{ '/images/wp/s5/episode.png' | absolute_url }}" alt="">
+  <img src="{{ '/images/wp/s5/episode_vae.png' | absolute_url }}" alt="">
+  <img src="{{ '/images/wp/s5/episode_rnn.png' | absolute_url }}" alt="">
+  <figcaption>Top row: 20-step full-color episode | Middle row: Reconstructions with VAE | Bottom row: Predictions by RNN.</figcaption>
+</figure>
+
+At first glance, the strokes look the same, but once you look closer, it's obvious they're slightly different, with the RNN predictions being a slightly worse reconstruction than the VAE outputs. Clearly, the world model approach works well for modeling color brush strokes.
+
+### Combining color brush strokes
+
+Although our simplistic approach for combining brush strokes worked well for black strokes, it won't hold up with full colors. Here's an example of combining brush strokes using our previous method:
+
+<figure class="align-center">
+  <img src="{{ '/images/wp/s5/blending.png' | absolute_url }}" alt="">
+  <img src="{{ '/images/wp/s5/blending_naive.png' | absolute_url }}" alt="">
+  <figcaption>Top row: Color blending performed by MyPaint | Bottom row: Color blending performed by naive algorithm.<br>Instead of properly placing the stroke on top of the canvas, the algorithm just chooses the darker of both colors.</figcaption>
+</figure>
+
+After searching for a good way to do this full-color brush stroke combination, I discovered it was actually a very common problem in computer graphics called [color blending]. In fact, it has been [extensively discussed][MyPaint forum color blending] in the MyPaint forum itself. 
+
+One thing I realized too late was that it probably would have been appropriate to add an alpha channel to the RGB canvas we use for the purpose of color blending. The MyPaint software *does* output an alpha channel but I discarded it in the world model for simplicity. 
+
+We don't want the new brush stroke to completely cover up what already exists. We need a way to calculate how much of the current canvas "shows through" the new brush stroke. This function is something that would have been enabled by an alpha channel. Instead of this, we just calculate the "opacity" of a brush stroke pixel by computing how dark it is relative to the darkest pixel (full opacity) in the brush stroke. We can then use this value as a ratio for blending the stroke with the existing colors on the canvas.
+
+Here is some TensorFlow code illustrating this:
+
+```python
+# A pixel ranges from 0 to 1, with [1, 1, 1] being white and [0, 0, 0] being black.
+canvas = tf.placeholder(tf.float32, [-1, 64, 64, 3])
+stroke = tf.placeholder(tf.float32, [-1, 64, 64, 3])
+
+# RGB paint color chosen.
+brush_color = tf.placeholder(tf.float32, [-1, 3])
+
+# Get the "darkness" of each individual pixel in a stroke by averaging.
+darkness_mask = tf.reduce_mean(stroke, axis=3)
+# Make the value of a darker stroke higher.
+darkness_mask = 1 - tf.reshape(darkness_mask, [-1, 64, 64, 1])
+# Scale this darkness mask from 0 to 1.
+darkness_mask = darkness_mask / tf.reduce_max(darkness_mask) 
+
+# Replace the original stroke with one that has all colored pixels set to the
+# actual color used.
+stroke_whitespace = tf.equal(stroke, 1.)
+brush_color = tf.reshape(brush_color, [-1, 1, 1, 3])
+brush_color = tf.tile(brush_color, [1, 64, 64, 1])
+maxed_stroke = tf.where(stroke_whitespace, stroke, brush_color)
+
+# Linearly blend
+blended = (darkness_mask)*maxed_stroke + (1-darkness_mask)*canvas
+```
+
+The following shows the result of blending:
+
+<figure class="align-center">
+  <img src="{{ '/images/wp/s5/blending.png' | absolute_url }}" alt="">
+  <img src="{{ '/images/wp/s5/blending_better.png' | absolute_url }}" alt="">
+  <figcaption>Top row: Color blending performed by MyPaint | Bottom row: Color blending performed by our approach.</figcaption>
+</figure>
+
+### Agents trained with the full-color world model
+
+To test out the full-color world model, I trained it on two datasets: [KMNIST] and [CelebA]. Although KMNIST is a black and white drop-in replacement for MNIST, I still wanted to try it because it was a much harder and more interesting dataset than MNIST, and I thought it would be fun to tackle a new dataset that as far as I know, hasn't been tried using SPIRAL.
+
+No change has been made to the adversarial training process, except the number of strokes the agent produces, which I increased from 8 to 15.
+
+I reach an MSE of 0.022 after ~34k training steps.
+
+<figure class="align-center">
+  <img src="{{ '/images/wp/s5/tensorboard_kmnist.png' | absolute_url }}" alt="">
+  <figcaption>TensorBoard graph showing MSE over time.</figcaption>
+</figure>
+
+<figure class="align-center">
+  <img src="{{ '/images/wp/s5/kmnist_d.gif' | absolute_url }}" alt="">
+  <figcaption>15-stroke agent trained on KMNIST.</figcaption>
+</figure>
+
+The dataset is clearly more difficult than MNIST, with reconstructions being visibly noisier. Also note the highly unnatural stroke order. An interesting research direction would be to find a way to bias the model to follow natural stroke order.
 
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
@@ -299,6 +401,10 @@ I believe that figuring out how to handle these discrete actions will be an inte
 [Google Colaboratory]: https://colab.research.google.com/
 [SPIRAL-code]: https://github.com/carpedm20/SPIRAL-tensorflow
 [CMA-ES]: https://en.wikipedia.org/wiki/CMA-ES
+[color blending]: https://en.wikipedia.org/wiki/Blend_modes
+[MyPaint forum color blending]: https://community.mypaint.org/t/real-color-blending-wip/390
+[KMNIST]: https://github.com/rois-codh/kmnist
+[CelebA]: http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
 
 [1]: https://arxiv.org/abs/1508.06576
 [2]: https://arxiv.org/abs/1803.10122
