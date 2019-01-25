@@ -331,7 +331,7 @@ After searching for a good way to do this full-color brush stroke combination, I
 
 One thing I realized too late was that it probably would have been appropriate to add an alpha channel to the RGB canvas we use for the purpose of color blending. The MyPaint software *does* output an alpha channel but I discarded it in the world model for simplicity. 
 
-We don't want the new brush stroke to completely cover up what already exists. We need a way to calculate how much of the current canvas "shows through" the new brush stroke. This function is something that would have been enabled by an alpha channel. Instead of this, we just calculate the "opacity" of a brush stroke pixel by computing how dark it is relative to the darkest pixel (full opacity) in the brush stroke. We can then use this value as a ratio for blending the stroke with the existing colors on the canvas.
+We don't want the new brush stroke to completely cover up what already exists. We need a way to calculate how much of the current canvas "shows through" the new brush stroke. This function is something that would have been enabled by an alpha channel. Instead of this, we just calculate the "opacity" of a brush stroke pixel by computing how dark it is relative to the darkest pixel (full opacity) in the brush stroke. We can then use this value as a ratio for blending the stroke with the existing paint on the canvas.
 
 Here is some TensorFlow code illustrating this:
 
@@ -375,11 +375,11 @@ To test out the full-color world model, I trained it on two datasets: [KMNIST] a
 
 No change has been made to the adversarial training process, except the number of strokes the agent produces, which I increased from 8 to 15.
 
-I reach an MSE of 0.022 after ~34k training steps.
+I reach an MSE of 0.018 after ~27k training steps.
 
 <figure class="align-center">
   <img src="{{ '/images/wp/s5/tensorboard_kmnist.png' | absolute_url }}" alt="">
-  <figcaption>TensorBoard graph showing MSE over time.</figcaption>
+  <figcaption>TensorBoard graph showing MSE over time. Ignore the spike and the flat line in the middle of the graph. These were caused by my mistakes saving the Tensorboard log files to Google Drive.</figcaption>
 </figure>
 
 <figure class="align-center">
@@ -387,7 +387,47 @@ I reach an MSE of 0.022 after ~34k training steps.
   <figcaption>15-stroke agent trained on KMNIST.</figcaption>
 </figure>
 
-The dataset is clearly more difficult than MNIST, with reconstructions being visibly noisier. Also note the highly unnatural stroke order. An interesting research direction would be to find a way to bias the model to follow natural stroke order.
+The dataset is clearly more difficult than MNIST, with reconstructions being visibly noisier. Also note the highly unnatural stroke order. Still, I'd consider this a successful experiment. An interesting research direction would be to find a way to bias the model to follow natural stroke order.
+
+Finally, I try my first full-color dataset, [CelebA]. I train a 15-stroke agent and reach 0.019 MSE after ~27k steps. (Unfortunately, I wasn't able to save my TensorBoard log files for this run...)
+
+<figure class="align-center">
+  <video class="align-center" autoplay loop muted playsinline>
+    <source src="/images/wp/s5/celeba_d.mp4" type="video/mp4">
+  </video>
+  <figcaption>15-stroke agent trained on CelebA.</figcaption>
+</figure>
+
+The results seem to be on par with the results presented in the [SPIRAL paper][3]. You can see high-level features like the hair, shirt, and background color being painted. One advantage I see is that unlike SPIRAL, my agent does not seem to make wasteful strokes that are completely covered up by later strokes. I attribute this to the ease of credit assignment when full gradients from the target image to the output image are available.
+
+Another thing I discovered is that the reconstructions generally improve with the number of strokes the agent is allowed to use. I retrained the agent on CelebA with 30 strokes for ~26k steps, reaching an MSE of ~0.015.
+
+<figure class="align-center">
+  <video class="align-center" autoplay loop muted playsinline>
+    <source src="/images/wp/s5/celeba_30.mp4" type="video/mp4">
+  </video>
+  <figcaption>30-stroke agent trained on CelebA.</figcaption>
+</figure>
+
+The results are a lot better than the 15-stroke agent. The agent learned how to capture the shadows of faces, and decided on a surprising representation of eyes, a horizontal line across the face.
+
+Finally, I trained a 50-stroke agent for 30k steps, reaching an MSE of ~0.0125.
+
+<figure class="align-center">
+  <video class="align-center" autoplay loop muted playsinline>
+    <source src="/images/wp/s5/celeba_50.mp4" type="video/mp4">
+  </video>
+  <figcaption>50-stroke agent trained on CelebA.</figcaption>
+</figure>
+
+The results are again better than the 30-stroke agent's, and although the representation of eyes did not change, the agent now seems to accurately capture the jawline on most of the faces.
+
+One thing I'm curious about is whether or not the approach will scale by simply increasing the number of strokes. One thing I experienced during training the 50-stroke agent was that the training would inexplicably "collapse" from time to time and revert back to the performance of an untrained agent. I had to fix it by rolling back to a previous checkpoint and resuming training. As of now, I don't know if this is a fundamental shortcoming of the current method that will prevent it from scaling up beyond a certain amount of strokes.
+
+<figure class="align-center">
+  <img src="{{ '/images/wp/s5/tensorboard_celeba_50.png' | absolute_url }}" alt="">
+  <figcaption>TensorBoard graph showing MSE over time training the CelebA 50-stroke agent. The spikes are points where the training collapsed and I had to resume from a previous checkpoint.</figcaption>
+</figure>
 
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
