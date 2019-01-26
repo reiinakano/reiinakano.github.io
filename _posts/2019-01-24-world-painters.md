@@ -9,6 +9,11 @@ date:   2019-01-16
 
 In this post, I talk about using [World Models] to train agents to paint with [real painting software][MyPaint]. This includes my thought process, approach, failures, and some future work in this direction I'm excited about.
 
+If you want a quick summary, feel free to browse the original Twitter thread:
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Sharing my winter break project. I tried combining <a href="https://twitter.com/hardmaru?ref_src=twsrc%5Etfw">@hardmaru</a>&#39;s world models and <a href="https://twitter.com/yaroslav_ganin?ref_src=twsrc%5Etfw">@yaroslav_ganin</a>&#39;s SPIRAL to see if an agent can learn to paint inside its own dream. It can! These strokes are generated purely inside a world model, yet transfer seamlessly to a real paint program. <a href="https://t.co/nRfSWHQIdc">pic.twitter.com/nRfSWHQIdc</a></p>&mdash; Reiichiro Nakano (@ReiiYoda) <a href="https://twitter.com/ReiiYoda/status/1083772843920318464?ref_src=twsrc%5Etfw">January 11, 2019</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
 # Introduction
 
 **Lately, I've been thinking about the role that constraints play in artistic style.**
@@ -422,12 +427,37 @@ Finally, I trained a 50-stroke agent for 30k steps, reaching an MSE of ~0.0125.
 
 The results are again better than the 30-stroke agent's, and although the representation of eyes did not change, the agent now seems to accurately capture the jawline on most of the faces.
 
-One thing I'm curious about is whether or not the approach will scale by simply increasing the number of strokes. One thing I experienced during training the 50-stroke agent was that the training would inexplicably "collapse" from time to time and revert back to the performance of an untrained agent. I had to fix it by rolling back to a previous checkpoint and resuming training. As of now, I don't know if this is a fundamental shortcoming of the current method that will prevent it from scaling up beyond a certain amount of strokes.
+One thing I'm curious about is whether or not the approach will continue to scale by simply increasing the number of strokes. One thing I experienced during training the 50-stroke agent was that the training would inexplicably "collapse" from time to time and revert back to the performance of an untrained agent. I had to fix it by rolling back to a previous checkpoint and resuming training. As of now, it's unclear if this is a fundamental shortcoming of the current method that will prevent it from scaling up beyond a certain amount of strokes.
 
 <figure class="align-center">
   <img src="{{ '/images/wp/s5/tensorboard_celeba_50.png' | absolute_url }}" alt="">
-  <figcaption>TensorBoard graph showing MSE over time training the CelebA 50-stroke agent. The spikes are points where the training collapsed and I had to resume from a previous checkpoint.</figcaption>
+  <figcaption>TensorBoard graph showing MSE over time while training the CelebA 50-stroke agent. The spikes are points where the training collapsed and I had to resume from a previous checkpoint.</figcaption>
 </figure>
+
+# Conclusion and future work
+
+I'm personally very excited about exploring the possibilities of world models for creative ML in general. Some ideas:
+
+* [Style transfer][1] has always been my favorite algorithm, but as mentioned in the introduction, most methods generate the outputs pixel by pixel. Painters paint by *painting*. Can we teach a neural network to use an actual paint brush in the style of an artist? Will the outputs be more realistic?
+* Use the world model as a [differentiable image parameterization][5]. If an image classifier were given a paint brush and asked to paint a picture of the *optimal* dog, what would that look like? What about the optimal cat?
+* Something I mentioned earlier is biasing the model for KMNIST reconstruction in some way that produces natural stroke order. If we can do this successfully, we can extract stroke data for new characters that can be used to train models like [Sketch-RNN][6].
+* Modify the constraints of the environment itself as a way to produce art. If we modified the actions to let us splatter paint on a canvas instead of using brush strokes, can we imitate [Jackson Pollock]'s style? Going further, we can move beyond 2D paintings. What other interesting art mediums can we learn a world model for?
+
+If anybody has ideas for collaboration or wants to tackle some of these problems together, feel free to drop me a message.
+
+# Acknowledgments
+
+I try to list down here all the tools and resources I found useful while building this project. (I may have missed some):
+* [World Models] and the open-source [world models code][world-models-code].
+* [SPIRAL][3]
+* [MyPaint]
+* [TensorFlow implementation of SPIRAL][SPIRAL-code]
+* [TensorFlow implementation of WGAN-GP][jiamings-wgan]
+* [Google Colaboratory]
+* [WGAN][7-wgan] and [WGAN-GP][8-wgan-gp]
+* This [awesome explanation][wgan-gp-blog] of WGAN and WGAN-GP.
+* This [awesome explanation][mdn-blog] of MDNs.
+* [Conditional GANs][4]
 
 [World Models]: https://worldmodels.github.io
 [MyPaint]: http://mypaint.org
@@ -445,8 +475,16 @@ One thing I'm curious about is whether or not the approach will scale by simply 
 [MyPaint forum color blending]: https://community.mypaint.org/t/real-color-blending-wip/390
 [KMNIST]: https://github.com/rois-codh/kmnist
 [CelebA]: http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
+[Jackson Pollock]: https://en.wikipedia.org/wiki/Jackson_Pollock
+[wgan-gp-blog]: https://medium.com/@jonathan_hui/gan-wasserstein-gan-wgan-gp-6a1a2aa1b490
+[mdn-blog]: http://blog.otoro.net/2015/11/24/mixture-density-networks-with-tensorflow/
+[jiamings-wgan]: https://github.com/jiamings/wgan
 
 [1]: https://arxiv.org/abs/1508.06576
 [2]: https://arxiv.org/abs/1803.10122
 [3]: https://arxiv.org/abs/1804.01118
 [4]: https://arxiv.org/abs/1411.1784
+[5]: https://distill.pub/2018/differentiable-parameterizations/
+[6]: https://arxiv.org/abs/1704.03477
+[7-wgan]: https://arxiv.org/abs/1701.07875
+[8-wgan-gp]: https://arxiv.org/abs/1704.00028
