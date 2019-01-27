@@ -5,7 +5,7 @@ image:
   path: "images/wp/world_painter.gif"
   thumbnail: "images/wp/world_painter.gif"
   hide: true
-date:   2019-01-27
+date:   2019-01-29
 ---
 
 In this post, I talk about using [World Models] to train agents to paint with [real painting software][MyPaint]. This includes my thought process, approach, failures, and some future work in this direction I'm excited about.
