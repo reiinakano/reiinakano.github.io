@@ -30,7 +30,7 @@ A few months ago, I visited the [Hakone Open-Air Museum] and found myself fascin
 
 The resulting portraits were beautiful, unique, and something that could never be replicated with brushstrokes alone. All it took to achieve this new, unique style was one thing: changing the medium.
 
-At this point, I started to think that perhaps the artistic medium had a large part in defining style. It wasn't until I saw a random Reddit post a few weeks later (on r/gaming of all places) that the idea solidified itself in my mind.
+At this point, I started to think about the crucial role that the medium played in art and creativity. It wasn't until I saw a random Reddit post a few weeks later (on r/gaming of all places) that the idea solidified itself in my mind.
 
 [The post][reddit-gaming] was quite amusing in itself. Somebody had (very painstakingly) created custom characters in Super Smash Bros. that looked like the characters from Family Guy.
 
@@ -102,7 +102,7 @@ The first step is to generate episodes for training data. An episode is generate
   <figcaption>2 10-step episodes. Note how the canvas remains unchanged during certain actions. These are actions where the Jump parameter has been set.</figcaption>
 </figure>
 
-One thing to note is that the first action in an episode never generates a visible stroke, regardless of the value of the Jump parameter. This feature was baked in to the environment I used. I assume its purpose is to allow an agent to properly select the starting position of the brush (as opposed to always starting from (0, 0)).
+One thing to note is that the first action in an episode never generates a visible stroke, regardless of the value of the Jump parameter. This feature was built in to the environment I used. I assume its purpose was to allow an agent to properly select the starting position of the brush (as opposed to always starting from (0, 0)).
 
 ### Training the VAE
 
@@ -162,7 +162,7 @@ Some more observations: we can see the VAE "smoothening" out the brush strokes. 
 
 ### Training the RNN World Model
 
-The RNN world model also does a lot better. The results are slightly off when compared to the actual VAE reconstructions, but overall, the stroke properties seem to be captured well.
+The RNN world model also predicts brush strokes a lot better. The results are slightly off when compared to the VAE reconstructions, but overall, the stroke properties still seem to be captured well.
 
 <figure class="align-center">
   <img src="{{ '/images/wp/s3/episode.png' | absolute_url }}" alt="">
@@ -174,7 +174,7 @@ The RNN world model also does a lot better. The results are slightly off when co
 
 There are two things about the RNN world model I want to note here. 
 
-First, an RNN may not actually be the optimal architecture for a world model of a painting program. Although the generated brush stroke is dependent on the *previous position* of the brush, we can just as easily extend the action space to take the starting position of the brush. This way, we can train a single non-recurrent network to directly map an action to a 64x64x3 image of the brush stroke.
+First, an RNN may not actually be the optimal architecture for a world model of a painting program. Although the generated brush stroke is dependent on the *previous position* of the brush, we can just as easily extend the action space to take the starting position of the brush. This way, we can train a single non-recurrent network to directly map an action to an image of the brush stroke.
 
 Second, the RNN world model has a Mixture Density Network as an output layer. This adds a non-deterministic property to the output. Although this may be useful for simulating environments with highly random behavior (Doom and CarRacing), it feels unnecessary for a world model of a relatively well-behaved paint program. Removing the MDN could result in stabler brush stroke predictions and a smaller model.
 
@@ -229,7 +229,7 @@ Here's my hypothesis for why the approach failed.
 
 I believe the agent was far too small and simple to actually learn how to paint over multiple time steps. Why then, was this agent enough to solve the Doom and CarRacing tasks? I believe it's because in those cases, the RNN world model inherently captured information directly related to "winning" these tasks. The Doom world model learned to predict when death occurs. The CarRacing world model learned which states/actions are likely to spin a car out onto the grass. This is why, given the RNN's hidden state, a small neural network was enough to generate an appropriate action. 
 
-On the other hand, our painter world model does not know what digits are, let alone the dynamics of drawing them. All it knows is a simple mapping from actions to brush strokes. The RNN hidden state contains far less information relating to the actual task, and thus, a more complex agent is needed to actually learn *how* to use the world model. (Feel free to comment below if you think this is incorrect.)
+On the other hand, our painter world model does not know what digits are, let alone the dynamics of drawing them. All it knows is a simple mapping from actions to brush strokes. The RNN hidden state contains far less information relating to the actual task, and thus, a more complex agent is needed to actually learn *how* to use the world model.
 
 So to learn the task of drawing, I decide to make the agent much, much bigger.
 
@@ -247,7 +247,7 @@ Since this agent has a lot more parameters (>>10k), CMA-ES is no longer a viable
   <figcaption>Flow diagram of our agent training process using WGAN-GP. Note how we don't need the original environment to train the model. The agent takes the target image, current canvas, RNN hidden state, and the previous action at each time-step. We update the weights of the agent and the discriminator using only complete drawings after an episode.</figcaption>
 </figure>
 
-Unfortunately, when I tried training this model, it very quickly converged to not generating any strokes at all! Trying to figure out what was happening, I noticed that the Jump action parameter generated by my agent was always on, resulting in no visible strokes. Instead of trying to solve the problem, I simply sidestepped it by hardcoding the Jump parameter to 0 (I go into more depth about this behavior in the [next section]). This was the last missing piece, and after restarting training, my agent finally learned how to write! 
+Unfortunately, when I tried training this model, it very quickly converged to not generating any strokes at all! Trying to figure out what was happening, I noticed that the Jump action parameter generated by my agent was always on, resulting in no visible strokes. Instead of trying to solve the problem, I simply sidestepped it by hardcoding the Jump parameter to 0 (I go into more depth about this behavior in the [next section](#on-discrete-actions-causing-imperfections-in-the-world-model)). This was the last missing piece, and after restarting training, my agent finally learned how to write! 
 
 <figure class="align-center">
   <img src="{{ '/images/wp/s3/mnist_success.gif' | absolute_url }}" alt="">
@@ -282,7 +282,7 @@ To test this, we generate a single visible (Jump = 0) stroke using the real envi
   <figcaption>Left: Real paint program output at Jump=0. Right: World model output as Jump moves from 0 to 1.</figcaption>
 </figure>
 
-Observe how the stroke starts curving and getting fainter as we move up from 0, eventually disappearing at ~0.35. We don't know why the world model chose this transition, but seeing as we do not give it inputs between 0 and 1 during training, we can't really blame it for behaving this way either. So why does this behavior result in an untrainable agent? I attribute this to the flat region from 0.35-1 where the world model doesn't produce any strokes. My guess is that once the agent gets into a state where it predicts any value >0.35 for Jump, the stroke becomes invisible, the gradients drop to 0, and the agent gets stuck.
+Observe how the stroke starts curving and getting fainter as we move up from 0, eventually disappearing at ~0.35. We don't know why the world model chose this transition, but seeing as we do not give it inputs between 0 and 1 during training, we can't really say it's wrong either. So why does this behavior result in an untrainable agent? I attribute this to the flat region from 0.35-1 where the world model doesn't produce any strokes. My guess is that once the agent gets into a state where it predicts any value >0.35 for Jump, the stroke becomes invisible, the gradients drop to 0, and the agent gets stuck.
 
 We can observe the same continuous behavior to a less extreme extent for brush size and pressure (not shown).
 
@@ -302,7 +302,7 @@ Another related consequence of using the world model instead of the real environ
 
 The digit being drawn here is thicker than the largest brush size the environment provides (0.7). Even in this case, our agent is somehow able to "force" the world model to output strokes thicker than 0.7 by using short, highly curved strokes. This is a glitch in the world model that does not exist in the real environment, so the actual reconstruction does not at all look like the world model's output.
 
-I believe that figuring out how to handle these discrete actions will be an interesting research direction moving forward. Unfortunately, we cannot always side step this issue as I have done in this case by completely ignoring the Jump action. Many interesting environments (including the MuJoCo Scenes environment solved by SPIRAL) will have discrete actions, and if we want to apply this approach to those tasks, solving this problem will be necessary.
+I believe that figuring out how to handle these discrete actions will be an interesting research direction moving forward. Unfortunately, we cannot always side step this issue as I have done in this case by completely ignoring the Jump action. Many interesting environments (including the MuJoCo Scenes environment solved by SPIRAL) will have unavoidable discrete actions, and if we want to apply this approach to those tasks, a better approach will be necessary.
 
 # Extending the approach to a full-color environment
 
@@ -332,7 +332,7 @@ The following figure shows the results of training the brush stroke world model:
   <figcaption>Top row: 20-step full-color episode | Middle row: Reconstructions with VAE | Bottom row: Predictions by RNN.</figcaption>
 </figure>
 
-At first glance, the strokes look the same, but once you look closer, it's obvious they're slightly different, with the RNN predictions being a slightly worse reconstruction than the VAE outputs. Clearly, the world model approach works well for modeling color brush strokes.
+At first glance, the strokes look the same, but once you look closer, it's obvious they're slightly different, with the RNN predictions being a slightly worse reconstruction than the VAE outputs. Still, it is clear the world model approach works well for modeling color brush strokes.
 
 ### Combining color brush strokes
 
@@ -346,9 +346,9 @@ Although our simplistic approach for combining brush strokes worked well for bla
 
 After searching for a good way to do this full-color brush stroke combination, I discovered it was actually a very common problem in computer graphics called [color blending]. In fact, it has been [extensively discussed][MyPaint forum color blending] in the MyPaint forum itself. 
 
-One thing I realized too late was that it probably would have been appropriate to add an alpha channel to the RGB canvas we use for the purpose of color blending. The MyPaint software *does* output an alpha channel but I discarded it in the world model for simplicity. 
+One thing I realized too late was that it probably would have been appropriate to add an extra alpha channel to the 3-channel images the world model outputs, for the purpose of color blending. The MyPaint software *does* output an alpha channel but I discarded it prior to trainng the world model for simplicity. 
 
-We don't want the new brush stroke to completely cover up what already exists. We need a way to calculate how much of the current canvas "shows through" the new brush stroke. This function is something that would have been enabled by an alpha channel. Instead of this, we just calculate the "opacity" of a brush stroke pixel by computing how dark it is relative to the darkest pixel (full opacity) in the brush stroke. We can then use this value as a ratio for blending the stroke with the existing paint on the canvas.
+We don't want the new brush stroke to completely cover up what already exists. We need a way to calculate how much of the current canvas "shows through" the new brush stroke. This function is something that would have been enabled by an alpha channel. Instead of this, we just calculate the "opacity" of individual brush stroke pixels by computing how dark it is relative to the darkest pixel (full opacity) in the brush stroke. We can then use this value as a ratio for blending the stroke with the existing paint on the canvas.
 
 Here is some TensorFlow code illustrating this:
 
@@ -388,7 +388,7 @@ The following shows the result of blending:
 
 ### Agents trained with the full-color world model
 
-To test out the full-color world model, I trained it on two datasets: [KMNIST] and [CelebA]. Although KMNIST is a black and white drop-in replacement for MNIST, I still wanted to try it because it was a much harder and more interesting dataset than MNIST, and I thought it would be fun to tackle a new dataset that as far as I know, hasn't been tried using SPIRAL.
+To test out the full-color world model, I trained it on two datasets: [KMNIST] and [CelebA]. Although KMNIST is a black and white drop-in replacement for MNIST, I still wanted to try it because it was a much harder and more interesting dataset than MNIST, and I thought it would be fun to tackle a new dataset that, as far as I know, hasn't been tried using SPIRAL.
 
 No change has been made to the adversarial training process, except the number of strokes the agent produces, which I increased from 8 to 15.
 
@@ -426,7 +426,7 @@ Another thing I discovered is that the reconstructions generally improve with th
   <figcaption>30-stroke agent trained on CelebA.</figcaption>
 </figure>
 
-The results are a lot better than the 15-stroke agent. The agent learned how to capture the shadows of faces, and decided on a surprising representation of eyes, a horizontal line across the face.
+The results are a lot better than the 15-stroke agent. The agent learned how to capture the shadows of faces, and decided on an interesting representation of eyes, a horizontal line across the face.
 
 Finally, I trained a 50-stroke agent for 30k steps, reaching an MSE of ~0.0125.
 
@@ -439,7 +439,7 @@ Finally, I trained a 50-stroke agent for 30k steps, reaching an MSE of ~0.0125.
 
 The results are again better than the 30-stroke agent's, and although the representation of eyes did not change, the agent now seems to accurately capture the jawline on most of the faces.
 
-One thing I'm curious about is whether or not the approach will continue to scale by simply increasing the number of strokes. One thing I experienced during training the 50-stroke agent was that the training would inexplicably "collapse" from time to time and revert back to the performance of an untrained agent. I had to keep fixing it by rolling back to a previous checkpoint and resuming training. As of now, it's unclear if this is a fundamental shortcoming of the current method that will prevent it from scaling up beyond a certain amount of strokes.
+One thing I'm curious about is whether or not the approach will continue to scale by simply increasing the number of strokes. One thing I experienced during training the 50-stroke agent was that the training would inexplicably "collapse" from time to time and revert back to the performance of an untrained agent. I had to keep fixing it by rolling back to a previous checkpoint and resuming training. As of now, it's unclear whether or not this is a fundamental shortcoming of the current method that will prevent it from scaling up beyond a certain amount of strokes.
 
 <figure class="align-center">
   <img src="{{ '/images/wp/s5/tensorboard_celeba_50.png' | absolute_url }}" alt="">
@@ -455,11 +455,11 @@ I'm personally very excited about exploring the possibilities of world models fo
 * Something I mentioned earlier is biasing the model for KMNIST reconstruction in some way that produces natural stroke order. If we can do this successfully, we can extract stroke data for new characters that can be used to train models like [Sketch-RNN][6].
 * Modify the constraints of the environment itself as a way to produce art. If we modified the actions to let us splatter paint on a canvas instead of using brush strokes, can we imitate [Jackson Pollock]'s style? Going further, we can move beyond 2D paintings. What other interesting art mediums can we learn a world model for?
 
-If anybody has ideas for collaboration or wants to tackle some of these problems together, feel free to drop me a message.
+If anybody has ideas for collaboration or wants to tackle some of these problems together, feel free to drop me a message. *I like building awesome things with awesome people.*
 
 # Acknowledgments
 
-I try to list down here all the tools and resources I found useful while building this project. (I may have missed some):
+Here is a list of all the tools and resources I found useful while building this project. (I may have unintentionally missed some):
 * [World Models] and the open-source [world models code][world-models-code].
 * [SPIRAL][3]
 * [MyPaint]
