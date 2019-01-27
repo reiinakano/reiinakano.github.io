@@ -2,7 +2,7 @@
 layout: post
 title:  "Teaching agents to paint inside their own dreams"
 image: 
-  path: "images/wp/world_painter.gif"
+  path: "images/null.png"
   thumbnail: "images/wp/world_painter.gif"
 date:   2019-01-16
 ---
@@ -13,6 +13,8 @@ If you want a quick summary, feel free to browse the original Twitter thread:
 
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Sharing my winter break project. I tried combining <a href="https://twitter.com/hardmaru?ref_src=twsrc%5Etfw">@hardmaru</a>&#39;s world models and <a href="https://twitter.com/yaroslav_ganin?ref_src=twsrc%5Etfw">@yaroslav_ganin</a>&#39;s SPIRAL to see if an agent can learn to paint inside its own dream. It can! These strokes are generated purely inside a world model, yet transfer seamlessly to a real paint program. <a href="https://t.co/nRfSWHQIdc">pic.twitter.com/nRfSWHQIdc</a></p>&mdash; Reiichiro Nakano (@ReiiYoda) <a href="https://twitter.com/ReiiYoda/status/1083772843920318464?ref_src=twsrc%5Etfw">January 11, 2019</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+{% include toc %}
 
 # Introduction
 
@@ -210,7 +212,10 @@ The last step is to train the painting agent itself using the world model.
 
 Following the original world models approach, my first agent was a small fully-connected neural network with a single hidden layer trained using [CMA-ES]. The network takes as input the RNN's hidden state, the VAE encoded current state of the canvas, and the VAE encoded target MNIST image. It outputs 7 values, representing a full action. The architecture looked like this:
 
-image
+<figure class="align-center">
+  <img src="{{ '/images/wp/s3/cma_es.jpg' | absolute_url }}" alt="">
+  <figcaption>Flow diagram of our agent training process. Note how we don't need the original environment to train the model. The controller agent takes the target image, current canvas, and RNN hidden state at each time-step.</figcaption>
+</figure>
 
 I experimented with a few different loss functions for the optimization: L2 loss between target and generated images, change in L2 loss per step (my reasoning was to reward the incremental improvement provided by each stroke), MSE between VAE-encoded target and generated images, etc. Unfortunately, this agent never learned to draw a digit. I even tried to reduce its scope by keeping only one image from the entire dataset, effectively trying to make it overfit to a single image, but this didn't work either.
 
@@ -221,7 +226,7 @@ I experimented with a few different loss functions for the optimization: L2 loss
 
 Here's my hypothesis for why the approach failed. 
 
-I believe the agent was far too small and simple to actually learn how to paint over multiple time steps. Why then, was this agent enough to solve the Doom and CarRacing tasks? I believe it's because the RNN world model trained for those environments inherently captured information directly related to "winning" these tasks. The Doom world model learned to predict when death occurs. The CarRacing world model learned which states/actions are likely to spin a car out onto the grass. This is why, given the RNN's hidden state, a small neural network was enough to generate an appropriate action. 
+I believe the agent was far too small and simple to actually learn how to paint over multiple time steps. Why then, was this agent enough to solve the Doom and CarRacing tasks? I believe it's because in those cases, the RNN world model inherently captured information directly related to "winning" these tasks. The Doom world model learned to predict when death occurs. The CarRacing world model learned which states/actions are likely to spin a car out onto the grass. This is why, given the RNN's hidden state, a small neural network was enough to generate an appropriate action. 
 
 On the other hand, our painter world model does not know what digits are, let alone the dynamics of drawing them. All it knows is a simple mapping from actions to brush strokes. The RNN hidden state contains far less information relating to the actual task, and thus, a more complex agent is needed to actually learn *how* to use the world model. (Feel free to comment below if you think this is incorrect.)
 
@@ -233,7 +238,10 @@ image?
 
 Since this agent has a lot more parameters (>>10k), CMA-ES is no longer a viable optimization technique. I opt for the more standard backpropagation algorithm since the painter world model is fully differentiable and gradients from the world model output to the agent input are available. I use a WGAN-GP adversarial training procedure similar to the one used by SPIRAL to train my agent. The main difference is I could backpropagate through the painter program, so I could directly learn the agent parameters instead of using a reinforcement learning algorithm. Finally, as my goal was to reconstruct target images, I [condition the network][4] by supplying both the agent and the discriminator with the target image. The figure below shows the complete architecture.
 
-picture
+<figure class="align-center">
+  <img src="{{ '/images/wp/s3/wgan_training.jpg' | absolute_url }}" alt="">
+  <figcaption>Flow diagram of our agent training process using WGAN-GP. Note how we don't need the original environment to train the model. The agent takes the target image, current canvas, RNN hidden state, and the previous action at each time-step. We update the weights of the agent and the discriminator using only complete drawings after an episode.</figcaption>
+</figure>
 
 Unfortunately, when I tried training this model, it very quickly converged to not generating any strokes at all! Trying to figure out what was happening, I noticed that the Jump action parameter generated by my agent was always on, resulting in no visible strokes. Instead of trying to solve the problem, I simply sidestepped it by hardcoding the Jump parameter to 0 (I go into more depth about this behavior in the [next section]). This was the last missing piece, and after restarting training, my agent finally learned how to write! 
 
@@ -427,7 +435,7 @@ Finally, I trained a 50-stroke agent for 30k steps, reaching an MSE of ~0.0125.
 
 The results are again better than the 30-stroke agent's, and although the representation of eyes did not change, the agent now seems to accurately capture the jawline on most of the faces.
 
-One thing I'm curious about is whether or not the approach will continue to scale by simply increasing the number of strokes. One thing I experienced during training the 50-stroke agent was that the training would inexplicably "collapse" from time to time and revert back to the performance of an untrained agent. I had to fix it by rolling back to a previous checkpoint and resuming training. As of now, it's unclear if this is a fundamental shortcoming of the current method that will prevent it from scaling up beyond a certain amount of strokes.
+One thing I'm curious about is whether or not the approach will continue to scale by simply increasing the number of strokes. One thing I experienced during training the 50-stroke agent was that the training would inexplicably "collapse" from time to time and revert back to the performance of an untrained agent. I had to keep fixing it by rolling back to a previous checkpoint and resuming training. As of now, it's unclear if this is a fundamental shortcoming of the current method that will prevent it from scaling up beyond a certain amount of strokes.
 
 <figure class="align-center">
   <img src="{{ '/images/wp/s5/tensorboard_celeba_50.png' | absolute_url }}" alt="">

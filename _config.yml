@@ -39,7 +39,7 @@ remote_theme: "mmistakes/so-simple-theme"
 #   - vendor/gems/
 #   - vendor/ruby/
 
-read_time: true
+read_time: false
 words_per_minute: 200
 mathjax: true
 google_fonts:
