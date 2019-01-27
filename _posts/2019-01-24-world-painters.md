@@ -61,7 +61,7 @@ This idea of constraints being beneficial to creativity turns out to be one that
   <figcaption>Painting of Bruce Lee by Phil Hansen. This was painted by <a href="https://www.youtube.com/watch?v=CbvSms-1yj4">dipping his forearms in paint and "striking" the canvas</a> - an appropriate constraint for a portrait of the martial artist.</figcaption>
 </figure>
 
-Today, neural networks have been used by artists, with great success, to generate 2D images that look like paintings (e.g. neural style transfer, GANs that [generate portraits sold in auctions for thousands of dollars][christies-sell]). Most of these networks are set up to directly generate each pixel of the output. While the results are generally good, the approach strikes me as odd, because artists don't create paintings by calculating pixels one by one, they create paintings by *painting*. 
+Today, neural networks have been used by artists, with great success, to generate 2D images that look like paintings (e.g. neural style transfer, GANs that [generate portraits sold in auctions for thousands of dollars][christies-sell]). While the results are pretty good, most of these networks are set up to directly generate each pixel of the output. This approach strikes me as odd, because artists don't create paintings by calculating pixels one by one, they create paintings by *painting*. 
 
 While per-pixel calculation is in itself a constraint (in fact, I'd say the artifacts present in GAN outputs give them their own distinct *style*), if we wanted to have an agent replicate a piece of artwork (a painting), I imagine we'd get more realistic outputs by providing it with the same medium (a paintbrush).
 
