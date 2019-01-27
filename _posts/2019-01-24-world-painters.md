@@ -4,7 +4,7 @@ title:  "Teaching agents to paint inside their own dreams"
 image: 
   path: "images/null.png"
   thumbnail: "images/wp/world_painter.gif"
-date:   2019-01-16
+date:   2019-01-27
 ---
 
 In this post, I talk about using [World Models] to train agents to paint with [real painting software][MyPaint]. This includes my thought process, approach, failures, and some future work in this direction I'm excited about.
