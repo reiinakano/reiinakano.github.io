@@ -30,7 +30,7 @@ A few months ago, I visited the [Hakone Open-Air Museum] and found myself fascin
 
 The resulting portraits were beautiful, unique, and something that could never be replicated with brushstrokes alone. All it took to achieve this new, unique style was one thing: changing the medium.
 
-At this point, I started to think about the crucial role that the medium played in art and creativity. It wasn't until I saw a random Reddit post a few weeks later (on r/gaming of all places) that the idea solidified itself in my mind.
+At this point, I started to think about the crucial role that the artistic medium played in creativity. It wasn't until I saw a random Reddit post a few weeks later (on r/gaming of all places) that the idea solidified itself in my mind.
 
 [The post][reddit-gaming] was quite amusing in itself. Somebody had (very painstakingly) created custom characters in Super Smash Bros. that looked like the characters from Family Guy.
 
