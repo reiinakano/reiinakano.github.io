@@ -2,9 +2,10 @@
 layout: post
 title:  "Porting arbitrary style transfer to the browser"
 image: 
-  path: "images/null.png"
+  path: "images/stylize.png"
   thumbnail: "images/stylize.png"
-date:   2019-01-16
+  hide: true
+date:   2018-12-20
 ---
 Recently, [Magenta][magenta], Google's "*open source research project exploring the role of machine learning as a tool in the creative process*" gave me the opportunity to write a blog post on their platform about [my recent work][gh-demo] porting arbitrary style transfer to the browser. Check it out [here][blog-post]!
 
