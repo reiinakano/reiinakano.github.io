@@ -346,7 +346,7 @@ Although our simplistic approach for combining brush strokes worked well for bla
 
 After searching for a good way to do this full-color brush stroke combination, I discovered it was actually a very common problem in computer graphics called [color blending]. In fact, it has been [extensively discussed][MyPaint forum color blending] in the MyPaint forum itself. 
 
-One thing I realized too late was that it probably would have been appropriate to add an extra alpha channel to the 3-channel images the world model outputs, for the purpose of color blending. The MyPaint software *does* output an alpha channel but I discarded it prior to trainng the world model for simplicity. 
+One thing I realized too late was that it probably would have been appropriate to add an extra alpha channel to the 3-channel images the world model outputs, for the purpose of color blending. The MyPaint software *does* output an alpha channel but I discarded it prior to training the world model for simplicity. 
 
 We don't want the new brush stroke to completely cover up what already exists. We need a way to calculate how much of the current canvas "shows through" the new brush stroke. This function is something that would have been enabled by an alpha channel. Instead of this, we just calculate the "opacity" of individual brush stroke pixels by computing how dark it is relative to the darkest pixel (full opacity) in the brush stroke. We can then use this value as a ratio for blending the stroke with the existing paint on the canvas.
 
