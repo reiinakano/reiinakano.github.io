@@ -1,18 +1,9 @@
 ---
 layout: page
-title: About
+title: About Me
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+I’m a software engineer working at [a startup](https://infostellar.net) in Tokyo. Although my day job doesn’t involve machine learning, I enjoy the field and try to learn as much as I can about it during my limited free time. My main interests are machine learning for creativity and machine learning in the browser. Feel free to contact me if you want to collaborate on anything!
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
-
-
-[jekyll-organization]: https://github.com/jekyll
+I am on Twitter (probably way too much) [@ReiiYoda](https://twitter.com/ReiiYoda).
