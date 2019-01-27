@@ -2,7 +2,7 @@
 layout: post
 title:  "Teaching agents to paint inside their own dreams"
 image: 
-  path: "images/null.png"
+  path: "images/wp/world_painter.gif"
   thumbnail: "images/wp/world_painter.gif"
 date:   2019-01-27
 ---
