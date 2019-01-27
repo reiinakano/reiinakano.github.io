@@ -234,7 +234,10 @@ So to learn the task of drawing, I decide to make the agent much, much bigger.
 
 I adopt the architecture of the policy network in Figure 12 of the [SPIRAL paper][3], which was a combination of convolutional layers, MLP layers, residual blocks, and an LSTM. I tweak it a bit for my use case. The network takes as inputs the target image, the world model RNN hidden state, the previous action, and the current canvas image. Instead of an autoregressive decoder, I use a simple fully connected layer at the end that outputs the 7 values for a complete action. I did not implement the autoregressive decoder since I didn't really understand why it was necessary, and I was quite short on time at this point (Winter break was coming to a close, and I hadn't even cracked MNIST!).
 
-image?
+<figure class="align-center">
+  <img src="{{ '/images/wp/s3/agent_arch.jpg' | absolute_url }}" alt="">
+  <figcaption>Agent architecture slightly modified from <a href="https://arxiv.org/abs/1804.01118">SPIRAL</a>. Batch sizes are not included in output shapes.</figcaption>
+</figure>
 
 Since this agent has a lot more parameters (>>10k), CMA-ES is no longer a viable optimization technique. I opt for the more standard backpropagation algorithm since the painter world model is fully differentiable and gradients from the world model output to the agent input are available. I use a WGAN-GP adversarial training procedure similar to the one used by SPIRAL to train my agent. The main difference is I could backpropagate through the painter program, so I could directly learn the agent parameters instead of using a reinforcement learning algorithm. Finally, as my goal was to reconstruct target images, I [condition the network][4] by supplying both the agent and the discriminator with the target image. The figure below shows the complete architecture.
 
