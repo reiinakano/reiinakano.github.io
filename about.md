@@ -8,4 +8,6 @@ I’m a software engineer working at [a startup](https://infostellar.net) in Tok
 
 My main goal is to get computers to understand and imagine in the same way humans understand and imagine.
 
+Currently looking to break into ML research.
+
 I am on Twitter (probably way too much) [@ReiiYoda](https://twitter.com/ReiiYoda). Feel free to contact me if you want to collaborate on anything!
