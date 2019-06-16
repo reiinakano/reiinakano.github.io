@@ -19,7 +19,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   I like building awesome things with awesome people.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://reiinakano.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: ReiiYoda
+twitter_username: reiinakano
 github_username:  reiinakano
 
 # Build settings
@@ -51,7 +51,7 @@ google_analytics: "UA-91864013-6"
 disqus:
   shortname: reiinakano
 twitter:
-  username: "ReiiYoda"
+  username: "reiinakano"
 
 # Liquid
 liquid:
@@ -85,10 +85,10 @@ author:
   name:
   picture:
   email:
-  twitter: ReiiYoda
+  twitter: reiinakano
   links:
     #- title: Twitter
-    #  url: https://twitter.com/ReiiYoda
+    #  url: https://twitter.com/reiinakano
     #  icon: fab fa-twitter-square
     #- title: GitHub
     #  url: https://github.com/reiinakano
@@ -97,7 +97,7 @@ author:
 # Footer Links
 footer_links:
   - title: Twitter
-    url: https://twitter.com/ReiiYoda
+    url: https://twitter.com/reiinakano
     icon: fab fa-twitter-square
   - title: GitHub
     url: https://github.com/reiinakano
