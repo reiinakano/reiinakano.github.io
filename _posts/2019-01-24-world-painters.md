@@ -12,7 +12,7 @@ In this post, I talk about using [World Models] to train agents to paint with [r
 
 If you want a quick summary, feel free to browse the original Twitter thread:
 
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Sharing my winter break project. I tried combining <a href="https://twitter.com/hardmaru?ref_src=twsrc%5Etfw">@hardmaru</a>&#39;s world models and <a href="https://twitter.com/yaroslav_ganin?ref_src=twsrc%5Etfw">@yaroslav_ganin</a>&#39;s SPIRAL to see if an agent can learn to paint inside its own dream. It can! These strokes are generated purely inside a world model, yet transfer seamlessly to a real paint program. <a href="https://t.co/nRfSWHQIdc">pic.twitter.com/nRfSWHQIdc</a></p>&mdash; Reiichiro Nakano (@ReiiYoda) <a href="https://twitter.com/ReiiYoda/status/1083772843920318464?ref_src=twsrc%5Etfw">January 11, 2019</a></blockquote>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Sharing my winter break project. I tried combining <a href="https://twitter.com/hardmaru?ref_src=twsrc%5Etfw">@hardmaru</a>&#39;s world models and <a href="https://twitter.com/yaroslav_ganin?ref_src=twsrc%5Etfw">@yaroslav_ganin</a>&#39;s SPIRAL to see if an agent can learn to paint inside its own dream. It can! These strokes are generated purely inside a world model, yet transfer seamlessly to a real paint program. <a href="https://t.co/nRfSWHQIdc">pic.twitter.com/nRfSWHQIdc</a></p>&mdash; Reiichiro Nakano (@reiinakano) <a href="https://twitter.com/reiinakano/status/1083772843920318464?ref_src=twsrc%5Etfw">January 11, 2019</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 {% include toc %}

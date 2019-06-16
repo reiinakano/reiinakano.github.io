@@ -10,4 +10,4 @@ My main goal is to get computers to understand and imagine in the same way human
 
 Currently looking to break into ML research.
 
-I am on Twitter (probably way too much) [@ReiiYoda](https://twitter.com/ReiiYoda). Feel free to contact me if you want to collaborate on anything!
+I am on Twitter (probably way too much) [@reiinakano](https://twitter.com/reiinakano). Feel free to contact me if you want to collaborate on anything!
