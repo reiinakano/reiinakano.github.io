@@ -43,44 +43,7 @@ div.juxtapose {
   max-width: 512px;
 }
 </style>  
-<script>
-var currentContent = 'ben';
-var currentStyle = 'scream';
-var currentLeft = 'nonrobust';
-function refreshSlider(content, style, left) {
-  const imgPath1 = '/images/rnst/style-transfer/' + currentContent + '_' + currentStyle + '_' + left + '.jpg';
-  const imgPath2 = '/images/rnst/style-transfer/' + currentContent + '_' + currentStyle + '_robust.jpg';
-  new juxtapose.JXSlider('#style-transfer-slider',
-      [
-          {
-              src: imgPath1, // TODO: Might need to use absolute_url?
-              label: left === 'nonrobust' ? 'Non-robust ResNet50' : 'VGG'
-          },
-          {
-              src: imgPath2,
-              label: 'Robust ResNet50'
-          }
-      ],
-      {
-          animate: true,
-          showLabels: true,
-          showCredits: false,
-          startingPosition: "50%",
-          makeResponsive: true
-  });
-}
-refreshSlider(currentContent, currentStyle, currentLeft);
-var switchStyleTransferBtn = document.getElementById("switch-style-transfer");
-var styleTransferSliderDiv = document.getElementById("style-transfer-slider");
-switchStyleTransferBtn.onclick = function() {
-  currentLeft = currentLeft === 'nonrobust' ? 'vgg' : 'nonrobust';
-  switchStyleTransferBtn.textContent = currentLeft === 'nonrobust' ? 
-      'Compare VGG <> Robust ResNet' : 
-      'Compare Non-robust ResNet <> Robust ResNet';
-  styleTransferSliderDiv.removeChild(styleTransferSliderDiv.lastElementChild);
-  refreshSlider(currentContent, currentStyle, currentLeft);
-}
-</script>
+<script src="{{ '/assets/rnst/js/style-transfer-slider.js' | absolute_url }}"></script>
 
 
 [^1]: Adversarial examples are inputs that are specially crafted by an attacker to trick a classifier into producing an incorrect label for that input. There is an entire field of research dedicated to adversarial attacks and defenses in deep learning literature.
