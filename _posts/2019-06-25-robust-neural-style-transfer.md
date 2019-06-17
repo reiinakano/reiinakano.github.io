@@ -21,14 +21,61 @@ One figure in the paper that particularly struck me as interesting was the follo
 
 <figure class="align-center">
   <img src="{{ '/images/rnst/transferability.png' | absolute_url }}" alt="">
+  <figcaption><a href="http://gradientscience.org/adv/">Source</a></figcaption>
 </figure>
 
 One way to interpret this graph is that it shows how well a particular architecture is able to capture non-robust features in an image. 
 
 Notice how far back VGG is to the other models.
-In the unrelated field of neural style transfer, VGG is quite special since non-VGG architectures are known not to work very well [^3] without some sort of [parameterization trick][diff_img_params_style_transfer].
+In the unrelated field of neural style transfer, VGG is quite special since non-VGG architectures are known [not to work very well][vggtables] [^3] without some sort of [parameterization trick][diff_img_params_style_transfer].
 The above interpretation of the graph provides an alternative explanation for this phenomenon.
 Since VGG is unable to capture non-robust features as well as other architectures, the outputs for style transfer actually look more correct to humans! [^4]
+
+Testing this hypothesis is very straightforward: Use an adversarially robust classifier for neural style transfer and see what happens.
+
+<script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
+<link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
+<button id='switch-style-transfer'>Switch</button>
+<div id="style-transfer-slider"></div>
+<script>
+new juxtapose.JXSlider('#style-transfer-slider',
+    [
+        {
+            src: '{{ '/images/rnst/transferability.png' | absolute_url }}',
+        },
+        {
+            src: '{{ '/images/rnst/transferability.png' | absolute_url }}',
+        }
+    ],
+    {
+        animate: true,
+        showLabels: true,
+        showCredits: false,
+        startingPosition: "50%",
+        makeResponsive: true
+    });
+var switchStyleTransferBtn = document.getElementById("switch-style-transfer");
+var styleTransferSliderDiv = document.getElementById("style-transfer-slider");
+switchStyleTransferBtn.onclick = function() {
+  styleTransferSliderDiv.removeChild(styleTransferSliderDiv.lastElementChild);
+  new juxtapose.JXSlider('#style-transfer-slider',
+    [
+        {
+            src: '{{ '/images/rnst/banner.jpg' | absolute_url }}',
+        },
+        {
+            src: '{{ '/images/rnst/banner.jpg' | absolute_url }}',
+        }
+    ],
+    {
+        animate: true,
+        showLabels: true,
+        showCredits: false,
+        startingPosition: "50%",
+        makeResponsive: true
+    });
+}
+</script>
 
 
 [^1]: Adversarial examples are inputs that are specially crafted by an attacker to trick a classifier into producing an incorrect label for that input. There is an entire field of research dedicated to adversarial attacks and defenses in deep learning literature.
