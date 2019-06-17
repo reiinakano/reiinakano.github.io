@@ -55,7 +55,7 @@ div.juxtapose {
     <option data-img-src="{{ '/images/rnst/thumbnails/scream.jpg' | absolute_url }}" value="scream"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/woman.jpg' | absolute_url }}" value="woman"></option>
 </select>
-<button id='switch-style-transfer'>Compare VGG \<\> Robust ResNet</button>
+<input id="check-compare-vgg" type="checkbox"><small>&nbsp; Compare VGG \<\> Robust ResNet</small>
 <div id="style-transfer-slider" class="align-center"></div>
 <script src="{{ '/assets/rnst/js/style-transfer-slider.js' | absolute_url }}"></script>
 

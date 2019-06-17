@@ -5,7 +5,7 @@ var currentContent = 'ben';
 var currentStyle = 'scream';
 var currentLeft = 'nonrobust';
 
-const switchStyleTransferBtn = document.getElementById("switch-style-transfer");
+const compareVGGCheck = document.getElementById("check-compare-vgg");
 const styleTransferSliderDiv = document.getElementById("style-transfer-slider");
 
 function refreshSlider() {
@@ -36,12 +36,8 @@ function refreshSlider() {
 
 refreshSlider();
 
-switchStyleTransferBtn.onclick = function() {
-  currentLeft = currentLeft === 'nonrobust' ? 'vgg' : 'nonrobust';
-  switchStyleTransferBtn.textContent = currentLeft === 'nonrobust' ? 
-      'Compare VGG <> Robust ResNet' : 
-      'Compare Non-robust ResNet <> Robust ResNet';
-  styleTransferSliderDiv.removeChild(styleTransferSliderDiv.lastElementChild);
+compareVGGCheck.onclick = function(evt) {
+  currentLeft = evt.target.checked ? 'vgg' : 'nonrobust';
   refreshSlider();
 }
 
