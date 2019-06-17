@@ -35,45 +35,44 @@ Testing this hypothesis is very straightforward: Use an adversarially robust cla
 
 <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
 <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
-<button id='switch-style-transfer'>Switch</button>
+<button id='switch-style-transfer'>Compare VGG \<\> Robust ResNet</button>
 <div id="style-transfer-slider"></div>
 <script>
-new juxtapose.JXSlider('#style-transfer-slider',
-    [
-        {
-            src: '{{ '/images/rnst/transferability.png' | absolute_url }}',
-        },
-        {
-            src: '{{ '/images/rnst/transferability.png' | absolute_url }}',
-        }
-    ],
-    {
-        animate: true,
-        showLabels: true,
-        showCredits: false,
-        startingPosition: "50%",
-        makeResponsive: true
-    });
+var currentContent = 'tubingen';
+var currentStyle = 'woman';
+var currentLeft = 'nonrobust';
+function refreshSlider(content, style, left) {
+  const imgPath1 = '/images/rnst/style-transfer/' + currentContent + '_' + currentStyle + '_' + left + '.jpg';
+  const imgPath2 = '/images/rnst/style-transfer/' + currentContent + '_' + currentStyle + '_robust.jpg';
+  new juxtapose.JXSlider('#style-transfer-slider',
+      [
+          {
+              src: imgPath1, // TODO: Might need to use absolute_url?
+              label: left === 'nonrobust' ? 'Non-robust ResNet50' : 'VGG'
+          },
+          {
+              src: imgPath2,
+              label: 'Robust ResNet50'
+          }
+      ],
+      {
+          animate: true,
+          showLabels: true,
+          showCredits: false,
+          startingPosition: "50%",
+          makeResponsive: true
+  });
+}
+refreshSlider(currentContent, currentStyle, currentLeft);
 var switchStyleTransferBtn = document.getElementById("switch-style-transfer");
 var styleTransferSliderDiv = document.getElementById("style-transfer-slider");
 switchStyleTransferBtn.onclick = function() {
+  currentLeft = currentLeft === 'nonrobust' ? 'vgg' : 'nonrobust';
+  switchStyleTransferBtn.textContent = currentLeft === 'nonrobust' ? 
+      'Compare VGG <> Robust ResNet' : 
+      'Compare Non-robust ResNet <> Robust ResNet';
   styleTransferSliderDiv.removeChild(styleTransferSliderDiv.lastElementChild);
-  new juxtapose.JXSlider('#style-transfer-slider',
-    [
-        {
-            src: '{{ '/images/rnst/banner.jpg' | absolute_url }}',
-        },
-        {
-            src: '{{ '/images/rnst/banner.jpg' | absolute_url }}',
-        }
-    ],
-    {
-        animate: true,
-        showLabels: true,
-        showCredits: false,
-        startingPosition: "50%",
-        makeResponsive: true
-    });
+  refreshSlider(currentContent, currentStyle, currentLeft);
 }
 </script>
 
