@@ -35,14 +35,28 @@ Testing this hypothesis is very straightforward: Use an adversarially robust cla
 
 <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
 <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
-<button id='switch-style-transfer'>Compare VGG \<\> Robust ResNet</button>
-<div id="style-transfer-slider" class="align-center"></div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script src="{{ '/assets/image-picker/image-picker.min.js' | absolute_url }}"></script>
+<link rel="stylesheet" href="{{ '/assets/image-picker/image-picker.css' | absolute_url }}">
 <style>
 div.juxtapose {
   max-height: 512px;
   max-width: 512px;
 }
-</style>  
+</style>
+
+<b>Content image</b>
+<select id="content-select" class="image-picker">
+    <option data-img-src="{{ '/images/rnst/thumbnails/ben.jpg' | absolute_url }}" value="ben"></option>
+    <option data-img-src="{{ '/images/rnst/thumbnails/tubingen.jpg' | absolute_url }}" value="tubingen"></option>
+</select>
+<b>Style image</b>
+<select id="style-select" class="image-picker">
+    <option data-img-src="{{ '/images/rnst/thumbnails/scream.jpg' | absolute_url }}" value="scream"></option>
+    <option data-img-src="{{ '/images/rnst/thumbnails/woman.jpg' | absolute_url }}" value="woman"></option>
+</select>
+<button id='switch-style-transfer'>Compare VGG \<\> Robust ResNet</button>
+<div id="style-transfer-slider" class="align-center"></div>
 <script src="{{ '/assets/rnst/js/style-transfer-slider.js' | absolute_url }}"></script>
 
 
