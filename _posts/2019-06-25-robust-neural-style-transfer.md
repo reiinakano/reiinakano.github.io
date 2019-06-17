@@ -36,10 +36,16 @@ Testing this hypothesis is very straightforward: Use an adversarially robust cla
 <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
 <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
 <button id='switch-style-transfer'>Compare VGG \<\> Robust ResNet</button>
-<div id="style-transfer-slider"></div>
+<div id="style-transfer-slider" class="align-center"></div>
+<style>
+div.juxtapose {
+  max-height: 512px;
+  max-width: 512px;
+}
+</style>  
 <script>
-var currentContent = 'tubingen';
-var currentStyle = 'woman';
+var currentContent = 'ben';
+var currentStyle = 'scream';
 var currentLeft = 'nonrobust';
 function refreshSlider(content, style, left) {
   const imgPath1 = '/images/rnst/style-transfer/' + currentContent + '_' + currentStyle + '_' + left + '.jpg';
