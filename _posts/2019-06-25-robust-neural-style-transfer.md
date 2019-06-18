@@ -33,7 +33,7 @@ The above interpretation of the graph provides an alternative explanation for th
 **Since VGG is unable to capture non-robust features as well as other architectures, the outputs for style transfer actually look more correct to humans!** [^4]
 
 Before proceeding, let's quickly discuss the results obtained by Mordvintsev, et. al. in [Differentiable Image Parameterizations][diff_img_params], where they show that non-VGG architectures can be used for style transfer with a simple technique. 
-In their experiment, instead of optimizing the RGB pixels of the output image directly, they optimize its Fourier coefficients, and run the image through a series of transformations (e.g jitter, rotation, scaling) before passing it through the neural network. 
+In their experiment, instead of optimizing the output image in RGB space, they optimize it in Fourier space, and run the image through a series of transformations (e.g jitter, rotation, scaling) before passing it through the neural network. 
 
 <figure class="align-center">
   <img src="{{ '/images/rnst/diff_image_params_style_transfer.png' | absolute_url }}">
@@ -45,7 +45,14 @@ Can we reconcile this result with our hypothesis linking neural style transfer a
 One possible theory is that all of these image transformations *weaken* or even *destroy* non-robust features.
 Since the optimization can no longer reliably manipulate non-robust features to bring down the loss, it is forced to use robust features instead, which are presumably more robust to the applied image transformations (a rotated and jittered flappy ear still looks like a flappy ear).
 
-Testing this hypothesis is fairly straightforward: Use an adversarially robust classifier for (regular) neural style transfer and see what happens.
+Testing this hypothesis is fairly straightforward: 
+Use an adversarially robust classifier for (regular) neural style transfer and see what happens.
+
+Luckily, Engstrom, et. al. open-sourced their [code and model weights][robust_github] for a robust ResNet-50, saving me the trouble of having to train my own. 
+I compared a regularly trained (non-robust) ResNet-50 with a robustly trained ResNet-50 on their performance on Gatys, et. al.'s original [neural style transfer][neural_style_transfer_arxiv] algorithm. 
+For comparison, I also repeated the style transfer with a regular VGG-19.
+
+My experiments can be fully reproduced inside this [Colab notebook][colab_link]. To ensure a fair comparison despite different networks having different optimal hyperparameters, I performed a small grid search for each image and manually picked the best output per network. The results can be explored in the diagram below.
 
 <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
 <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
@@ -53,7 +60,7 @@ Testing this hypothesis is fairly straightforward: Use an adversarially robust c
 <script src="{{ '/assets/image-picker/image-picker.min.js' | absolute_url }}"></script>
 <link rel="stylesheet" href="{{ '/assets/image-picker/image-picker.css' | absolute_url }}">
 <style>
-div.juxtapose {
+#style-transfer-slider.juxtapose {
   max-height: 512px;
   max-width: 512px;
 }
@@ -86,3 +93,6 @@ div.juxtapose {
 [diff_img_params]: https://distill.pub/2018/differentiable-parameterizations/
 [diff_img_params_style_transfer]: https://distill.pub/2018/differentiable-parameterizations/#section-styletransfer
 [vggtables]: https://www.reddit.com/r/MachineLearning/comments/7rrrk3/d_eat_your_vggtables_or_why_does_neural_style/
+[robust_github]: https://github.com/MadryLab/robust_representations
+[neural_style_transfer_arxiv]: https://arxiv.org/abs/1508.06576
+[colab_link]: https://google.com
