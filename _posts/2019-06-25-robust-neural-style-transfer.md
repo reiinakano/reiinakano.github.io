@@ -26,11 +26,19 @@ One figure in the paper that particularly struck me as interesting was the follo
 
 One way to interpret this graph is that it shows how well a particular architecture is able to capture non-robust features in an image. [^5]
 
-Notice how far back VGG is to the other models.
+Notice how far back VGG is compared to the other models.
 
-In the unrelated field of neural style transfer, VGG is also quite special since non-VGG architectures are known [not to work very well][vggtables] [^3] without some sort of [parameterization trick][diff_img_params_style_transfer].
+In the unrelated field of neural style transfer, VGG is also quite special since non-VGG architectures are known [to not work very well][vggtables] [^3] without some sort of [parameterization trick][diff_img_params_style_transfer].
 The above interpretation of the graph provides an alternative explanation for this phenomenon.
 Since VGG is unable to capture non-robust features as well as other architectures, the outputs for style transfer actually look more correct to humans! [^4]
+
+Before proceeding, let's quickly discuss the results obtained by Mordvintsev, et. al. in [Differentiable Image Parameterizations][diff_img_params], where they show that non-VGG architectures can be used for style transfer with a simple technique. 
+In their experiment, instead of optimizing the RGB pixels of the output image directly, they optimize its Fourier coefficients, and run the image through a series of transformations (e.g jitter, rotation, scaling) before passing it through the neural network. 
+
+Can we reconcile this result with our "theory" of neural style transfer and non-robust features?
+
+One way to explain this is that all of these image transformations actually *destroy* non-robust features.
+Since the optimization can no longer reliably use non-robust features to bring down the loss, it is forced to use robust features instead.
 
 Testing this hypothesis is very straightforward: Use an adversarially robust classifier for neural style transfer and see what happens.
 
@@ -66,9 +74,10 @@ div.juxtapose {
 [^2]: This is usually defined as being in some pre-defined perturbation set such as an L2 ball. Humans don't notice individual pixels changing within some pre-defined epsilon, so any perturbations within this set can be used to create an adversarial example.  
 [^3]: This phenomenon is discussed at length in [this Reddit thread][vggtables].
 [^4]: To follow this argument, note that the perceptual losses used in neural style transfer are dependent on matching features learned by a separately trained image classifier. If these learned features don't make sense to humans (non-robust features), the outputs for neural style transfer won't make sense either.
-[^5]: Since the non-robust features are defined purely by the non-robust features ResNet-50 captures, **FResNet**, what this graph really shows is how well an architecture captures **FResNet**.
+[^5]: Since the non-robust features are defined by the non-robust features ResNet-50 captures, $$NRF_{resnet}$$, what this graph really shows is how well an architecture captures $$NRF_{resnet}$$.
 
 [not_bugs_features_arxiv]: https://arxiv.org/abs/1905.02175
 [not_bugs_features_blog]: http://gradientscience.org/adv/
+[diff_img_params]: https://distill.pub/2018/differentiable-parameterizations/
 [diff_img_params_style_transfer]: https://distill.pub/2018/differentiable-parameterizations/#section-styletransfer
 [vggtables]: https://www.reddit.com/r/MachineLearning/comments/7rrrk3/d_eat_your_vggtables_or_why_does_neural_style/

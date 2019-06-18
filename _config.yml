@@ -40,7 +40,7 @@ remote_theme: "mmistakes/so-simple-theme"
 #   - vendor/ruby/
 
 read_time: true
-words_per_minute: 265
+words_per_minute: 220
 mathjax: true
 google_fonts:
   - name: "Source Sans Pro"
