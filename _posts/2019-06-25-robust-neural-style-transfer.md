@@ -48,9 +48,9 @@ Since the optimization can no longer reliably manipulate non-robust features to 
 Testing this hypothesis is fairly straightforward: 
 Use an adversarially robust classifier for (regular) neural style transfer and see what happens.
 
-Luckily, Engstrom, et. al. open-sourced their [code and model weights][robust_github] for a robust ResNet-50, saving me the trouble of having to train my own. 
+Fortunately, Engstrom, et. al. open-sourced their [code and model weights][robust_github] for a robust ResNet-50, saving me the trouble of having to train my own. 
 I compared a regularly trained (non-robust) ResNet-50 with a robustly trained ResNet-50 on their performance on Gatys, et. al.'s original [neural style transfer][neural_style_transfer_arxiv] algorithm. 
-For comparison, I also repeated the style transfer with a regular VGG-19.
+For comparison, I also performed the style transfer with a regular VGG-19.
 
 My experiments can be fully reproduced inside this [Colab notebook][colab_link]. To ensure a fair comparison despite different networks having different optimal hyperparameters, I performed a small grid search for each image and manually picked the best output per network. The results can be explored in the diagram below.
 
@@ -66,6 +66,7 @@ My experiments can be fully reproduced inside this [Colab notebook][colab_link].
 }
 </style>
 
+<div style="margin-bottom: 30px;">
 <b>Content image</b>
 <select id="content-select" class="image-picker">
     <option data-img-src="{{ '/images/rnst/thumbnails/ben.jpg' | absolute_url }}" value="ben"></option>
@@ -77,10 +78,14 @@ My experiments can be fully reproduced inside this [Colab notebook][colab_link].
     <option data-img-src="{{ '/images/rnst/thumbnails/woman.jpg' | absolute_url }}" value="woman"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/picasso.jpg' | absolute_url }}" value="picasso"></option>
 </select>
-<input id="check-compare-vgg" type="checkbox"><small>&nbsp; Compare VGG \<\> Robust ResNet</small>
+<input id="check-compare-vgg" type="checkbox"><small>&nbsp; Compare VGG <> Robust ResNet</small>
 <div id="style-transfer-slider" class="align-center"></div>
+</div>
 <script src="{{ '/assets/rnst/js/style-transfer-slider.js' | absolute_url }}"></script>
 
+Success! The difference that robustness makes is drastic. Remember, all we did was switch the ResNet's weights, all the other code for performing style transfer is exactly the same!
+
+A more interesting comparison can be done between VGG-19 and the robust ResNet. At first glance, the robust ResNet's outputs seem on par with VGG-19.
 
 [^1]: Adversarial examples are inputs that are specially crafted by an attacker to trick a classifier into producing an incorrect label for that input. There is an entire field of research dedicated to adversarial attacks and defenses in deep learning literature.
 [^2]: This is usually defined as being in some pre-defined perturbation set such as an L2 ball. Humans don't notice individual pixels changing within some pre-defined epsilon, so any perturbations within this set can be used to create an adversarial example.  
