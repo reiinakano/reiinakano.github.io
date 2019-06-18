@@ -1,5 +1,7 @@
 // I don't know how to write JavaScript without a bundler. Please someone save me.
 
+(function() {
+
 // Initialize slider
 var currentContent = 'ben';
 var currentStyle = 'scream';
@@ -54,3 +56,5 @@ $("#style-select").imagepicker({
     refreshSlider();
   }
 });
+
+})();
