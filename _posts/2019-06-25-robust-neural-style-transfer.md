@@ -10,9 +10,9 @@ date:   2019-06-15
 
 I recently read an intriguing paper by Engstrom, et. al. about a radically different way to view adversarial examples [^1], titled "[Adversarial Examples Are Not Bugs, They Are Features][not_bugs_features_arxiv]". 
 
-The authors propose the existence of so-called "robust" and "non-robust" features in the dataset used for training e.g. CIFAR10, ImageNet. 
-<i>Robust features</i> can be thought of as features that humans naturally use for classification e.g. flappy ears are indicative of certain breeds of dogs, while black and white stripes are indicative of zebras.
-<i>Non-robust features</i>, on the other hand, are features that humans aren't sensitive to [^2], but truly correlate with a particular class (i.e. exist in the train and test set).
+The authors propose the existence of so-called "robust" and "non-robust" features in the images used for training image classifiers. 
+*Robust features* can be thought of as features that humans naturally use for classification e.g. flappy ears are indicative of certain breeds of dogs, while black and white stripes are indicative of zebras.
+*Non-robust features*, on the other hand, are features that humans aren't sensitive to [^2], but are truly indicative of a particular class (i.e. they correlate with the class over the *whole* (train and test) dataset).
 The authors argue that adversarial examples are produced by replacing the non-robust features in an image with non-robust features of another class.
 
 I highly recommend reading the [paper][not_bugs_features_arxiv] or at the very least, the accompanying [blog post][not_bugs_features_blog].
@@ -24,10 +24,11 @@ One figure in the paper that particularly struck me as interesting was the follo
   <figcaption><a href="http://gradientscience.org/adv/">Source</a></figcaption>
 </figure>
 
-One way to interpret this graph is that it shows how well a particular architecture is able to capture non-robust features in an image. 
+One way to interpret this graph is that it shows how well a particular architecture is able to capture non-robust features in an image. [^5]
 
 Notice how far back VGG is to the other models.
-In the unrelated field of neural style transfer, VGG is quite special since non-VGG architectures are known [not to work very well][vggtables] [^3] without some sort of [parameterization trick][diff_img_params_style_transfer].
+
+In the unrelated field of neural style transfer, VGG is also quite special since non-VGG architectures are known [not to work very well][vggtables] [^3] without some sort of [parameterization trick][diff_img_params_style_transfer].
 The above interpretation of the graph provides an alternative explanation for this phenomenon.
 Since VGG is unable to capture non-robust features as well as other architectures, the outputs for style transfer actually look more correct to humans! [^4]
 
@@ -54,6 +55,7 @@ div.juxtapose {
 <select id="style-select" class="image-picker">
     <option data-img-src="{{ '/images/rnst/thumbnails/scream.jpg' | absolute_url }}" value="scream"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/woman.jpg' | absolute_url }}" value="woman"></option>
+    <option data-img-src="{{ '/images/rnst/thumbnails/picasso.jpg' | absolute_url }}" value="picasso"></option>
 </select>
 <input id="check-compare-vgg" type="checkbox"><small>&nbsp; Compare VGG \<\> Robust ResNet</small>
 <div id="style-transfer-slider" class="align-center"></div>
@@ -64,6 +66,7 @@ div.juxtapose {
 [^2]: This is usually defined as being in some pre-defined perturbation set such as an L2 ball. Humans don't notice individual pixels changing within some pre-defined epsilon, so any perturbations within this set can be used to create an adversarial example.  
 [^3]: This phenomenon is discussed at length in [this Reddit thread][vggtables].
 [^4]: To follow this argument, note that the perceptual losses used in neural style transfer are dependent on matching features learned by a separately trained image classifier. If these learned features don't make sense to humans (non-robust features), the outputs for neural style transfer won't make sense either.
+[^5]: Since the non-robust features are defined purely by the non-robust features ResNet-50 captures, **FResNet**, what this graph really shows is how well an architecture captures **FResNet**.
 
 [not_bugs_features_arxiv]: https://arxiv.org/abs/1905.02175
 [not_bugs_features_blog]: http://gradientscience.org/adv/
