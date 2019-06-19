@@ -52,7 +52,11 @@ Fortunately, Engstrom, et. al. open-sourced their [code and model weights][robus
 I compared a regularly trained (non-robust) ResNet-50 with a robustly trained ResNet-50 on their performance on Gatys, et. al.'s original [neural style transfer][neural_style_transfer_arxiv] algorithm. 
 For comparison, I also performed the style transfer with a regular VGG-19.
 
-My experiments can be fully reproduced inside this [Colab notebook][colab_link]. To ensure a fair comparison despite different networks having different optimal hyperparameters, I performed a small grid search for each image and manually picked the best output per network. The results can be explored in the diagram below.
+My experiments can be fully reproduced inside this [Colab notebook][colab_link]. 
+To ensure a fair comparison despite different networks having different optimal hyperparameters, I performed a small grid search for each image and manually picked the best output per network. 
+Further details can be read in a footnote [^6]. 
+
+The results of the experiment can be explored in the diagram below.
 
 <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
 <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
@@ -92,6 +96,7 @@ A more interesting comparison can be done between VGG-19 and the robust ResNet. 
 [^3]: This phenomenon is discussed at length in [this Reddit thread][vggtables].
 [^4]: To follow this argument, note that the perceptual losses used in neural style transfer are dependent on matching features learned by a separately trained image classifier. If these learned features don't make sense to humans (non-robust features), the outputs for neural style transfer won't make sense either.
 [^5]: Since the non-robust features are defined by the non-robust features ResNet-50 captures, $$NRF_{resnet}$$, what this graph really shows is how well an architecture captures $$NRF_{resnet}$$.
+[^6]: L-BFGS was used for optimization as it showed faster convergence over Adam. For ResNet-50, the style layers used were the ReLu outputs after each of the 4 residual blocks, $$[relu2\_x, relu3\_x, relu4\_x, relu5\_x]$$ while the content layer used was $$relu4\_x$$. For VGG-19, style layers $$[relu1\_1,relu2\_1,relu3\_1,relu4\_1,relu5\_1]$$ were used with a content layer $$relu4\_2$$. In VGG-19, max pooling layers were replaced with avg pooling layers, as is standard practice. 
 
 [not_bugs_features_arxiv]: https://arxiv.org/abs/1905.02175
 [not_bugs_features_blog]: http://gradientscience.org/adv/
