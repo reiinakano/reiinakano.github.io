@@ -87,16 +87,28 @@ The results of the experiment can be explored in the diagram below.
 </div>
 <script src="{{ '/assets/rnst/js/style-transfer-slider.js' | absolute_url }}"></script>
 
-Success! The difference that robustness makes is drastic. Remember, all we did was switch the ResNet's weights, all the other code for performing style transfer is exactly the same!
+Success! 
+The robust ResNet shows drastic improvement over the regular ResNet. 
+Remember, all we did was switch the ResNet's weights, the rest of the code for performing style transfer is exactly the same!
 
-A more interesting comparison can be done between VGG-19 and the robust ResNet. At first glance, the robust ResNet's outputs seem on par with VGG-19.
+A more interesting comparison can be done between VGG-19 and the robust ResNet. 
+At first glance, the robust ResNet's outputs seem on par with VGG-19. 
+Looking closer, however, we see that the ResNet outputs are slightly noisier and exhibit some artifacts [^7].
+
+Diagram here
+
+It is currently unclear exactly what causes these artifacts. 
+One theory is that they are [checkerboard artifacts][checkerboard_artifacts] (Odena, et. al.) caused by non-divisible kernel size and stride in the convolution layers.
+They could also be artifacts caused by the presence of max pooling layers ([Henaff, et. al.][max_pool_artifacts_arxiv]). 
+Whatever the case, it seems like evidence that these checkerboard artifacts, while problematic, are distinct from the problem that adversarial robustness solves in neural style transfer.
 
 [^1]: Adversarial examples are inputs that are specially crafted by an attacker to trick a classifier into producing an incorrect label for that input. There is an entire field of research dedicated to adversarial attacks and defenses in deep learning literature.
 [^2]: This is usually defined as being in some pre-defined perturbation set such as an L2 ball. Humans don't notice individual pixels changing within some pre-defined epsilon, so any perturbations within this set can be used to create an adversarial example.  
 [^3]: This phenomenon is discussed at length in [this Reddit thread][vggtables].
 [^4]: To follow this argument, note that the perceptual losses used in neural style transfer are dependent on matching features learned by a separately trained image classifier. If these learned features don't make sense to humans (non-robust features), the outputs for neural style transfer won't make sense either.
 [^5]: Since the non-robust features are defined by the non-robust features ResNet-50 captures, $$NRF_{resnet}$$, what this graph really shows is how well an architecture captures $$NRF_{resnet}$$.
-[^6]: L-BFGS was used for optimization as it showed faster convergence over Adam. For ResNet-50, the style layers used were the ReLu outputs after each of the 4 residual blocks, $$[relu2\_x, relu3\_x, relu4\_x, relu5\_x]$$ while the content layer used was $$relu4\_x$$. For VGG-19, style layers $$[relu1\_1,relu2\_1,relu3\_1,relu4\_1,relu5\_1]$$ were used with a content layer $$relu4\_2$$. In VGG-19, max pooling layers were replaced with avg pooling layers, as is standard practice. 
+[^6]: L-BFGS was used for optimization as it showed faster convergence over Adam. For ResNet-50, the style layers used were the ReLu outputs after each of the 4 residual blocks, $$[relu2\_x, relu3\_x, relu4\_x, relu5\_x]$$ while the content layer used was $$relu4\_x$$. For VGG-19, style layers $$[relu1\_1,relu2\_1,relu3\_1,relu4\_1,relu5\_1]$$ were used with a content layer $$relu4\_2$$. In VGG-19, max pooling layers were replaced with avg pooling layers, as is standard practice.
+[^7]: This is more obvious when the output image is initialized not with the content image, but with Gaussian noise. 
 
 [not_bugs_features_arxiv]: https://arxiv.org/abs/1905.02175
 [not_bugs_features_blog]: http://gradientscience.org/adv/
@@ -106,3 +118,5 @@ A more interesting comparison can be done between VGG-19 and the robust ResNet. 
 [robust_github]: https://github.com/MadryLab/robust_representations
 [neural_style_transfer_arxiv]: https://arxiv.org/abs/1508.06576
 [colab_link]: https://google.com
+[checkerboard_artifacts]: https://distill.pub/2016/deconv-checkerboard/
+[max_pool_artifacts_arxiv]: https://arxiv.org/abs/1511.06394
