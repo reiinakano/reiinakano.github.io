@@ -118,10 +118,7 @@ If anything, I found evidence that AlexNet is actually *above* VGG in terms of "
 Perhaps adversarial robustness just happens to incidentally fix or cover up the true reason non-VGG architectures fail at style transfer [^8] i.e. adversarial robustness is a sufficient but unnecessary condition for good style transfer. 
 Whatever it is, I think further examination of VGG is a very interesting direction for future work.
 
-### Conclusion and future work
-
-I performed a quick experiment and showed that in neural style transfer, adversarial robustness transforms ResNet-50 from a completely useless feature extractor to an effective one. 
-All the code for replicating these results are in a [Colab notebook][colab_link].
+### Future work
 
 Aside from figuring out VGG's mysteries, here are a few other ideas for future work:
 * Figure out the cause of the robust ResNet artifacts and attempt to fix them. 
@@ -142,7 +139,7 @@ It would be interesting to see if a robust classifier trained on the full ImageN
 [^5]: Since the non-robust features are defined by the non-robust features ResNet-50 captures, $$NRF_{resnet}$$, what this graph really shows is how well an architecture captures $$NRF_{resnet}$$.
 [^6]: L-BFGS was used for optimization as it showed faster convergence over Adam. For ResNet-50, the style layers used were the ReLu outputs after each of the 4 residual blocks, $$[relu2\_x, relu3\_x, relu4\_x, relu5\_x]$$ while the content layer used was $$relu4\_x$$. For VGG-19, style layers $$[relu1\_1,relu2\_1,relu3\_1,relu4\_1,relu5\_1]$$ were used with a content layer $$relu4\_2$$. In VGG-19, max pooling layers were replaced with avg pooling layers, as in the [original paper][neural_style_transfer_arxiv] by Gatys, et. al.
 [^7]: This is more obvious when the output image is initialized not with the content image, but with Gaussian noise. 
-[^8]: 
+[^8]: In fact, neural style transfer is not the only gradient-based iterative image optimization technique that magically works better with adversarial robustness. In a [more recent paper][perceptually_aligned_arxiv] from Engstrom, et. al., they show that feature visualization via activation maximization works on robust classifiers *without* enforcing any priors or regularization (e.g. image transformations and decorrelated parameterization), unlike [previous][feature_viz] [work][building_blocks]. In a recent chat I had with [Chris Olah][chris_olah_blog], he shared that the aforementioned feature visualization techniques actually work well on VGG *without* these priors, just like style transfer!
 
 [not_bugs_features_arxiv]: https://arxiv.org/abs/1905.02175
 [not_bugs_features_blog]: http://gradientscience.org/adv/
@@ -157,3 +154,7 @@ It would be interesting to see if a robust classifier trained on the full ImageN
 [inception_style_transfer]: https://medium.com/mlreview/getting-inception-architectures-to-work-with-style-transfer-767d53475bf8
 [batch_norm_adversarial_arxiv]: https://arxiv.org/abs/1905.02161
 [benchmarking_robustness_arxiv]: https://arxiv.org/abs/1903.12261
+[perceptually_aligned_arxiv]: https://arxiv.org/abs/1906.00945
+[feature_viz]: https://distill.pub/2017/feature-visualization/
+[building_blocks]: https://distill.pub/2018/building-blocks/
+[chris_olah_blog]: http://colah.github.io
