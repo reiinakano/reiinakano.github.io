@@ -106,10 +106,7 @@ One theory is that they are [checkerboard artifacts][checkerboard_artifacts] (Od
 They could also be artifacts caused by the presence of max pooling layers ([Henaff, et. al.][max_pool_artifacts_arxiv]). 
 Whatever the case, these artifacts, while problematic, seem largely distinct from the problem that adversarial robustness solves in neural style transfer.
 
-### Conclusions and future work
-
-I performed a quick experiment and showed that in neural style transfer, adversarial robustness transforms ResNet-50 from a completely useless feature extractor to an effective one. 
-All the code for replicating these experiments are in a [Colab notebook][colab_link].
+### VGG remains a mystery
 
 Although this experiment started because of an observation about a special characteristic of VGG nets, it did not provide an explanation for this phenomenon.
 Indeed, if we are to accept the theory that adversarial robustness is the reason VGG works out of the box with neural style transfer, surely we'd find some indication in existing literature that VGG is naturally more robust than other architectures.
@@ -121,8 +118,13 @@ If anything, I found evidence that AlexNet is actually *above* VGG in terms of "
 Perhaps adversarial robustness just happens to incidentally fix or cover up the true reason non-VGG architectures fail at style transfer [^8] i.e. adversarial robustness is a sufficient but unnecessary condition for good style transfer. 
 Whatever it is, I think further examination of VGG is a very interesting direction for future work.
 
-Here are a few other ideas for future work:
-* Figure out the cause of the artifacts and attempt to fix them. 
+### Conclusion and future work
+
+I performed a quick experiment and showed that in neural style transfer, adversarial robustness transforms ResNet-50 from a completely useless feature extractor to an effective one. 
+All the code for replicating these results are in a [Colab notebook][colab_link].
+
+Aside from figuring out VGG's mysteries, here are a few other ideas for future work:
+* Figure out the cause of the robust ResNet artifacts and attempt to fix them. 
 This [Medium post][inception_style_transfer] by Sahil Singla shows a few good techniques.
 Adjusting the stride value so it can cleanly divide the kernel size might eliminate checkerboard artifacts.
 Replacing max pooling layers with average pooling layers might also help reduce artifacts.
