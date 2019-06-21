@@ -45,7 +45,7 @@ In their experiment, instead of optimizing the output image in RGB space, they o
 Can we reconcile this result with our hypothesis linking neural style transfer and non-robust features?
 
 One possible theory is that all of these image transformations *weaken* or even *destroy* non-robust features.
-Since the optimization can no longer reliably manipulate non-robust features to bring down the loss, it is forced to use robust features instead, which are presumably more robust to the applied image transformations (a rotated and jittered flappy ear still looks like a flappy ear).
+Since the optimization can no longer reliably manipulate non-robust features to bring down the loss, it is forced to use robust features instead, which are presumably more resistant to the applied image transformations (a rotated and jittered flappy ear still looks like a flappy ear).
 
 Testing this hypothesis is fairly straightforward: 
 Use an adversarially robust classifier for (regular) neural style transfer and see what happens.
@@ -120,6 +120,7 @@ Whatever it is, I think further examination of VGG is a very interesting directi
 
 ### Future work
 
+Admittedly, my little experiment probably raises a lot more questions than it answers.
 Aside from figuring out VGG's mysteries, here are a few other ideas for future work:
 * Figure out the cause of the robust ResNet artifacts and attempt to fix them. 
 This [Medium post][inception_style_transfer] by Sahil Singla shows a few good techniques.
