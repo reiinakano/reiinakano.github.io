@@ -104,15 +104,24 @@ Diagram here
 It is currently unclear exactly what causes these artifacts. 
 One theory is that they are [checkerboard artifacts][checkerboard_artifacts] (Odena, et. al.) caused by non-divisible kernel size and stride in the convolution layers.
 They could also be artifacts caused by the presence of max pooling layers ([Henaff, et. al.][max_pool_artifacts_arxiv]). 
-Whatever the case, it seems like evidence that these checkerboard artifacts, while problematic, are largely distinct from the problem that adversarial robustness solves in neural style transfer.
+Whatever the case, these artifacts, while problematic, seem largely distinct from the problem that adversarial robustness solves in neural style transfer.
 
-### Future work
+### Conclusions and future work
 
-I performed a quick experiment and showed that in neural style transfer, adversarial robustness transforms ResNet-50 from completely useless to an effective feature extractor. All the code for replicating these experiments are in a [Colab notebook][colab_link].
+I performed a quick experiment and showed that in neural style transfer, adversarial robustness transforms ResNet-50 from a completely useless feature extractor to an effective one. 
+All the code for replicating these experiments are in a [Colab notebook][colab_link].
 
-Here are a few ideas for future work:
+Although this experiment started because of an observation about a special characteristic of VGG nets, it did not provide an explanation for this phenomenon.
+Indeed, if we are to accept the theory that adversarial robustness is the reason VGG works out of the box with neural style transfer, surely we'd find some indication in existing literature that VGG is naturally more robust than other architectures.
 
-* Although this experiment started because of an observation about a special characteristic of VGG, it did not provide an explanation for this phenomenon. TODOTODO; I feel that there are a lot of insights to be gained about neural networks by studying this property.
+*I could not find anything.*
+
+If anything, I found evidence that AlexNet is actually *above* VGG in terms of "natural robustness" ([Table 5 in Galloway, et. al.][batch_norm_adversarial_arxiv], [Figure 3 in Hendrycks, et. al.][benchmarking_robustness_arxiv]).
+
+Perhaps adversarial robustness just happens to incidentally fix or cover up the true reason non-VGG architectures fail at style transfer [^8] i.e. adversarial robustness is a sufficient but unnecessary condition for good style transfer. 
+Whatever it is, I think further examination of VGG is a very interesting direction for future work.
+
+Here are a few other ideas for future work:
 * Figure out the cause of the artifacts and attempt to fix them. 
 This [Medium post][inception_style_transfer] by Sahil Singla shows a few good techniques.
 Adjusting the stride value so it can cleanly divide the kernel size might eliminate checkerboard artifacts.
@@ -131,6 +140,7 @@ It would be interesting to see if a robust classifier trained on the full ImageN
 [^5]: Since the non-robust features are defined by the non-robust features ResNet-50 captures, $$NRF_{resnet}$$, what this graph really shows is how well an architecture captures $$NRF_{resnet}$$.
 [^6]: L-BFGS was used for optimization as it showed faster convergence over Adam. For ResNet-50, the style layers used were the ReLu outputs after each of the 4 residual blocks, $$[relu2\_x, relu3\_x, relu4\_x, relu5\_x]$$ while the content layer used was $$relu4\_x$$. For VGG-19, style layers $$[relu1\_1,relu2\_1,relu3\_1,relu4\_1,relu5\_1]$$ were used with a content layer $$relu4\_2$$. In VGG-19, max pooling layers were replaced with avg pooling layers, as in the [original paper][neural_style_transfer_arxiv] by Gatys, et. al.
 [^7]: This is more obvious when the output image is initialized not with the content image, but with Gaussian noise. 
+[^8]: 
 
 [not_bugs_features_arxiv]: https://arxiv.org/abs/1905.02175
 [not_bugs_features_blog]: http://gradientscience.org/adv/
@@ -143,3 +153,5 @@ It would be interesting to see if a robust classifier trained on the full ImageN
 [checkerboard_artifacts]: https://distill.pub/2016/deconv-checkerboard/
 [max_pool_artifacts_arxiv]: https://arxiv.org/abs/1511.06394
 [inception_style_transfer]: https://medium.com/mlreview/getting-inception-architectures-to-work-with-style-transfer-767d53475bf8
+[batch_norm_adversarial_arxiv]: https://arxiv.org/abs/1905.02161
+[benchmarking_robustness_arxiv]: https://arxiv.org/abs/1903.12261
