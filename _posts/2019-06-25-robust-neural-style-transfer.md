@@ -16,10 +16,10 @@ date:   2019-06-15
 
 <div style="margin-bottom: 30px;">
 <select id="banner-style-select" class="image-picker">
+    <option data-img-src="{{ '/images/rnst/thumbnails/starrynight.jpg' | absolute_url }}" value="starry"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/scream.jpg' | absolute_url }}" value="scream"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/woman.jpg' | absolute_url }}" value="woman"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/picasso.jpg' | absolute_url }}" value="picasso"></option>
-    <option data-img-src="{{ '/images/rnst/thumbnails/starrynight.jpg' | absolute_url }}" value="starry"></option>
 </select>
 <div id="banner-slider" class="align-center"></div>
 </div>
