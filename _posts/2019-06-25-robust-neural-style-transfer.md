@@ -8,7 +8,22 @@ image:
 date:   2019-06-15
 ---
 
-BANNER HERE
+<script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
+<link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script src="{{ '/assets/image-picker/image-picker.min.js' | absolute_url }}"></script>
+<link rel="stylesheet" href="{{ '/assets/image-picker/image-picker.css' | absolute_url }}">
+
+<div style="margin-bottom: 30px;">
+<select id="banner-style-select" class="image-picker">
+    <option data-img-src="{{ '/images/rnst/thumbnails/scream.jpg' | absolute_url }}" value="scream"></option>
+    <option data-img-src="{{ '/images/rnst/thumbnails/woman.jpg' | absolute_url }}" value="woman"></option>
+    <option data-img-src="{{ '/images/rnst/thumbnails/picasso.jpg' | absolute_url }}" value="picasso"></option>
+    <option data-img-src="{{ '/images/rnst/thumbnails/starrynight.jpg' | absolute_url }}" value="starry"></option>
+</select>
+<div id="banner-slider" class="align-center"></div>
+</div>
+<script src="{{ '/assets/rnst/js/banner-slider.js' | absolute_url }}"></script>
 
 I recently read an intriguing paper by Engstrom, et. al. about a radically different way to view adversarial examples [^1], titled "[Adversarial Examples Are Not Bugs, They Are Features][not_bugs_features_arxiv]". 
 
@@ -62,11 +77,6 @@ Further details can be read in a footnote [^6].
 
 The results of the experiment can be explored in the diagram below.
 
-<script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
-<link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-<script src="{{ '/assets/image-picker/image-picker.min.js' | absolute_url }}"></script>
-<link rel="stylesheet" href="{{ '/assets/image-picker/image-picker.css' | absolute_url }}">
 <style>
 #style-transfer-slider.juxtapose {
   max-height: 512px;
