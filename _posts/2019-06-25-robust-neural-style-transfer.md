@@ -22,6 +22,8 @@ date:   2019-06-15
     <option data-img-src="{{ '/images/rnst/thumbnails/picasso.jpg' | absolute_url }}" value="picasso"></option>
 </select>
 <div id="banner-slider" class="align-center"></div>
+<img id="banner-content" src="{{ '/images/rnst/style-transfer/banner_content.jpg' | absolute_url }}" style="display: none">
+<a id="banner-content-hover" style="text-decoration: underline;"><small>Hover for content image</small></a>
 </div>
 <script src="{{ '/assets/rnst/js/banner-slider.js' | absolute_url }}"></script>
 

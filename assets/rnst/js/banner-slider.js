@@ -4,6 +4,8 @@
 var currentStyle = 'woman';
 
 const styleTransferSliderDiv = document.getElementById("banner-slider");
+const contentHover = document.getElementById("banner-content-hover");
+const contentImg = document.getElementById("banner-content");
 
 function refreshSlider() {
   while (styleTransferSliderDiv.firstChild) {
@@ -39,5 +41,17 @@ $("#banner-style-select").imagepicker({
     refreshSlider();
   }
 });
+
+contentHover.onmouseover = function() {
+  console.log('hover');
+  styleTransferSliderDiv.style.display = "none";
+  contentImg.style.display = "block";
+};
+
+contentHover.onmouseleave = function() {
+  console.log('leave');
+  styleTransferSliderDiv.style.display = "block";
+  contentImg.style.display = "none";
+};
 
 })()
