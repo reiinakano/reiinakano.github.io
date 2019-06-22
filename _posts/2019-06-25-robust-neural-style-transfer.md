@@ -13,6 +13,7 @@ date:   2019-06-15
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script src="{{ '/assets/image-picker/image-picker.min.js' | absolute_url }}"></script>
 <link rel="stylesheet" href="{{ '/assets/image-picker/image-picker.css' | absolute_url }}">
+<script src="{{ '/assets/d3.min.js' | absolute_url }}"></script>
 
 <div style="margin-bottom: 30px;">
 <select id="banner-style-select" class="image-picker">
@@ -111,7 +112,195 @@ A more interesting comparison can be done between VGG-19 and the robust ResNet.
 At first glance, the robust ResNet's outputs seem on par with VGG-19. 
 Looking closer, however, the ResNet's outputs seem slightly noisier and exhibit some artifacts [^7].
 
-Diagram here
+<style>
+.deepdream-examples {
+  position: relative;
+}
+.deepdream-examples::after {
+  overflow: visible;
+  content: "";
+  width: 27px;
+  height: 27px;
+  position: absolute;
+  right: -51px;
+  top: 0;
+}
+.deepdream-examples .example {
+  position: relative;
+}
+.deepdream-examples .original {
+  position: relative;
+  width: 45%;
+}
+.deepdream-examples .original:after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 70%;
+  position: absolute;
+  top: -20%;
+  z-index: 1;
+}
+.deepdream-examples .example .reticle {
+  position: absolute;
+  pointer-events: none;
+}
+.deepdream-examples .example .reticle:after {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  left: -50%;
+  top: -50%;
+  border-radius: 50%;
+  border: 1px solid white;
+  display: block;
+  content: '';
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+.deepdream-examples img {
+  display: block;
+  width: 100%;
+  -ms-interpolation-mode: nearest-neighbor;
+  image-rendering: optimizeSpeed;
+  image-rendering: pixelated;
+}
+.deepdream-examples .closeup img {
+  -webkit-filter: contrast(150%);
+  filter: contrast(150%);
+}
+.deepdream-examples .closeup {
+  position: absolute;
+  right: 34%;
+  top: 0;
+  width: 22.5%;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  border: 2px solid white;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.deepdream-examples figcaption {
+  position: absolute;
+  right: 0%;
+  top: 0;
+  width: 30%;
+}
+.deepdream-examples .closeup img {
+  position: absolute;
+  width: 800%;
+  max-width: none;
+}
+.deepdream-examples .closeup:after {
+  padding-top: 100%;
+  display: block;
+  content: '';
+}
+</style>
+
+<div class="deepdream-examples">
+    <figure class="example" style="margin-bottom:20px;">
+      <div class="original" data-focus="10,0.43,0.21">
+        <img src="{{ '/images/rnst/zoom/vgg_texture.jpg' | absolute_url }}">
+        <div class="reticle"></div>
+      </div>
+      <div class="closeup">
+        <img src="{{ '/images/rnst/zoom/vgg_texture.jpg' | absolute_url }}">
+      </div>
+      <figcaption>
+        Texture synthesized with VGG.<br>
+        <i>Mild artifacts.</i>
+      </figcaption>
+    </figure>
+    <figure class="example" style="margin-top:20px;">
+      <div class="original" data-focus="10,0.64,0.74">
+        <img src="{{ '/images/rnst/zoom/resnet_texture.jpg' | absolute_url }}">
+        <div class="reticle"></div>
+      </div>
+      <div class="closeup">
+        <img src="{{ '/images/rnst/zoom/resnet_texture.jpg' | absolute_url }}">
+      </div>
+      <figcaption>
+        Texture synthesized with robust ResNet.<br>
+        <i>Severe artifacts.</i>
+      </figcaption>
+    </figure>
+</div>
+<figcaption style="margin-top:-20px;padding-bottom:20px;">Interact by hovering around the images. This diagram was repurposed from <a href="https://distill.pub/2016/deconv-checkerboard/">Deconvolution and Checkerboard Artifacts</a> by Odena, et. al.</figcaption>
+
+<script>(function() {
+var html = d3.select(".deepdream-examples");
+var original = html.selectAll(".example .original");
+html
+    .on("mouseleave", () => {
+      console.log("out")
+      original.each(resetReticle);
+    });
+original
+    .datum(function() {
+      var focus = this.getAttribute("data-focus").split(",")
+      return {
+        zoom: focus[0],
+        x: focus[1],
+        y: focus[2]
+      };
+    })
+    .on("mouseleave", resetReticle)
+    .on("mousemove", updateReticle)
+    .each(resetReticle);
+function updateReticle(d) {
+  original.each(resetReticle);
+  var x = d3.event.offsetX / this.getBoundingClientRect().width;
+  var y = d3.event.offsetY / this.getBoundingClientRect().height;
+  console.log(x,y)
+  setPosition(this, x, y, d.zoom, 100);
+}
+function resetReticle(d) {
+  setPosition(this, d.x, d.y, d.zoom, 300);
+}
+function setPosition(element, x, y, zoom, duration) {
+  var marginX = 1 / zoom / 4;
+  var marginY = 1 / zoom / 2;
+  x = Math.min(Math.max(marginX, x), 1 - marginX)
+  y = Math.min(Math.max(marginY, y), 1 - marginY)
+  var parent = d3.select(element.parentElement);
+  var reticle = parent.select(".reticle");
+  var closeup = parent.select(".closeup img");
+  reticle
+      .style("width", 50 / zoom + "%")
+      .style("height", 100 / zoom + "%")
+      .transition()
+      .ease(d3.ease("cubic-out"))
+      .duration(duration)
+      .styleTween("left", function (d, i, a) {
+        var from = this.style.left,
+            to = x * 100 + "%";
+        return d3.interpolateString(from, to);
+      })
+      .styleTween("top", function (d, i, a) {
+        var from = this.style.top,
+            to = y * 100 + "%";
+        return d3.interpolateString(from, to);
+      })
+  closeup
+      .style("width", zoom * 200 + "%")
+      .style("height", zoom * 100 + "%")
+      .transition()
+      .ease(d3.ease("cubic-out"))
+      .duration(duration)
+      .styleTween("left", function (d, i, a) {
+        var from = this.style.left,
+            to = -x * 200 * zoom + 50 + "%";
+        return d3.interpolateString(from, to);
+      })
+      .styleTween("top", function (d, i, a) {
+        var from = this.style.top,
+            to = -y * 100 * zoom + 50 + "%";
+        return d3.interpolateString(from, to);
+      })
+}
+})();</script>
 
 It is currently unclear exactly what causes these artifacts. 
 One theory is that they are [checkerboard artifacts][checkerboard_artifacts] (Odena, et. al.) caused by non-divisible kernel size and stride in the convolution layers.
