@@ -1,7 +1,7 @@
 (function() {
 
 // Initialize slider
-var currentStyle = 'starry';
+var currentStyle = 'woman';
 
 const styleTransferSliderDiv = document.getElementById("banner-slider");
 
@@ -10,10 +10,11 @@ function refreshSlider() {
       styleTransferSliderDiv.removeChild(styleTransferSliderDiv.firstChild);
   }
   const imgPath = '/images/rnst/style-transfer/' + 'banner_' + currentStyle + '_robust.jpg';
+  const imgPathNonRobust = '/images/rnst/style-transfer/' + 'banner_' + currentStyle + '_nonrobust.jpg';
   new juxtapose.JXSlider('#banner-slider',
       [
           {
-              src: '/images/rnst/style-transfer/banner_scream_nonrobust.jpg',
+              src: imgPathNonRobust,
               label: 'Non-robust ResNet50'
           },
           {
