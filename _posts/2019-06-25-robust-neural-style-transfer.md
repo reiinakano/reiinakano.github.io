@@ -227,14 +227,13 @@ Looking closer, however, the ResNet's outputs seem slightly noisier and exhibit 
       </figcaption>
     </figure>
 </div>
-<figcaption style="margin-top:-20px;padding-bottom:20px;">Interact by hovering around the images. This diagram was repurposed from <a href="https://distill.pub/2016/deconv-checkerboard/">Deconvolution and Checkerboard Artifacts</a> by Odena, et. al.</figcaption>
+<figcaption style="margin-top:-20px;padding-bottom:20px;">A comparison of artifacts between textures synthesized by VGG and ResNet. Interact by hovering around the images. This diagram was repurposed from <a href="https://distill.pub/2016/deconv-checkerboard/">Deconvolution and Checkerboard Artifacts</a> by Odena, et. al.</figcaption>
 
 <script>(function() {
 var html = d3.select(".deepdream-examples");
 var original = html.selectAll(".example .original");
 html
     .on("mouseleave", () => {
-      console.log("out")
       original.each(resetReticle);
     });
 original
@@ -253,7 +252,7 @@ function updateReticle(d) {
   original.each(resetReticle);
   var x = d3.event.offsetX / this.getBoundingClientRect().width;
   var y = d3.event.offsetY / this.getBoundingClientRect().height;
-  console.log(x,y)
+  //console.log(x,y)
   setPosition(this, x, y, d.zoom, 100);
 }
 function resetReticle(d) {
