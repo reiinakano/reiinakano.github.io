@@ -5,7 +5,8 @@ image:
   path: "images/rnst/banner.jpg"
   thumbnail: "images/rnst/banner.jpg"
   hide: true
-date:   2019-06-15
+date:   2019-06-21
+excerpt: I show that in neural style transfer, adversarial robustness transforms ResNet-50 from a completely useless feature extractor to an effective one.
 ---
 
 <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
@@ -156,7 +157,7 @@ Whatever the case, these artifacts, while problematic, seem largely distinct fro
 Although this experiment started because of an observation about a special characteristic of VGG nets, it did not provide an explanation for this phenomenon.
 Indeed, if we are to accept the theory that adversarial robustness is the reason VGG works out of the box with neural style transfer, surely we'd find some indication in existing literature that VGG is naturally more robust than other architectures.
 
-*I could not find anything supporting this.*
+Unfortunately, I could not find anything supporting this.
 
 If anything, I found evidence that AlexNet is actually *above* VGG in terms of "natural robustness" ([Table 5 in Galloway, et. al.][batch_norm_adversarial_arxiv], [Figure 3 in Hendrycks, et. al.][benchmarking_robustness_arxiv]).
 
@@ -194,7 +195,7 @@ If you'd like to build on this experiment, all the code is available in this [Co
 [vggtables]: https://www.reddit.com/r/MachineLearning/comments/7rrrk3/d_eat_your_vggtables_or_why_does_neural_style/
 [robust_github]: https://github.com/MadryLab/robust_representations
 [neural_style_transfer_arxiv]: https://arxiv.org/abs/1508.06576
-[colab_link]: https://google.com
+[colab_link]: https://colab.research.google.com/github/reiinakano/adversarially-robust-neural-style-transfer/blob/master/Robust_Neural_Style_Transfer.ipynb
 [checkerboard_artifacts]: https://distill.pub/2016/deconv-checkerboard/
 [max_pool_artifacts_arxiv]: https://arxiv.org/abs/1511.06394
 [inception_style_transfer]: https://medium.com/mlreview/getting-inception-architectures-to-work-with-style-transfer-767d53475bf8
