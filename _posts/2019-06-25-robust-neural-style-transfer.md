@@ -6,7 +6,7 @@ image:
   thumbnail: "images/rnst/banner.jpg"
   hide: true
 date:   2019-06-21
-excerpt: I show that in neural style transfer, adversarial robustness transforms ResNet-50 from a completely useless feature extractor to an effective one.
+excerpt: I show that adversarial robustness makes neural style transfer work on a non-VGG architecture.
 ---
 
 <script src="{{ '/assets/juxtapose/juxtapose.js' | absolute_url }}"></script>
@@ -98,6 +98,7 @@ The results of the experiment can be explored in the diagram below.
 <b>Style image</b>
 <select id="style-select" class="image-picker">
     <option data-img-src="{{ '/images/rnst/thumbnails/scream.jpg' | absolute_url }}" value="scream"></option>
+    <option data-img-src="{{ '/images/rnst/thumbnails/starrynight.jpg' | absolute_url }}" value="starry"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/woman.jpg' | absolute_url }}" value="woman"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/picasso.jpg' | absolute_url }}" value="picasso"></option>
 </select>
