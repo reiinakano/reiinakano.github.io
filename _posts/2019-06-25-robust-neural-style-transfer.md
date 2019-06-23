@@ -9,8 +9,8 @@ date:   2019-06-21
 excerpt: I show that in neural style transfer, adversarial robustness transforms ResNet-50 from a completely useless feature extractor to an effective one.
 ---
 
-<script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
-<link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
+<script src="{{ '/assets/juxtapose/juxtapose.js' | absolute_url }}"></script>
+<link rel="stylesheet" href="{{ '/assets/juxtapose/juxtapose.css' | absolute_url }}">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script src="{{ '/assets/image-picker/image-picker.min.js' | absolute_url }}"></script>
 <link rel="stylesheet" href="{{ '/assets/image-picker/image-picker.css' | absolute_url }}">
