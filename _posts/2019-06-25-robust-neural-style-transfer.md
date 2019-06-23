@@ -180,6 +180,20 @@ It would be interesting to see if a robust classifier trained on the full ImageN
 
 If you'd like to build on this experiment, all the code is available in this [Colab notebook][colab_link].
 
+### Citation
+
+If you found this work useful, please cite it as:
+
+```
+@misc{nakano2019robuststyle, 
+title={Neural Style Transfer with Adversarially Robust Classifiers}, 
+url={https://reiinakano.com/2019/06/21/robust-neural-style-transfer.html}, 
+journal={https://reiinakano.com}, 
+author={Reiichiro Nakano}, 
+year={2019}, 
+month={Jun}}
+```
+
 [^1]: Adversarial examples are inputs that are specially crafted by an attacker to trick a classifier into producing an incorrect label for that input. There is an entire field of research dedicated to adversarial attacks and defenses in deep learning literature.
 [^2]: This is usually defined as being in some pre-defined perturbation set such as an L2 ball. Humans don't notice individual pixels changing within some pre-defined epsilon, so any perturbations within this set can be used to create an adversarial example.  
 [^3]: This phenomenon is discussed at length in [this Reddit thread][vggtables].
