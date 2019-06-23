@@ -13,6 +13,7 @@ date:   2019-06-15
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script src="{{ '/assets/image-picker/image-picker.min.js' | absolute_url }}"></script>
 <link rel="stylesheet" href="{{ '/assets/image-picker/image-picker.css' | absolute_url }}">
+<link rel="stylesheet" href="{{ '/assets/rnst/css/image-picker.css' | absolute_url }}">
 <script src="{{ '/assets/d3.min.js' | absolute_url }}"></script>
 
 <div style="margin-bottom: 30px;">
@@ -99,8 +100,8 @@ The results of the experiment can be explored in the diagram below.
     <option data-img-src="{{ '/images/rnst/thumbnails/woman.jpg' | absolute_url }}" value="woman"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/picasso.jpg' | absolute_url }}" value="picasso"></option>
 </select>
-<input id="check-compare-vgg" type="checkbox"><small>&nbsp; Compare VGG <> Robust ResNet</small>
-<div id="style-transfer-slider" class="align-center"></div>
+<label><input id="check-compare-vgg" type="checkbox"><small>&nbsp; Compare VGG <> Robust ResNet</small></label>
+<div id="style-transfer-slider" class="align-center" style="padding-top: 10px;"></div>
 </div>
 <script src="{{ '/assets/rnst/js/style-transfer-slider.js' | absolute_url }}"></script>
 
