@@ -175,7 +175,7 @@ One can also try the techniques from [Differentiable Image Parameterizations][di
 * To my knowledge, the robust ResNet I used from Engstrom, et. al. was trained on a restricted set of ImageNet with only 9 classes. 
 It would be interesting to see if a robust classifier trained on the full ImageNet dataset would produce better outputs.
 
-### Acknowledgments
+If you'd like to build on this experiment, all the code is available in this [Colab notebook][colab_link].
 
 [^1]: Adversarial examples are inputs that are specially crafted by an attacker to trick a classifier into producing an incorrect label for that input. There is an entire field of research dedicated to adversarial attacks and defenses in deep learning literature.
 [^2]: This is usually defined as being in some pre-defined perturbation set such as an L2 ball. Humans don't notice individual pixels changing within some pre-defined epsilon, so any perturbations within this set can be used to create an adversarial example.  
@@ -184,7 +184,7 @@ It would be interesting to see if a robust classifier trained on the full ImageN
 [^5]: Since the non-robust features are defined by the non-robust features ResNet-50 captures, $$NRF_{resnet}$$, what this graph really shows is how well an architecture captures $$NRF_{resnet}$$.
 [^6]: L-BFGS was used for optimization as it showed faster convergence over Adam. For ResNet-50, the style layers used were the ReLu outputs after each of the 4 residual blocks, $$[relu2\_x, relu3\_x, relu4\_x, relu5\_x]$$ while the content layer used was $$relu4\_x$$. For VGG-19, style layers $$[relu1\_1,relu2\_1,relu3\_1,relu4\_1,relu5\_1]$$ were used with a content layer $$relu4\_2$$. In VGG-19, max pooling layers were replaced with avg pooling layers, as in the [original paper][neural_style_transfer_arxiv] by Gatys, et. al.
 [^7]: This is more obvious when the output image is initialized not with the content image, but with Gaussian noise. 
-[^8]: In fact, neural style transfer is not the only pretrained classifier-based iterative image optimization technique that magically works better with adversarial robustness. In a [more recent paper][perceptually_aligned_arxiv] from Engstrom, et. al., they show that [feature visualization via activation maximization][feature_viz] works on robust classifiers *without* enforcing any priors or regularization (e.g. image transformations and decorrelated parameterization) used by [previous][feature_viz] [work][building_blocks]. In a recent chat I had with [Chris Olah][chris_olah_blog], he shared that the aforementioned feature visualization techniques actually work well on VGG *without* these priors, just like style transfer!
+[^8]: In fact, neural style transfer is not the only pretrained classifier-based iterative image optimization technique that magically works better with adversarial robustness. In a [more recent paper][perceptually_aligned_arxiv] from Engstrom, et. al., they show that [feature visualization via activation maximization][feature_viz] works on robust classifiers *without* enforcing any priors or regularization (e.g. image transformations and decorrelated parameterization) used by [previous][feature_viz] [work][building_blocks]. In a recent chat I had with [Chris Olah][chris_olah_blog], he pointed out that the aforementioned feature visualization techniques actually work well on VGG *without* these priors, just like style transfer!
 
 [not_bugs_features_arxiv]: https://arxiv.org/abs/1905.02175
 [not_bugs_features_blog]: http://gradientscience.org/adv/
