@@ -180,6 +180,13 @@ It would be interesting to see if a robust classifier trained on the full ImageN
 
 If you'd like to build on this experiment, all the code is available in this [Colab notebook][colab_link].
 
+### Acknowledgments
+
+This post was mostly inspired by this [series][not_bugs_features_blog] [of][robust_reps_blog] [papers][robust_apps_blog] from Engstrom, et. al. and built on their [open-sourced code and model weights][robust_github]. 
+The diagram comparing artifacts was repurposed from Odena et. al.'s [Deconvolution and Checkerboard Artifacts][checkerboard_artifacts]. 
+Chris Olah pointed out that feature visualization works well on VGG without priors or regularization. 
+All experiments were performed on [Google Colaboratory][google_colab].
+
 ### Citation
 
 If you found this work useful, please cite it as:
@@ -205,6 +212,8 @@ month={Jun}}
 
 [not_bugs_features_arxiv]: https://arxiv.org/abs/1905.02175
 [not_bugs_features_blog]: http://gradientscience.org/adv/
+[robust_reps_blog]: http://gradientscience.org/robust_reps/
+[robust_apps_blog]: http://gradientscience.org/robust_apps/
 [diff_img_params]: https://distill.pub/2018/differentiable-parameterizations/
 [diff_img_params_style_transfer]: https://distill.pub/2018/differentiable-parameterizations/#section-styletransfer
 [vggtables]: https://www.reddit.com/r/MachineLearning/comments/7rrrk3/d_eat_your_vggtables_or_why_does_neural_style/
@@ -220,3 +229,4 @@ month={Jun}}
 [feature_viz]: https://distill.pub/2017/feature-visualization/
 [building_blocks]: https://distill.pub/2018/building-blocks/
 [chris_olah_blog]: http://colah.github.io
+[google_colab]: https://colab.research.google.com/
