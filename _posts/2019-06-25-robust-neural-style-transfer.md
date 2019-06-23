@@ -93,6 +93,7 @@ The results of the experiment can be explored in the diagram below.
 <b>Content image</b>
 <select id="content-select" class="image-picker">
     <option data-img-src="{{ '/images/rnst/thumbnails/ben.jpg' | absolute_url }}" value="ben"></option>
+    <option data-img-src="{{ '/images/rnst/thumbnails/dancing.jpg' | absolute_url }}" value="dancing"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/tubingen.jpg' | absolute_url }}" value="tubingen"></option>
 </select>
 <b>Style image</b>
