@@ -183,7 +183,7 @@ If you'd like to build on this experiment, all the code is available in this [Co
 
 ### Acknowledgments
 
-This post was mostly inspired by this [series][not_bugs_features_blog] [of][robust_reps_blog] [papers][robust_apps_blog] from Engstrom, et. al. and built on their [open-sourced code and model weights][robust_github]. 
+This post was mostly inspired by this [series][not_bugs_features_blog] [of][robust_reps_blog] [papers][robust_apps_blog] by [Ilyas, et. al.][not_bugs_features_arxiv], [Engstrom, et. al.][robust_reps_arxiv], and [Santurkar, et. al.][robust_apps_arxiv] and built on top of their [open-sourced code and model weights][robust_github]. 
 The diagram comparing artifacts was repurposed from Odena et. al.'s [Deconvolution and Checkerboard Artifacts][checkerboard_artifacts]. 
 Chris Olah pointed out that feature visualization works well on VGG without priors or regularization. 
 All experiments were performed on [Google Colaboratory][google_colab].
@@ -216,6 +216,7 @@ month={Jun}}
 [robust_reps_blog]: http://gradientscience.org/robust_reps/
 [robust_reps_arxiv]: https://arxiv.org/abs/1906.00945
 [robust_apps_blog]: http://gradientscience.org/robust_apps/
+[robust_apps_arxiv]: https://arxiv.org/abs/1906.09453
 [diff_img_params]: https://distill.pub/2018/differentiable-parameterizations/
 [diff_img_params_style_transfer]: https://distill.pub/2018/differentiable-parameterizations/#section-styletransfer
 [vggtables]: https://www.reddit.com/r/MachineLearning/comments/7rrrk3/d_eat_your_vggtables_or_why_does_neural_style/
