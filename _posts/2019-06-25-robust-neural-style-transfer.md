@@ -30,7 +30,7 @@ excerpt: I show that adversarial robustness makes neural style transfer work on 
 </div>
 <script src="{{ '/assets/rnst/js/banner-slider.js' | absolute_url }}"></script>
 
-I recently read an intriguing paper by Engstrom, et. al. about a radically different way to view adversarial examples [^1], titled "[Adversarial Examples Are Not Bugs, They Are Features][not_bugs_features_arxiv]". 
+I recently read an intriguing paper by Ilyas, et. al. about a radically different way to view adversarial examples [^1], titled "[Adversarial Examples Are Not Bugs, They Are Features][not_bugs_features_arxiv]". 
 
 The authors propose the existence of so-called "robust" and "non-robust" features in the images used for training image classifiers. 
 *Robust features* can be thought of as features that humans naturally use for classification e.g. flappy ears are indicative of certain breeds of dogs, while black and white stripes are indicative of zebras.
@@ -72,7 +72,7 @@ Use an adversarially robust classifier for (regular) neural style transfer and s
 
 ### A quick experiment
 
-Fortunately, Engstrom, et. al. open-sourced their [code and model weights][robust_github] for a robust ResNet-50, saving me the trouble of having to train my own. 
+Fortunately, [Engstrom, et. al.][robust_reps_arxiv] open-sourced their [code and model weights][robust_github] for a robust ResNet-50, saving me the trouble of having to train my own. 
 I compared a regularly trained (non-robust) ResNet-50 with a robustly trained ResNet-50 on their performance on Gatys, et. al.'s original [neural style transfer][neural_style_transfer_arxiv] algorithm. 
 For comparison, I also performed the style transfer with a regular VGG-19.
 
@@ -183,7 +183,7 @@ If you'd like to build on this experiment, all the code is available in this [Co
 
 ### Acknowledgments
 
-This post was mostly inspired by this [series][not_bugs_features_blog] [of][robust_reps_blog] [papers][robust_apps_blog] from Engstrom, et. al. and built on their [open-sourced code and model weights][robust_github]. 
+This post was mostly inspired by this [series][not_bugs_features_blog] [of][robust_reps_blog] [papers][robust_apps_blog] by [Ilyas, et. al.][not_bugs_features_arxiv], [Engstrom, et. al.][robust_reps_arxiv], and [Santurkar, et. al.][robust_apps_arxiv] and built on top of their [open-sourced code and model weights][robust_github]. 
 The diagram comparing artifacts was repurposed from Odena et. al.'s [Deconvolution and Checkerboard Artifacts][checkerboard_artifacts]. 
 Chris Olah pointed out that feature visualization works well on VGG without priors or regularization. 
 All experiments were performed on [Google Colaboratory][google_colab].
@@ -214,7 +214,9 @@ month={Jun}}
 [not_bugs_features_arxiv]: https://arxiv.org/abs/1905.02175
 [not_bugs_features_blog]: http://gradientscience.org/adv/
 [robust_reps_blog]: http://gradientscience.org/robust_reps/
+[robust_reps_arxiv]: https://arxiv.org/abs/1906.00945
 [robust_apps_blog]: http://gradientscience.org/robust_apps/
+[robust_apps_arxiv]: https://arxiv.org/abs/1906.09453
 [diff_img_params]: https://distill.pub/2018/differentiable-parameterizations/
 [diff_img_params_style_transfer]: https://distill.pub/2018/differentiable-parameterizations/#section-styletransfer
 [vggtables]: https://www.reddit.com/r/MachineLearning/comments/7rrrk3/d_eat_your_vggtables_or_why_does_neural_style/
