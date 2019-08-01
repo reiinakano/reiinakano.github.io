@@ -95,6 +95,7 @@ The results of the experiment can be explored in the diagram below.
     <option data-img-src="{{ '/images/rnst/thumbnails/ben.jpg' | absolute_url }}" value="ben"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/dancing.jpg' | absolute_url }}" value="dancing"></option>
     <option data-img-src="{{ '/images/rnst/thumbnails/tubingen.jpg' | absolute_url }}" value="tubingen"></option>
+    <option data-img-src="{{ '/images/rnst/thumbnails/stata.jpg' | absolute_url }}" value="stata"></option>
 </select>
 <b>Style image</b>
 <select id="style-select" class="image-picker">
