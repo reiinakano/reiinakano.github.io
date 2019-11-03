@@ -40,11 +40,24 @@ ANSWER: 1/5
 
 `swr_p_sequence` contains questions for calculating the probability of a particular sequence of letters.
 ```
-QUESTION: Calculate_prob_of_sequence_ko_when_two_letters_picked_without_replacement_from_yyyykkoykkyoyyokyyy.
+QUESTION: Calculate prob of sequence ko when two letters picked without replacement from yyyykkoykkyoyyokyyy.
 ANSWER: 5/114
 ```
 
-With the baseline approach used in the paper, 
+With the baseline approach used in the paper, the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_level_set` and `swr_p_sequence` test sets, respectively.
+
+To solve the same problems, a human does not take a look at the question and immediately spit out an answer. One must go through a series of reasoning and intermediate steps, similar to the following:
+
+```
+QUESTION: Calculate prob of sequence ko when two letters picked without replacement from yyyykkoykkyoyyokyyy.
+*Count the total number of letters in yyyykkoykkyoyyokyyy* -> 19
+*Count the number of specific letters needed* -> k: 5 counts, o: 3 counts
+*Set up the equation for solving probability of the sequence ko* -> 5/19 * 3/18
+*Solve the equation* -> 5/19 * 3/18 = 5/114
+ANSWER: 5/114
+```
+
+
 
 ### The model/Using an external symbolic solver
 
