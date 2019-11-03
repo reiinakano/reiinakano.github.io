@@ -27,7 +27,7 @@ Both questions and answers are in the form of free-form text, making [seq2seq][s
 
 For more details, I highly recommend reading the [accompanying paper][mathematics_dataset_paper].
 
-### Intermediate steps
+### Humans use intermediate steps to solve math problems
 
 In this article, we focus on the dataset categories relating to probability: `swr_level_set` and `swr_p_sequence`.
 
@@ -44,20 +44,37 @@ QUESTION: Calculate prob of sequence ko when two letters picked without replacem
 ANSWER: 5/114
 ```
 
-With the baseline approach used in the paper, the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_level_set` and `swr_p_sequence` test sets, respectively.
+With the baseline approach used in DeepMind's paper, the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_level_set` and `swr_p_sequence` test sets, respectively.
 
-To solve the same problems, a human does not take a look at the question and immediately spit out an answer. One must go through a series of reasoning and intermediate steps, similar to the following:
+To solve the same problems, a human does not just take a look at the question and immediately spit out an answer. One must go through a series of reasoning and intermediate steps, similar to the following:
 
 ```
 QUESTION: Calculate prob of sequence ko when two letters picked without replacement from yyyykkoykkyoyyokyyy.
 *Count the total number of letters in yyyykkoykkyoyyokyyy* -> 19
 *Count the number of specific letters needed* -> k: 5 counts, o: 3 counts
 *Set up the equation for solving probability of the sequence ko* -> 5/19 * 3/18
-*Solve the equation* -> 5/19 * 3/18 = 5/114
+*Solve the equation (manually or using a calculator)* -> 5/19 * 3/18 = 5/114
 ANSWER: 5/114
 ```
 
+This insight leads to an obvious question. Instead of training the network on question-answer pairs, can we use intermediate steps to provide a better signal for the model to learn from? Presumably, a network will find it easier to capture the structure between intermediate steps, rather than the more complex structure between a question and its answer.
 
+### Generating intermediate steps
+
+We modify the [generation code][mathematics_dataset] to procedurally generate question-intermediate step (IS) pairs, instead of the original question-answer pairs. A question-IS pair looks like the following:
+
+Question:
+```
+Calculate prob of sequence jppx when four letters picked without replacement from {x: 3, j: 1, p: 5}. 
+```
+
+Intermediate steps:
+```
+x:3 j:1 p:5
+3+1+5=9 
+(1/9)*(5/8)*(4/7)*(3/6)=5/252
+5/252
+```
 
 ### The model/Using an external symbolic solver
 
@@ -87,6 +104,7 @@ this is all assuming that the only training data used is from the probability se
 
 ### Conclusions and future work
 
+make no mistake, this is a toy problem
 
 ### Acknowledgments
 
