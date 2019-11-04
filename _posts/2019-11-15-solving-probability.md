@@ -59,7 +59,13 @@ ANSWER: 5/114
 
 This insight leads to an obvious question. Instead of training the network on question-answer pairs, can we use intermediate steps to provide a better signal for the model to learn from? Presumably, a network will find it easier to capture the structure between intermediate steps, rather than the more complex structure between a question and its answer.
 
-### Generating intermediate steps
+### Humans can use calculators for tedious work
+
+The final intermediate step above `5/19 * 3/18 = 5/114` involves a multiplication between two fractions. While this specific equation is fairly simple and can be solved manually by a human in a few seconds, we can easily imagine questions about probability to involve more complicated fractions e.g. `(23/543 * 34/2551 * 673/12043) * (25!) / (20! * 19!)`. In probability (and other fields), most of human "intelligence" is used for setting up the equations, not evaluating them. Calculators were invented for a reason.
+
+While we can try forcing our neural networks to figure out how to work through tedious intermediate calculations on their own, we can make their task much simpler by instead giving them access to an external symbolic calculator. This way, the network can shift its focus on learning *how* to solve a problem, outsourcing tedious calculations elsewhere.
+
+### Putting it all together
 
 We modify the [generation code][mathematics_dataset] to procedurally generate question-intermediate step (IS) pairs, instead of the original question-answer pairs. A question-IS pair looks like the following:
 
