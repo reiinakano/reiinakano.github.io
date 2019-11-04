@@ -27,7 +27,7 @@ Both questions and answers are in the form of free-form text, making [seq2seq][s
 
 For more details, I highly recommend reading the [accompanying paper][mathematics_dataset_paper].
 
-### Humans use intermediate steps to solve math problems
+### Solving simple probability problems
 
 In this article, we focus on the dataset categories relating to probability: `swr_level_set` and `swr_p_sequence`.
 
@@ -45,6 +45,8 @@ ANSWER: 5/114
 ```
 
 With the baseline approach used in DeepMind's paper, the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_level_set` and `swr_p_sequence` test sets, respectively.
+
+### Humans use intermediate steps to solve math problems
 
 To solve the same problems, a human does not just take a look at the question and immediately spit out an answer. One must go through a series of reasoning and intermediate steps, similar to the following:
 
