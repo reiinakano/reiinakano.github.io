@@ -144,11 +144,17 @@ To see how we can integrate our symbolic solver with a neural network, consider 
 During decoding, the decoder outputs a single character per time step. At each time step, the decoder takes two inputs: 
 
 1. The output vector from the encoder, which encodes the input question. This is used to condition the decoder for all time steps. 
-2. The decoder output so far. e.g. if the decoder output up to the current time step is `2 + 2 = `, this is fed back to the decoder as an input for the next time step and used to calculate the next character (perhaps a `4`).
+2. The decoder *output so far*. e.g. if the decoder output up to the current time step is `2 + 2 = `, this is fed back to the decoder as an input for the next time step and used to predict the next character (perhaps a `4`).
 
 **picture of transformer generating ()**
 
-This gives us a very natural way to integrate our SymPy calculator into the decoding process of a transformer. Intermediate steps are valid SymPy expressions, so we can simply wait for an `=` sign, take the expression before the `=` sign, and run it through `parse_expr`. SymPy's string output is appended to "output so far", and is used by the decoder to figure out the next steps. The animation below illustrates the decoding process.
+This gives us a very natural way to integrate our SymPy calculator into the decoding process of a transformer. Intermediate steps are valid SymPy expressions, so we can use the following decoding process:
+1. Decode as normal, while waiting for an `=` sign.
+2. After predicting an `=` sign, take the last expression before the `=` sign, and run it through `parse_expr`.
+3. `parse_expr`'s string output is appended to the decoder's "output so far", after which it is treated by the decoder as any other previous output tokens. This means that the decoder will use the calculator's output to predict the rest of the characters.
+4. Repeat steps 1-3 until the end-of-sentence symbol is predicted.
+
+The animation below illustrates the decoding process.
 
 **animated gif**
 
