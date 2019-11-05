@@ -46,7 +46,7 @@ ANSWER: 5/114
 
 With the baseline approach used in DeepMind's paper, the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
 
-**picture of architecture from deepmind paper**
+**picture of architecture from deepmind paper. caption the rest of this article will use transformer blabla**
 
 ### Humans use intermediate steps to solve math problems
 
@@ -123,10 +123,34 @@ ANSWER: 0
 
 At this point, we can use the newly generated dataset as an input-output pair for a seq2seq model i.e. The question is treated as a sequence of characters for input into the model, and the model tries to generate a sequence of characters representing the intermediate steps necessary to solve the problem. This is the exact same setup as the baseline, with only the target output changed.
 
-### Using an external symbolic solver
+### Decoding with an external symbolic solver
 
+For our external symbolic calculator, we'll use [SymPy][sympy], "a Python library for symbolic mathematics". SymPy is both incredibly powerful and intuitive. For our purposes, we'll need only a single function from SymPy, [`sympy.parsing.sympy_parser.parse_expr`][parse_expr]. `parse_expr` reads in a Python string, parses it into a symbolic math expression, and simplifies it as much as possible. The output can easily be converted back into a string. Here's an example of it in action:
 
-### Results
+```python
+>>> from sympy.parsing.sympy_parser import parse_expr
+>>> str(parse_expr("2/3 + 5/9 + 32/527"))
+6085/4743
+>>> str(parse_expr("5! / (3!*2!)"))
+10
+>>> str(parse_expr("not a valid expression"))
+SyntaxError: invalid syntax
+```
+
+Powerful stuff. `parse_expr` can handle all kinds of operations, and is more than enough for solving intermediate steps for simple probability questions.
+
+To see how we can integrate our symbolic solver with a neural network, consider how a transformer-based seq2seq decoder generates each character of the output. If you're unfamiliar with transformers or need a review, check out this excellent article from Jay Alammar, [The Illustrated Transformer][illustrated_transformer].
+
+During decoding, the decoder outputs a single character per time step. At each time step, the decoder takes two inputs: 
+
+1. The output vector from the encoder, which encodes the input question. This is used to condition the decoder for all time steps. 
+2. The decoder output so far. e.g. if the decoder output up to the current time step is `2 + 2 = `, this is fed back to the decoder as an input for the next time step and used to calculate the next character (perhaps a `4`).
+
+**picture of transformer generating ()**
+
+This gives us a natural way to integrate our SymPy calculator into the decoding process of a transformer.
+
+## Results
 
 
 ### Analysis of Results
@@ -163,7 +187,7 @@ If you found this work useful, please cite it as:
 ```
 ```
 
-[^1]: Adversarial examples are inputs that are specially crafted by an attacker to trick a classifier into producing an incorrect label for that input. There is an entire field of research dedicated to adversarial attacks and defenses in deep learning literature.
+[^1]: The rest of this article will be using the transformer architecture as the default seq2seq model. It's faster to train and has much better performance than other architectures, so this is an easy decision.
 
 
 [google_colab]: https://colab.research.google.com/
@@ -171,3 +195,6 @@ If you found this work useful, please cite it as:
 [mathematics_dataset_paper]: https://arxiv.org/abs/1904.01557
 [seq2seq_paper]: https://arxiv.org/abs/1409.3215
 [attention_paper]: https://arxiv.org/abs/1706.03762
+[illustrated_transformer]: http://jalammar.github.io/illustrated-transformer/
+[sympy]: https://www.sympy.org/en/index.html
+[parse_expr]: https://docs.sympy.org/latest/modules/parsing.html
