@@ -148,7 +148,17 @@ During decoding, the decoder outputs a single character per time step. At each t
 
 **picture of transformer generating ()**
 
-This gives us a natural way to integrate our SymPy calculator into the decoding process of a transformer.
+This gives us a very natural way to integrate our SymPy calculator into the decoding process of a transformer. Intermediate steps are valid SymPy expressions, so we can simply wait for an `=` sign, take the expression before the `=` sign, and run it through `parse_expr`. SymPy's string output is appended to "output so far", and is used by the decoder to figure out the next steps. The animation below illustrates the decoding process.
+
+**animated gif**
+
+To use a human metaphor, this is akin to a student punching keys into a calculator, writing down the result, and figuring out next steps, taking into account the calculator's output.
+
+### Training with an external symbolic solver
+
+Decoding is very natural, but how do we *train* the network?
+
+Again, let's review how a seq2seq transformer is usually trained.
 
 ## Results
 
@@ -187,7 +197,6 @@ If you found this work useful, please cite it as:
 ```
 ```
 
-[^1]: The rest of this article will be using the transformer architecture as the default seq2seq model. It's faster to train and has much better performance than other architectures, so this is an easy decision.
 
 
 [google_colab]: https://colab.research.google.com/
