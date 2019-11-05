@@ -27,11 +27,11 @@ Both questions and answers are in the form of free-form text, making [seq2seq][s
 
 For more details, I highly recommend reading the [accompanying paper][mathematics_dataset_paper].
 
-### Solving simple probability problems
+## Solving simple probability problems
 
-In this article, we focus on the dataset categories relating to probability: `swr_level_set` and `swr_p_sequence`.
+In this article, we focus on the dataset categories relating to probability: `swr_p_level_set` and `swr_p_sequence`.
 
-`swr_level_set` contains questions for calculating the probability of obtaining certain counts of letters.
+`swr_p_level_set` contains questions for calculating the probability of obtaining certain counts of letters.
 
 ```
 QUESTION: Two letters picked without replacement from {v: 3, q: 1, x: 1, o: 1}. What is prob of picking 1 x and 1 v?
@@ -44,7 +44,7 @@ QUESTION: Calculate prob of sequence ko when two letters picked without replacem
 ANSWER: 5/114
 ```
 
-With the baseline approach used in DeepMind's paper, the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_level_set` and `swr_p_sequence` test sets, respectively.
+With the baseline approach used in DeepMind's paper, the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
 
 ### Humans use intermediate steps to solve math problems
 
@@ -59,30 +59,49 @@ QUESTION: Calculate prob of sequence ko when two letters picked without replacem
 ANSWER: 5/114
 ```
 
-This insight leads to an obvious question. Instead of training the network on question-answer pairs, can we use intermediate steps to provide a better signal for the model to learn from? Presumably, a network will find it easier to capture the structure between intermediate steps, rather than the more complex structure between a question and its answer.
+This insight naturally leads to the following question: Instead of training the network on question-answer pairs, can we use intermediate steps to provide a better signal for the model to learn from? Presumably, a network will find it easier to capture the structure between intermediate steps, rather than the more complex structure between a question and its answer.
 
 ### Humans can use calculators for tedious work
 
-The final intermediate step above `5/19 * 3/18 = 5/114` involves a multiplication between two fractions. While this specific equation is fairly simple and can be solved manually by a human in a few seconds, we can easily imagine questions about probability to involve more complicated fractions e.g. `(23/543 * 34/2551 * 673/12043) * (25!) / (20! * 19!)`. In probability (and other fields), most of human "intelligence" is used for setting up the equations, not evaluating them. Calculators were invented for a reason.
+The final intermediate step above `5/19 * 3/18 = 5/114` involves a multiplication between two fractions. While this specific equation is fairly simple and can be solved manually by a human in a few seconds, we can easily imagine questions about probability to involve more complicated fractions e.g. `(23/543 * 34/2551 * 673/12043) * (25!) / (20! * 19!)`. In probability (and many other tasks), human "intelligence" is mostly used to put together the appropriate equations. Calculators were invented to do the tedious work of actually evaluating them.
 
-While we can try forcing our neural networks to figure out how to work through tedious intermediate calculations on their own, we can make their task much simpler by instead giving them access to an external symbolic calculator. This way, the network can shift its focus on learning *how* to solve a problem, outsourcing tedious calculations elsewhere.
+While we can try forcing a neural network to figure out how to work through tedious intermediate calculations on its own, we can make its task much simpler by instead giving it access to an external symbolic calculator. This way, the network can focus on learning *how* to solve a problem, outsourcing tedious calculations elsewhere.
 
-### Putting it all together
+## Methodology
 
-We modify the [generation code][mathematics_dataset] to procedurally generate question-intermediate step (IS) pairs, instead of the original question-answer pairs. A question-IS pair looks like the following:
+How do we integrate the above two insights (intermediate steps and external calculator) with our baseline seq2seq models?
 
-Question:
+### Generating intermediate steps
+
+We modify the [Mathematics Dataset generation code][mathematics_dataset] to procedurally generate question-intermediate step (IS) pairs, instead of the original question-answer pairs. A question-IS pair for `swr_p_sequence` looks like the following:
+
 ```
+QUESTION:
 Calculate prob of sequence jppx when four letters picked without replacement from {x: 3, j: 1, p: 5}. 
-```
 
-Intermediate steps:
-```
+INTERMEDIATE STEPS:
 x:3 j:1 p:5
 3+1+5=9 
 (1/9)*(5/8)*(4/7)*(3/6)=5/252
 5/252
 ```
+
+For `swr_p_level_set`:
+
+```
+QUESTION:
+Calculate prob of picking 2 b and 2 d when four letters picked without replacement from dbbbjbbd.
+
+INTERMEDIATE STEPS:
+d:2 b:5 j:1 
+2+5+1=8
+(2/8)*(1/7)*(5/6)*(4/5)=1/42 
+4!/(2!*2!)=6 
+6*1/42=1/7 
+1/7
+```
+
+
 
 ### The model/Using an external symbolic solver
 
