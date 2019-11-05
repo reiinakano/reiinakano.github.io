@@ -46,6 +46,8 @@ ANSWER: 5/114
 
 With the baseline approach used in DeepMind's paper, the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
 
+**picture of architecture from deepmind paper**
+
 ### Humans use intermediate steps to solve math problems
 
 To solve the same problems, a human does not just take a look at the question and immediately spit out an answer. One must go through a series of reasoning and intermediate steps, similar to the following:
@@ -119,9 +121,9 @@ QUESTION: Four letters picked without replacement from miafjh. Give prob of sequ
 ANSWER: 0
 ```
 
-At this point, we can use the newly generated dataset as an input-output pair for a seq2seq model i.e. The question is treated as a sequence of characters for input into the model, and the model tries to generate a sequence of characters representing the intermediate steps necessary to solve the problem.
+At this point, we can use the newly generated dataset as an input-output pair for a seq2seq model i.e. The question is treated as a sequence of characters for input into the model, and the model tries to generate a sequence of characters representing the intermediate steps necessary to solve the problem. This is the exact same setup as the baseline, with only the target output changed.
 
-### The model/Using an external symbolic solver
+### Using an external symbolic solver
 
 
 ### Results
