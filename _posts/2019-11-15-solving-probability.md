@@ -73,7 +73,7 @@ How do we integrate the above two insights (intermediate steps and external calc
 
 ### Generating intermediate steps
 
-We modify the [Mathematics Dataset generation code][mathematics_dataset] to procedurally generate question-intermediate step (IS) pairs, instead of the original question-answer pairs. A question-IS pair for `swr_p_sequence` looks like the following:
+To generate intermediate steps, we modify the [Mathematics Dataset generation code][mathematics_dataset] to procedurally generate question-intermediate step (IS) pairs, instead of the original question-answer pairs. A question-IS pair for `swr_p_sequence` looks like the following:
 
 ```
 QUESTION:
@@ -101,7 +101,23 @@ d:2 b:5 j:1
 1/7
 ```
 
+The intermediate steps for both categories follow roughly the same pattern, with a few extra steps for `swr_p_level_set`:
+1. Count the number of instances for each letter. `d:2 b:5 j:1 `
+2. Sum together the counts, to get the total number of letters. `2+5+1=8`
+3. Set up the equation for calculating the probability of a sequence using the product rule for probability. `(2/8)*(1/7)*(5/6)*(4/5)=1/42 `
+4. (For `swr_p_level_set`) Set up an equation for calculating the unique number of permutations of sampled letters. `4!/(2!*2!)=6 `
+5. (For `swr_p_level_set`) Multiply together the results of step 3 and step 4. `6*1/42=1/7`
+6. The last line always contains the final answer. `1/7`
 
+A few special cases occur in some problems, namely questions that lead to a probability of 1 (events guaranteed to happen) or 0 (impossible events). These cases are fairly trivial and easy for a human to spot, and we omit intermediate steps for these questions:
+
+```
+QUESTION: Four letters picked without replacement from {s: 8}. Give prob of sequence ssss.
+ANSWER: 1
+
+QUESTION: Four letters picked without replacement from miafjh. Give prob of sequence ajaf.
+ANSWER: 0
+```
 
 ### The model/Using an external symbolic solver
 
@@ -131,7 +147,7 @@ this is all assuming that the only training data used is from the probability se
 
 ### Conclusions and future work
 
-make no mistake, this is a toy problem
+make no mistake, this is a toy problem. the space of questions is extremely limited and, (SPECULATION) on its own, is unlikely to lead to any general knowledge of probability.
 
 ### Acknowledgments
 
