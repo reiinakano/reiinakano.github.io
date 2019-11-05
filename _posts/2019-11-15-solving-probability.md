@@ -119,6 +119,8 @@ QUESTION: Four letters picked without replacement from miafjh. Give prob of sequ
 ANSWER: 0
 ```
 
+At this point, we can use the newly generated dataset as an input-output pair for a seq2seq model i.e. The question is treated as a sequence of characters for input into the model, and the model tries to generate a sequence of characters representing the intermediate steps necessary to solve the problem.
+
 ### The model/Using an external symbolic solver
 
 
