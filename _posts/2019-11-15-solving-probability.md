@@ -150,8 +150,8 @@ During decoding, the decoder outputs a single character per time step. At each t
 
 This gives us a very natural way to integrate our SymPy calculator into the decoding process of a transformer. Intermediate steps are valid SymPy expressions, so we can use the following decoding process:
 1. Decode as normal, while waiting for an `=` sign.
-2. After predicting an `=` sign, take the last expression before the `=` sign, and run it through `parse_expr`.
-3. `parse_expr`'s string output is appended to the decoder's "output so far", after which it is treated by the decoder as any other previous output tokens. This means that the decoder will use the calculator's output to predict the rest of the characters.
+2. After decoding an `=` sign, take the last expression before the `=` sign, and run it through `parse_expr`.
+3. `parse_expr`'s string output is appended to the decoder's "output so far", after which it is treated by the decoder as any other previous output token. This means that the decoder will use the calculator's output to predict the rest of the characters.
 4. Repeat steps 1-3 until the end-of-sentence symbol is predicted.
 
 The animation below illustrates the decoding process.
@@ -164,7 +164,17 @@ To use a human metaphor, this is akin to a student punching keys into a calculat
 
 Decoding is very natural, but how do we *train* the network?
 
-Again, let's review how a seq2seq transformer is usually trained.
+For a regular seq2seq task, the training data comes in the form of input-target pairs of sequences, and the loss function is calculated based on how well the decoder output matches the target sequence [^cross_entropy]. For each input-target pair, the input sequence is passed through the encoder, while the target sequence shows up in two parts of the computation graph. The target sequence is used to calculate the loss function of the network, and the target sequence *right-shifted by one* is used as the decoder input during training.
+
+**image of training setup. caption: again, for more details check out illustrated transformer.**
+
+For seq2seq with a symbolic solver, the loss function must capture **how well the decoder output matches the target sequence, *except* at positions the solver is expected to fill**. 
+
+In our implementation, we use training data in the form of three sequences: input, target, and masked target. The masked target sequence is a copy of the target sequence, with a few of the tokens replaced by a special symbol. For example, if the target sequence is `8 + 7 = 15`, the corresponding masked target sequence is `8 + 7 = <pad><pad>`, where `<pad>` is a special masking symbol, signifying that this position is meant to be filled in by an external solver during decoding.
+
+The computation graph for training is shown in the figure below. The input sequence and right-shifted target sequence play the same roles as in the original seq2seq training procedure. The input sequence is passed through the encoder, and the right-shifted target sequence is used as the decoder input. The masked target sequence is used to calculate the loss function, where the special masking symbols signify that the decoder outputs at these positions must not contribute to the loss function [^pad]. In other words, we *don't care* what the network outputs at those positions in the network, since they will be overwritten by the symbolic solver's output.
+
+**image of symbolic solver training setup**
 
 ## Results
 
@@ -203,7 +213,8 @@ If you found this work useful, please cite it as:
 ```
 ```
 
-
+[^cross_entropy]: Usually calculated through something like cross-entropy.
+[^pad]: This can be implemented in multiple ways. For this article, we use [fairseq] as our seq2seq training framework. `<pad>` symbols in the target sequence, normally used for handling variable-length sequences in a batch, are automatically disregarded by fairseq, so there's no need to modify the loss function after replacing the target sequence with a masked target sequence. Another way to implement the same functionality is to zero out the loss function at positions occupied by a masking symbol.
 
 [google_colab]: https://colab.research.google.com/
 [mathematics_dataset]: https://github.com/deepmind/mathematics_dataset/
@@ -213,3 +224,4 @@ If you found this work useful, please cite it as:
 [illustrated_transformer]: http://jalammar.github.io/illustrated-transformer/
 [sympy]: https://www.sympy.org/en/index.html
 [parse_expr]: https://docs.sympy.org/latest/modules/parsing.html
+[fairseq]: https://github.com/pytorch/fairseq
