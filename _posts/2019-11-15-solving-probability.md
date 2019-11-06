@@ -25,7 +25,7 @@ Answer:
 
 Both questions and answers are in the form of free-form text, making [seq2seq][seq2seq_paper] models a natural first step for solving this dataset. In fact, the [paper][mathematics_dataset_paper] released alongside the dataset includes baseline performance metrics for today's [state-of-the-art seq2seq][attention_paper] models, applied naively to the dataset.
 
-For more details, I highly recommend reading the [accompanying paper][mathematics_dataset_paper].
+For more details, I highly recommend reading the [accompanying paper by Saxton et. al.][mathematics_dataset_paper].
 
 ## Solving simple probability problems
 
@@ -44,7 +44,7 @@ QUESTION: Calculate prob of sequence ko when two letters picked without replacem
 ANSWER: 5/114
 ```
 
-With the baseline approach used in DeepMind's paper, the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
+With the baseline approach used by [Saxton et. al.][mathematics_dataset_paper], the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
 
 **picture of architecture from deepmind paper. caption the rest of this article will use transformer blabla**
 
@@ -178,7 +178,9 @@ The computation graph for training is shown in the figure below. The input seque
 
 ### Experiment details
 
-
+* The dataset used is a combination of the `swr_p_level_set` and `swr_p_sequence` training sets with intermediate steps, for a total of 2 million samples in the training set.
+* To quantify the effect of intermediate steps vs the use of a symbolic solver, we train two networks: one using a vanilla transformer model to directly map from question to intermediate steps, and another using an external symbolic solver to evaluate intermediate expressions.
+* We measure a network's performance on two test sets: an interpolated test set, and an extrapolated test set [^polated_test_sets].
 
 ## Results
 
@@ -219,6 +221,7 @@ If you found this work useful, please cite it as:
 
 [^cross_entropy]: Usually calculated through something like cross-entropy.
 [^pad]: This can be implemented in multiple ways. For this article, we use [fairseq] as our seq2seq training framework. `<pad>` symbols in the target sequence, normally used for handling variable-length sequences in a batch, are automatically disregarded by fairseq, so there's no need to modify the loss function after replacing the target sequence with a masked target sequence. Another way to implement the same functionality is to zero out the loss function at positions occupied by a masking symbol.
+[^polated_test_sets]: In [Saxton et. al.][mathematics_dataset_paper], 
 
 [google_colab]: https://colab.research.google.com/
 [mathematics_dataset]: https://github.com/deepmind/mathematics_dataset/
