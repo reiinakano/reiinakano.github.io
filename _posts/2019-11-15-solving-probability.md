@@ -164,17 +164,21 @@ To use a human metaphor, this is akin to a student punching keys into a calculat
 
 Decoding is very natural, but how do we *train* the network?
 
-For a regular seq2seq task, the training data comes in the form of input-target pairs of sequences, and the loss function is calculated based on how well the decoder output matches the target sequence [^cross_entropy]. For each input-target pair, the input sequence is passed through the encoder, while the target sequence shows up in two parts of the computation graph. The target sequence is used to calculate the loss function of the network, and the target sequence *right-shifted by one* is used as the decoder input during training.
+For a regular seq2seq task, the training data comes in the form of input-target pairs of sequences, and the loss function is calculated based on how well the decoder output matches the target sequence [^cross_entropy]. For each input-target pair, the input sequence is passed through the encoder, while the target sequence shows up in two parts of the computation graph. The target sequence is used to calculate the loss function of the network, and the target sequence *right-shifted by one* is used as the decoder input.
 
 **image of training setup. caption: again, for more details check out illustrated transformer.**
 
-For seq2seq with a symbolic solver, the loss function must capture **how well the decoder output matches the target sequence, *except* at positions the solver is expected to fill**. 
+For seq2seq with a symbolic solver, the loss function must instead capture **how well the decoder output matches the target sequence, *except* at positions the solver is expected to fill**. 
 
-In our implementation, we use training data in the form of three sequences: input, target, and masked target. The masked target sequence is a copy of the target sequence, with a few of the tokens replaced by a special symbol. For example, if the target sequence is `8 + 7 = 15`, the corresponding masked target sequence is `8 + 7 = <pad><pad>`, where `<pad>` is a special masking symbol, signifying that this position is meant to be filled in by an external solver during decoding.
+For our implementation, our training data now consists of three sequences: input, target, and masked target. The masked target sequence is a copy of the target sequence, with a few of the tokens replaced by a special masking symbol. For example, if the target sequence is `8 + 7 = 15`, the corresponding masked target sequence is `8 + 7 = <pad><pad>`, where `<pad>` is a special masking symbol, signifying that these positions are meant to be filled in by an external solver during decoding.
 
-The computation graph for training is shown in the figure below. The input sequence and right-shifted target sequence play the same roles as in the original seq2seq training procedure. The input sequence is passed through the encoder, and the right-shifted target sequence is used as the decoder input. The masked target sequence is used to calculate the loss function, where the special masking symbols signify that the decoder outputs at these positions must not contribute to the loss function [^pad]. In other words, we *don't care* what the network outputs at those positions in the network, since they will be overwritten by the symbolic solver's output.
+The computation graph for training is shown in the figure below. The input sequence and right-shifted target sequence play the same roles as in the original seq2seq training procedure. The input sequence is passed through the encoder, and the right-shifted target sequence is used as the decoder input. The masked target sequence is used to calculate the loss function, where the special masking symbols signify that the decoder outputs at these positions must not contribute to the loss function [^pad]. In other words, we *don't care* what the network outputs are at those positions, since they will be overwritten by the symbolic solver's output.
 
 **image of symbolic solver training setup**
+
+### Experiment details
+
+
 
 ## Results
 
