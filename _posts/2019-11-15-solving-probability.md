@@ -183,7 +183,7 @@ Experiment details are mostly based on [Saxton et. al.][mathematics_dataset_pape
 * The dataset used is a combination of the `swr_p_level_set` and `swr_p_sequence` training sets with intermediate steps, for a total of 2 million samples in the training set.
 * To quantify the effect of intermediate steps vs the use of a symbolic solver, we train two networks: one using a transformer to directly map from question to intermediate steps, and another using a transformer + external symbolic solver to evaluate intermediate expressions.
 * We measure a network's performance on two test sets: an interpolated test set, and an extrapolated test set [^polated_test_sets], each with 1000 samples. Accuracy is based solely on the final answer, not the network-generated intermediate steps.
-* We use a batch size of about ~160 on a single [free GPU][google_colab], trained with "early stopping" i.e. after I got tired of waiting and figured the results were good enough. For the baseline transformer with only intermediate steps, this was at __k steps. For the transformer + calculator network, we use only 70k steps.
+* We use a batch size of about ~160 on a single [free GPU][google_colab], trained with "early stopping" i.e. after I got tired of waiting and figured the results were good enough. For the baseline transformer with only intermediate steps, this was at 150k steps. For the transformer + calculator network, we use only 70k steps.
 * Greedy decoding [^greedy_decoding] is used to generate predictions.
 
 For more details, please view the open-source Colaboratory notebooks at 
@@ -241,6 +241,34 @@ Failure cases for `swr_p_sequence`:
 The most common failure case seems to be when the network makes a mistake in counting the number of letters. This happens in long sequences, and the network is usually off by 1 on the letter with the highest count. One explanation for this is that long sequences are particularly sparse in the training set and there aren't enough samples for the network to learn from reliably.
 
 Other failure cases are when the network fails to recognize that the event is impossible (0 probability), or simply failing to set up the correct intermediate expressions.
+
+### Extrapolation test set performance insights
+
+The original baseline from [Saxton et. al.][mathematics_dataset_paper] scores poorly on the extrapolated test set, and the networks trained in this article do no better, measuring <5% accuracy on questions that sample more letters than seen during training.
+
+Let's take a look at a few failure cases:
+
+```
+[QUESTION] What_is_prob_of_picking_1_d,_1_s_and_3_g_when_five_letters_picked_without_replacement_from_gggggggsggdgggg?
+[TARGET ANSWER] d:1   s:1   g:13   1+1+13=15   (1/15)*(1/14)*(13/13)*(12/12)*(11/11)=1/210   5!/(3!)=20   20*1/210=2/21   2/21
+[PREDICTION] s:1   d:1   g:13   1+1+13=15   (1/15)*(13/14)*(12/13)=2/35   3!/(3!)=1   1/35
+
+[QUESTION] Five_letters_picked_without_replacement_from_nntdgadgggaadgtgddrg._What_is_prob_of_picking_1_t,_1_r,_1_g_and_2_d?
+[TARGET ANSWER] n:2   g:7   d:5   t:2   a:3   r:1   2+7+5+2+3+1=20   (7/20)*(5/19)*(4/18)*(2/17)*(1/16)=7/46512   5!/(2!)=60   60*7/46512=35/3876   35/3876
+[PREDICTION] d:5   a:3   g:7   r:1   n:2   t:2   5+3+7+1+2+2=20   (5/20)*(7/19)*(1/18)=7/1368   3!/(2!)=3   3*7/1368=7/456   7/456
+
+[QUESTION] What_is_prob_of_sequence_inrir_when_five_letters_picked_without_replacement_from_{n:_1,_i:_4,_r:_2}?
+[TARGET ANSWER] n:1   i:4   r:2   1+4+2=7   (4/7)*(1/6)*(2/5)*(3/4)*(1/3)=1/105   1/105
+[PREDICTION] n:1   i:4   r:2   1+4+2=7   (4/7)*(1/6)*(2/5)=4/105   4/105
+
+[QUESTION] Calculate_prob_of_sequence_yavay_when_five_letters_picked_without_replacement_from_yvaaaayyaayvavy.
+[TARGET ANSWER] v:3   y:5   a:7   3+5+7=15   (5/15)*(7/14)*(3/13)*(6/12)*(4/11)=1/143   1/143
+[PREDICTION] v:3   y:5   a:7   3+5+7=15   (5/15)*(7/14)*(3/13)=1/26   1/26
+```
+
+While the network is still able to properly count letters (letter counts are not extrapolated and follow the same distribution as the training set), it completely fails to set up the correct equations using the probability product rule, not realizing that it's possible for these equations to have more than 4 factors.
+
+Perhaps this result is unsurprising, as there was really nothing in the network we designed to explicitly handle this sort of out-of-distribution generalization. We could argue, however, that this does not diminish the shown benefits of an external solver. An architecture that is able to generalize to OOD samples is still likely to benefit from not needing to evaluate intermediate expressions by itself.
 
 ### Analysis of Results
 
