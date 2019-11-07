@@ -310,7 +310,7 @@ We observe the same phenomenon in our experiments.
 {'string_tokens': '</s>d:12   l:6   i:2   12+6+2=20   (12/20)*(2/19)=6/95   2!=2   2*6/95=12/95   12/95</s>', 'normlogprob': -1.4709188479375688, 'logprob': -7.306910514831543}
 ```
 
-The top 3 answers for this particular question have very close log probabilities to each other, and result in the same final answer. The main difference lies in the order of letter counts. It does not matter which letter you count first, as long as you count all of them, so the network simply chooses randomly, and the top 3 choices end up being the 3 different valid variations in letter count order.
+The top 3 answers found by beam search for this particular question have very close log probabilities to each other, and result in the same final answer. The main difference lies in the order of letter counts. It does not matter which letter you count first, as long as you count all of them, so the network simply chooses the order randomly. The top 3 choices end up having the 3 valid variations in letter count order.
 
 ### Visualizing attention
 
@@ -326,7 +326,7 @@ this is all assuming that the only training data used is from the probability se
 
 ### Conclusions and future work
 
-make no mistake, this is a toy problem. the space of questions is extremely limited and, (SPECULATION) on its own, is unlikely to lead to any general knowledge of probability. in fact, one can see that with a calculator, all the network needs to learn is how to count letters, decrement small numbers, and copy intermediate outputs. beam search shows that the network can capture equivalent intermediate steps, but the hardcoded generating system is too limited for the network to capture more interesting equivalencies like this - solution might be to turk it.
+make no mistake, this is a toy problem. the original goal was to make progress on a catgory in math_dataset i thought was interesting, probability. the experiments here and additional analysis on the actual dataset show that the space of questions is actually extremely limited and, (SPECULATION) on its own, without prior/external knowledge of probability problems, is unlikely to lead to any general knowledge of probability. in fact, one can see that with a calculator, all the network needs to learn is how to count letters, decrement small numbers, and copy intermediate outputs. beam search shows that the network can capture equivalent intermediate steps, but the hardcoded generating system is too limited for the network to capture more interesting equivalencies like this - solution might be to turk it, as already done by ling et al.
 
 ### Acknowledgments
 
