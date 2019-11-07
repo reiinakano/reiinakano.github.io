@@ -181,15 +181,22 @@ The computation graph for training is shown in the figure below. The input seque
 Experiment details are mostly based on [Saxton et. al.][mathematics_dataset_paper]'s baseline implementations, with a few differences to reduce computational resource requirements [^colab].
 
 * The dataset used is a combination of the `swr_p_level_set` and `swr_p_sequence` training sets with intermediate steps, for a total of 2 million samples in the training set.
-* To quantify the effect of intermediate steps vs the use of a symbolic solver, we train two networks: one using a vanilla transformer model to directly map from question to intermediate steps, and another using an external symbolic solver to evaluate intermediate expressions.
-* We measure a network's performance on two test sets: an interpolated test set, and an extrapolated test set [^polated_test_sets].
-* We use a batch size of about ~160 on a single [free GPU][google_colab], trained with "early stopping" i.e. after I got tired of waiting and figured it was good enough. For the baseline transformer with only intermediate steps, this was at __k steps. For the transformer + calculator network, this was at 70k steps. This is in contrast to the baseline implementation by [Saxton et. al.][mathematics_dataset_paper], which used a batch size of 1024 across 8 GPUs for 500k steps.
+* To quantify the effect of intermediate steps vs the use of a symbolic solver, we train two networks: one using a transformer to directly map from question to intermediate steps, and another using a transformer + external symbolic solver to evaluate intermediate expressions.
+* We measure a network's performance on two test sets: an interpolated test set, and an extrapolated test set [^polated_test_sets], each with 1000 samples.
+* We use a batch size of about ~160 on a single [free GPU][google_colab], trained with "early stopping" i.e. after I got tired of waiting and figured the results were good enough. For the baseline transformer with only intermediate steps, this was at __k steps. For the transformer + calculator network, we use only 70k steps.
 * Greedy decoding [^greedy_decoding] is used to generate predictions.
 
 For more details, please view the open-source Colaboratory notebooks at 
 
-## Results
+## Results and Analysis
 
+The following table shows accuracy results on the `swr_p_level_set` and `swr_p_sequence` interpolation and extrapolation test sets.
+
+| | p_level_set (interpolation) | p_sequence (interpolation) | p_level_set (extrapolation) | p_sequence (extrapolation) |
+|---|---|---|---|---|
+| Transformer baseline ([Saxton et. al.][mathematics_dataset_paper]) [^baseline_results] | ~0.77 | ~0.73 | ~0.045 | ~0.057 |
+| Transformer with intermediate steps | 0.701 | 0.675 |  |  |
+| Transformer with intermediate steps and symbolic calculator | **0.992** | **0.982** | 0.045 | 0.045 |
 
 ### Analysis of Results
 
@@ -230,6 +237,7 @@ If you found this work useful, please cite it as:
 [^polated_test_sets]: [Saxton et. al.][mathematics_dataset_paper] defines two kinds of test sets for each category: an interpolated test set, and an extrapolated test set. The interpolated test set generates samples from the same distribution as the generated training data, with statistical guarantees to ensure questions are mostly distinct between the two datasets. The extrapolated test set aims to measure the ability of a trained network to generalize along different axes outside of its training distribution. For example, the `swr_p_sequence_more_samples` extrapolated test set contains questions that sample more letters than those seen in the training set.
 [^colab]: After all, I do experiments on a single free [Google Colaboratory][google_colab] GPU.
 [^greedy_decoding]: The output token with the highest probability is chosen at each decoding time step. This is in contrast to methods such as [beam search][beam_search].
+[^baseline_results]: [Saxton et. al.][mathematics_dataset_paper]'s baseline does not show explicit scores per category, only a bar graph. These scores were obtained by estimating the value from the bar graph.
 
 [google_colab]: https://colab.research.google.com/
 [mathematics_dataset]: https://github.com/deepmind/mathematics_dataset/
