@@ -292,13 +292,25 @@ Let's take a look at a sample of extrapolated questions the network *did* get ri
 
 By far, the most common questions the network gets correct are ones where the answer is 0 or 1. Perhaps this is not surprising, as recognizing these special cases does seem like a fairly easy perception problem e.g. if the letter bag is composed of a single letter, then there's a good chance the answer to this question is 1.
 
-A more interesting case is when the network fails to construct the correct intermediate equations, yet by pure coincidence, manages to get the correct answer anyway. This is a good manifestation of the common saying, "Even a broken clock is right twice a day". 
+A more interesting case is when the network fails to construct the correct intermediate equations, yet by pure coincidence, manages to get the correct answer anyway. As the saying goes, "Even a broken clock is right twice a day". 
 
-In addition, we see here a particular benefit of having the network use intermediate steps instead of a direct answer. The output itself is naturally more interpretable, and we can see whether or not the network truly worked out the correct answer, or stumbled into it by pure coincidence.
+In addition, we see here a particular benefit of having the network output intermediate steps instead of a direct answer. The output itself is naturally more interpretable, and we can see whether or not the network truly worked out the correct answer, or stumbled into it by pure coincidence.
 
 ### Equivalent solutions
 
-found using beam search
+Although we use greedy decoding to predict answers, the authors of [Deep Learning for Symbolic Mathematics][dl_symb_math] showed that beam search can be used to find a group of equally correct solutions in different forms.
+
+We observe the same phenomenon in our experiments.
+```
+[QUESTION] What_is_prob_of_picking_1_d_and_1_i_when_two_letters_picked_without_replacement_from_llddlidddidddldddlld?
+[TARGET ANSWER] l:6   i:2   d:12   6+2+12=20   (2/20)*(12/19)=6/95   2!=2   2*6/95=12/95   12/95
+[TOP K SEQUENCES]
+{'string_tokens': '</s>l:6   d:12   i:2   6+12+2=20   (12/20)*(2/19)=6/95   2!=2   2*6/95=12/95   12/95</s>', 'normlogprob': -1.413268823401162, 'logprob': -7.020529270172119}
+{'string_tokens': '</s>l:6   i:2   d:12   6+2+12=20   (2/20)*(12/19)=6/95   2!=2   2*6/95=12/95   12/95</s>', 'normlogprob': -1.4574414982784705, 'logprob': -7.239960670471191}
+{'string_tokens': '</s>d:12   l:6   i:2   12+6+2=20   (12/20)*(2/19)=6/95   2!=2   2*6/95=12/95   12/95</s>', 'normlogprob': -1.4709188479375688, 'logprob': -7.306910514831543}
+```
+
+The top 3 answers for this particular question have very close log probabilities to each other, and result in the same final answer. The main difference lies in the order of letter counts. It does not matter which letter you count first, as long as you count all of them, so the network simply chooses randomly, and the top 3 choices end up being the 3 different valid variations in letter count order.
 
 ### Visualizing attention
 
@@ -346,3 +358,4 @@ If you found this work useful, please cite it as:
 [parse_expr]: https://docs.sympy.org/latest/modules/parsing.html
 [fairseq]: https://github.com/pytorch/fairseq
 [beam_search]: https://en.wikipedia.org/wiki/Beam_search
+[dl_symb_math]: https://openreview.net/forum?id=S1eZYeHFDS
