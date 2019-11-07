@@ -270,9 +270,31 @@ While the network is still able to properly count letters (letter counts are not
 
 Perhaps this result is unsurprising, as there was really nothing in the network we designed to explicitly handle this sort of out-of-distribution generalization. We could argue, however, that this does not diminish the shown benefits of an external solver. An architecture that is able to generalize to OOD samples is still likely to benefit from not needing to evaluate intermediate expressions by itself.
 
-### Analysis of Results
+Let's take a look at a sample of extrapolated questions the network *did* get right.
 
-success and failure cases, especially extrapolation failure (broken clock right twice a day, no "understanding")
+```
+[QUESTION] What_is_prob_of_sequence_jzttj_when_five_letters_picked_without_replacement_from_zjrrtpjjjv?
+[TARGET ANSWER] 0
+[PREDICTION] 0
+
+[QUESTION] What_is_prob_of_sequence_ccccc_when_five_letters_picked_without_replacement_from_ccccccccc?
+[TARGET ANSWER] 1
+[PREDICTION] 1
+
+[QUESTION] Five_letters_picked_without_replacement_from_{c:_1,_z:_7}._What_is_prob_of_sequence_zczzz?
+[TARGET ANSWER] c:1   z:7   1+7=8   (7/8)*(1/7)*(6/6)*(5/5)*(4/4)=1/8   1/8
+[PREDICTION] c:1   z:7   1+7=8   (7/8)*(1/7)*(6/6)=1/8   1/8
+
+[QUESTION] What_is_prob_of_picking_2_j,_2_p_and_1_r_when_five_letters_picked_without_replacement_from_jpruqppj?
+[TARGET ANSWER] p:3   r:1   q:1   j:2   u:1   3+1+1+2+1=8   (3/8)*(2/7)*(1/6)*(2/5)*(1/4)=1/560   5!/(2!*2!)=30   30*1/560=3/56   3/56
+[PREDICTION] p:3   j:2   u:1   r:1   q:1   3+2+1+1+1=8   (3/8)*(2/7)*(1/6)=1/56   3!/(2!)=3   3*1/56=3/56   3/56
+```
+
+By far, the most common questions the network gets correct are ones where the answer is 0 or 1. Perhaps this is not surprising, as recognizing these special cases does seem like a fairly easy perception problem e.g. if the letter bag is composed of a single letter, then there's a good chance the answer to this question is 1.
+
+A more interesting case is when the network fails to construct the correct intermediate equations, yet by pure coincidence, manages to get the correct answer anyway. This is a good manifestation of the common saying, "Even a broken clock is right twice a day".
+
+### Analysis of Results
 
 ### Equivalent solutions
 
