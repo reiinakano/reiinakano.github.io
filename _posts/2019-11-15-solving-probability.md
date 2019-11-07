@@ -292,9 +292,9 @@ Let's take a look at a sample of extrapolated questions the network *did* get ri
 
 By far, the most common questions the network gets correct are ones where the answer is 0 or 1. Perhaps this is not surprising, as recognizing these special cases does seem like a fairly easy perception problem e.g. if the letter bag is composed of a single letter, then there's a good chance the answer to this question is 1.
 
-A more interesting case is when the network fails to construct the correct intermediate equations, yet by pure coincidence, manages to get the correct answer anyway. This is a good manifestation of the common saying, "Even a broken clock is right twice a day".
+A more interesting case is when the network fails to construct the correct intermediate equations, yet by pure coincidence, manages to get the correct answer anyway. This is a good manifestation of the common saying, "Even a broken clock is right twice a day". 
 
-### Analysis of Results
+In addition, we see here a particular benefit of having the network use intermediate steps instead of a direct answer. The output itself is naturally more interpretable, and we can see whether or not the network truly worked out the correct answer, or stumbled into it by pure coincidence.
 
 ### Equivalent solutions
 
