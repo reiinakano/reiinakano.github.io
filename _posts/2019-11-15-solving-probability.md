@@ -182,7 +182,7 @@ Experiment details are mostly based on [Saxton et. al.][mathematics_dataset_pape
 
 * The dataset used is a combination of the `swr_p_level_set` and `swr_p_sequence` training sets with intermediate steps, for a total of 2 million samples in the training set.
 * To quantify the effect of intermediate steps vs the use of a symbolic solver, we train two networks: one using a transformer to directly map from question to intermediate steps, and another using a transformer + external symbolic solver to evaluate intermediate expressions.
-* We measure a network's performance on two test sets: an interpolated test set, and an extrapolated test set [^polated_test_sets], each with 1000 samples.
+* We measure a network's performance on two test sets: an interpolated test set, and an extrapolated test set [^polated_test_sets], each with 1000 samples. Accuracy is based solely on the final answer, not the network-generated intermediate steps.
 * We use a batch size of about ~160 on a single [free GPU][google_colab], trained with "early stopping" i.e. after I got tired of waiting and figured the results were good enough. For the baseline transformer with only intermediate steps, this was at __k steps. For the transformer + calculator network, we use only 70k steps.
 * Greedy decoding [^greedy_decoding] is used to generate predictions.
 
@@ -206,7 +206,41 @@ On the other hand, the transformer using intermediate steps with no calculator a
 
 The results for the transformer-calculator hybrid show a clear improvement over the baseline on the interpolated test set, and in fact scores almost perfectly on both `swr_p_level_set` and `swr_p_sequence`. This shows how easy the underlying task actually is when the network does not need to learn to accurately evaluate intermediate steps. 
 
-Since the results are only *almost* perfect, it's interesting to view the handful of failure cases for the network.
+Since the results are only *almost* perfect, it's interesting to view a small sample of the failure cases for the network.
+
+Failure cases for `swr_p_level_set`:
+```
+[QUESTION] Calculate_prob_of_picking_4_z_when_four_letters_picked_without_replacement_from_qqzqqqzzqzzqzzqqqqqq. 
+[TARGET ANSWER] z:7   q:13   7+13=20   (7/20)*(6/19)*(5/18)*(4/17)=7/969   7/969 
+[PREDICTION] q:14   z:7   14+7=21   (7/211)*(6/10)*(5/19)*(4/18)=14/12027   14/12027
+
+[QUESTION] Two_letters_picked_without_replacement_from_{c:_1,_v:_1,_i:_3,_h:_1,_f:_2}._Give_prob_of_picking_2_h.
+[TARGET ANSWER] 0 
+[PREDICTION] c:1   v:1   i:3   h:1   f:2   1+1+3+1+2=8   (1/8)*(1/7)=1/56   1/56
+
+[QUESTION] Three_letters_picked_without_replacement_from_tttttvttzetttzett._What_is_prob_of_picking_1_v_and_2_e? 
+[TARGET ANSWER] e:2   t:12   z:2   v:1   2+12+2+1=17   (2/17)*(1/16)*(1/15)=1/2040   3!/(2!)=3   3*1/2040=1/680   1/680 
+[PREDICTION] e:2   v:1   z:2   t:12   2+1+2+12=17   (2/17)*(1/16)*(12/15)=1/170   3!/(2!)=3   3*1/170=3/170   3/170
+```
+
+Failure cases for `swr_p_sequence`:
+```
+[QUESTION] Three_letters_picked_without_replacement_from_vfffxbffhvfhfffhfxfx._What_is_prob_of_sequence_hbb? 
+[TARGET ANSWER] 0 
+[PREDICTION] b:1   v:2   h:3   x:3   f:11   1+2+3+3+11=20   (3/20)*(1/19)*(1/18)=1/2280   1/2280
+
+[QUESTION] Four_letters_picked_without_replacement_from_ababaababbbbaaaaaaaa._What_is_prob_of_sequence_abaa? 
+[TARGET ANSWER] b:7   a:13   7+13=20   (13/20)*(7/19)*(12/18)*(11/17)=1001/9690   1001/9690 
+[PREDICTION] b:7   a:12   7+12=19   (12/19)*(7/18)*(11/17)*(10/16)=385/3876   385/3876
+
+[QUESTION] Calculate_prob_of_sequence_gq_when_two_letters_picked_without_replacement_from_{q:_1,_g:_1}. 
+[TARGET ANSWER] q:1   g:1   1+1=2   (1/2)*(1/1)=1/2   1/2 
+[PREDICTION] q:1   g:1   1+1=2   (1/2)*(1/10)=1/20   1/20
+```
+
+The most common failure case seems to be when the network makes a mistake in counting the number of letters. This happens in long sequences, and the network is usually off by 1 on the letter with the highest count. One explanation for this is that long sequences are particularly sparse in the training set and there aren't enough samples for the network to learn from reliably.
+
+Other failure cases are when the network fails to recognize that the event is impossible (0 probability), or simply failing to set up the correct intermediate expressions.
 
 ### Analysis of Results
 
@@ -230,7 +264,7 @@ this is all assuming that the only training data used is from the probability se
 
 ### Conclusions and future work
 
-make no mistake, this is a toy problem. the space of questions is extremely limited and, (SPECULATION) on its own, is unlikely to lead to any general knowledge of probability. in fact, one can see that with a calculator, all the network needs to learn is how to count letters, decrement small numbers, and copy intermediate outputs.
+make no mistake, this is a toy problem. the space of questions is extremely limited and, (SPECULATION) on its own, is unlikely to lead to any general knowledge of probability. in fact, one can see that with a calculator, all the network needs to learn is how to count letters, decrement small numbers, and copy intermediate outputs. beam search shows that the network can capture equivalent intermediate steps, but the hardcoded generating system is too limited for the network to capture more interesting equivalencies like this - solution might be to turk it.
 
 ### Acknowledgments
 
