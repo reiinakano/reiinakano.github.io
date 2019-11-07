@@ -194,9 +194,17 @@ The following table shows accuracy results on the `swr_p_level_set` and `swr_p_s
 
 | | p_level_set (interpolation) | p_sequence (interpolation) | p_level_set (extrapolation) | p_sequence (extrapolation) |
 |---|---|---|---|---|
-| Transformer baseline ([Saxton et. al.][mathematics_dataset_paper]) [^baseline_results] | ~0.77 | ~0.73 | ~0.045 | ~0.057 |
+| Transformer baseline ([Saxton et. al.][mathematics_dataset_paper]) [^baseline_results] | ~0.77 | ~0.73 | ~0.057 | ~0.045 |
 | Transformer with intermediate steps | 0.701 | 0.675 |  |  |
-| Transformer with intermediate steps and symbolic calculator | **0.992** | **0.982** | 0.045 | 0.045 |
+| Transformer with intermediate steps and symbolic calculator | **0.992** | **0.982** | 0.048 | 0.045 |
+
+The results for the transformer-calculator hybrid show a clear improvement over the baseline on the interpolated test set. On the extrapolated test set, it shows no significant differences from the baseline and scores just as poorly.
+
+On the other hand, the transformer using intermediate steps with no calculator actually scores *lower* than the baseline.
+
+### Interpolation test set performance insights
+
+The results for the transformer-calculator hybrid show a clear improvement over the baseline on the interpolated test set, and in fact scores almost perfectly on both `swr_p_level_set` and `swr_p_sequence`. This shows how easy the underlying task actually is when the network does not need to learn to accurately evaluate intermediate steps.
 
 ### Analysis of Results
 
@@ -223,6 +231,9 @@ this is all assuming that the only training data used is from the probability se
 make no mistake, this is a toy problem. the space of questions is extremely limited and, (SPECULATION) on its own, is unlikely to lead to any general knowledge of probability.
 
 ### Acknowledgments
+
+
+### Code
 
 
 ### Citation
