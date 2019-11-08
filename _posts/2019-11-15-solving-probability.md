@@ -349,7 +349,7 @@ It's also interesting to see what the network focuses on when giving 1-step answ
 
 ## Examining the training data distribution
 
-> NOTE: This section contains statements not backed up by anything but intuition and should be considered speculation. Please let me know in the comments if you find anything you disagree with, I'm excited to hear other perspectives.
+> NOTE: This section contains statements mostly based on intuition and should be considered speculation. Please let me know in the comments if you find anything you disagree with, I'm excited to hear other perspectives.
 
 Something that intrigued me in [Saxton et. al.][mathematics_dataset_paper]'s paper was how high a baseline transformer scored on probability tasks (~0.77 and ~0.73), given that working these out are a multi-step process. How could basic pattern-matching score so highly on such a task? Is mere perception enough to figure out something like the probability product rule, on such a generic architecture without any prior knowledge of numbers or probability?
 
@@ -374,7 +374,7 @@ For swr_p_sequence:
 25.0% of all samples (250000.0) share top 19 most common answers
 ```
 
-Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where the categories are unique probabilities. From this perspective, the high performance of the baseline transformer seems much more reasonable.
+Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where categories are unique probabilities. From this perspective, the high performance of the baseline transformer seems much more reasonable.
 
 For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. We're not claiming this is the only thing the transformer is learning, but this sort of shallow reasoning probably makes up a significant chunk of its accuracy.
 
@@ -390,7 +390,9 @@ Other related work includes work on automatically solving math problems, particu
 
 ## Limitations and future work
 
-make no mistake, this is a toy problem. the original goal was to make progress on a catgory in math_dataset i thought was interesting, probability. the experiments here and additional analysis on the actual dataset show that the space of questions is actually extremely limited and, (SPECULATION) on its own, without prior/external knowledge of probability problems, is unlikely to lead to any general knowledge of probability. in fact, one can see that with a calculator, all the network needs to learn is how to count letters, decrement small numbers, and copy intermediate outputs. beam search shows that the network can capture equivalent intermediate steps, but the hardcoded generating system is too limited for the network to capture more interesting equivalencies like this - solution might be to turk it, as already done by ling et al.
+Although the results are promising, it should be noted that the given task is a toy problem for this approach. Ideally, the well-documented state-of-the-art language capabilities of the [transformer][attention_paper] is leveraged to parse natural language math problems and put together intermediate expressions, while a well-tested symbolic solver evaluates them. Given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], 
+
+make no mistake, this is a toy problem. the original goal was to make progress on a catgory in math_dataset i thought was interesting, probability. the experiments here and additional analysis on the actual dataset show that the space of questions is actually extremely limited and, (SPECULATION) on its own, without prior/external knowledge of probability problems, is unlikely to lead to any general knowledge of probability. in fact, one can see that with a calculator, all the network needs to learn is how to count letters, decrement small numbers, and copy intermediate outputs. beam search shows that the network can capture equivalent intermediate steps, but the hardcoded generating system is too limited for the network to capture more interesting equivalencies like this - solution might be to turk it, as already done by ling et al. ideally math is left to solvers and neural nets can stick to language understanding.
 
 ## Acknowledgments
 
@@ -404,6 +406,7 @@ make no mistake, this is a toy problem. the original goal was to make progress o
 [^colab]: After all, I do experiments on a single free [Google Colaboratory][google_colab] GPU.
 [^greedy_decoding]: The output token with the highest probability is chosen at each decoding time step. This is in contrast to methods such as [beam search][beam_search].
 [^baseline_results]: [Saxton et. al.][mathematics_dataset_paper]'s baseline does not show explicit scores per category, only a bar graph. These scores were obtained by estimating the value from the bar graph.
+[^low_variation_lang]: In fact, this was a deliberate choice by Saxton et. al., as their stated goal was to separate mathematical reasoning from language understanding.
 
 [google_colab]: https://colab.research.google.com/
 [mathematics_dataset]: https://github.com/deepmind/mathematics_dataset/
