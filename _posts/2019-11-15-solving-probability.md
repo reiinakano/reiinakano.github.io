@@ -349,7 +349,7 @@ It's also interesting to see what the network focuses on when giving 1-step answ
 
 ## Examining the training data distribution
 
-> NOTE: This section contains a bunch of statements not backed up by anything but intuition and these statements should be considered speculation. Please let me know in the comments if you find anything you disagree with, I'm excited to learn.
+> NOTE: This section contains statements not backed up by anything but intuition and should be considered speculation. Please let me know in the comments if you find anything you disagree with, I'm excited to hear other perspectives.
 
 Something that intrigued me in [Saxton et. al.][mathematics_dataset_paper]'s paper was how high a baseline transformer scored on probability tasks (~0.77 and ~0.73), given that working these out are a multi-step process. How could basic pattern-matching score so highly on such a task? Is mere perception enough to figure out something like the probability product rule, on such a generic architecture without any prior knowledge of numbers or probability?
 
@@ -374,19 +374,21 @@ For swr_p_sequence:
 25.0% of all samples (250000.0) share top 19 most common answers
 ```
 
-Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where the categories are unique answers. From this perspective, the high performance of the baseline transformer seems much more reasonable.
+Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where the categories are unique probabilities. From this perspective, the high performance of the baseline transformer seems much more reasonable.
 
-As an example, consider these questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. We can speculate that the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. We're not claiming this is the only way the transformer is learning, but it probably makes up a significant chunk of its accuracy.
+For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. We're not claiming this is the only thing the transformer is learning, but this sort of reasoning probably makes up a significant chunk of its accuracy.
 
-This also gives an explanation as to why networks consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to correctly solve. `swr_p_sequence` simply has *more* categories/unique answers and the classification task is harder.
+This also gives an explanation as to why networks, regardless of architecture, consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to correctly solve. `swr_p_sequence` just happens to have *more* categories/unique answers and the classification task is harder.
 
-It seems unlikely that a transformer trained on this data distribution will capture any sense of the true rules of probability, without some sort of prior or external knowledge. The baseline's poor performance on the extrapolated set supports this. As soon as a network sees patterns and answers outside what it was trained on, it completely fails, unless it's something easy to spot from question structure (0 and 1 probabilities).
+It seems unlikely that a transformer trained on this data distribution will capture any sense of the true rules of probability, without more data or some sort of prior or external knowledge. The baseline's poor performance on the extrapolated set supports this. As soon as a network sees patterns and answers outside what it was trained on, it completely fails, unless it's something easy to spot from question structure (0 and 1 probabilities).
 
 ## Related Literature
 
-This work is most closely related to another paper by DeepMind, Ling et. al.'s [Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems][rationales_paper]. In that work, they build a dataset of pairs of multiple-choice problems and *rationales*, which are natural language intermediate steps explaining how to solve the problem.
+This work is closely related to another paper by DeepMind, Ling et. al.'s [Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems][rationales_paper]. They build a dataset of multiple-choice problems and *rationales*, which are natural language intermediate steps explaining how to solve the problem. They also train the network to use an external program with instruction primitives like addition and multiplication, and an external memory buffer for storing intermediate results. Ling et. al.'s [dataset][aqua] contains probability problems, harder and more diverse (deck of cards problems) than that available in [Mathematics Dataset][mathematics_dataset], however, their results suggest they are unable to solve them, as they are still limited to being able to solve simple one or two-step problems. We view being able to solve problems in this dataset as a future goal for the architecture laid out in this article, with the low number and difficulty of obtaining samples (~100k crowdsourced samples) and natural language understanding being the main obstacles.
 
-## Conclusions and future work
+Other related work includes work on automatically solving math problems, particularly approaches where a word problem is converted into an expression that, when evaluated by an external symbolic solver, results in the correct answer ([Wang et. al.](https://www.aclweb.org/anthology/D17-1088/), [Roy et. al.](https://arxiv.org/abs/1609.08824), [Roy and Roth](https://arxiv.org/abs/1608.01413), [Kushman, et. al.](https://www.aclweb.org/anthology/P14-1026/), [Hosseini, et. al.](https://www.emnlp2014.org/papers/pdf/EMNLP2014058.pdf)).
+
+## Limitations and future work
 
 make no mistake, this is a toy problem. the original goal was to make progress on a catgory in math_dataset i thought was interesting, probability. the experiments here and additional analysis on the actual dataset show that the space of questions is actually extremely limited and, (SPECULATION) on its own, without prior/external knowledge of probability problems, is unlikely to lead to any general knowledge of probability. in fact, one can see that with a calculator, all the network needs to learn is how to count letters, decrement small numbers, and copy intermediate outputs. beam search shows that the network can capture equivalent intermediate steps, but the hardcoded generating system is too limited for the network to capture more interesting equivalencies like this - solution might be to turk it, as already done by ling et al.
 
@@ -395,13 +397,6 @@ make no mistake, this is a toy problem. the original goal was to make progress o
 
 ## Code
 
-
-## Citation
-
-If you found this work useful, please cite it as:
-
-```
-```
 
 [^cross_entropy]: Usually calculated through something like cross-entropy.
 [^pad]: This can be implemented in multiple ways. For this article, we use [fairseq] as our seq2seq training framework. `<pad>` symbols in the target sequence, normally used for handling variable-length sequences in a batch, are automatically disregarded by fairseq, so there's no need to modify the loss function after replacing the target sequence with a masked target sequence. Another way to implement the same functionality is to zero out the loss function at positions occupied by a masking symbol.
@@ -422,3 +417,4 @@ If you found this work useful, please cite it as:
 [beam_search]: https://en.wikipedia.org/wiki/Beam_search
 [dl_symb_math]: https://openreview.net/forum?id=S1eZYeHFDS
 [rationales_paper]: https://arxiv.org/abs/1705.04146
+[aqua]: https://github.com/deepmind/AQuA
