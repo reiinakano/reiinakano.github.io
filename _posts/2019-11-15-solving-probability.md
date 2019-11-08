@@ -183,7 +183,7 @@ Experiment details are mostly based on [Saxton et. al.][mathematics_dataset_pape
 * The dataset used is a combination of the `swr_p_level_set` and `swr_p_sequence` training sets with intermediate steps, for a total of 2 million samples in the training set.
 * To quantify the effect of intermediate steps vs the use of a symbolic solver, we train two networks: one using a transformer to directly map from question to intermediate steps, and another using a transformer + external symbolic solver to evaluate intermediate expressions.
 * We measure a network's performance on two test sets: an interpolated test set, and an extrapolated test set [^polated_test_sets], each with 1000 samples. Accuracy is based solely on the final answer, not the network-generated intermediate steps.
-* We use a batch size of about ~160 on a single [free GPU][google_colab], trained with "early stopping" i.e. after I got tired of waiting and figured the results were good enough. For the baseline transformer with only intermediate steps, this was at 150k steps. For the transformer + calculator network, we use only 70k steps.
+* We use a batch size of about ~160 on a single [free GPU][google_colab], trained with "early stopping" i.e. after I got tired of waiting and figured the results were good enough. For the baseline transformer with only intermediate steps, this was at 150k steps. For the transformer + calculator network, we use 127k steps.
 * Greedy decoding [^greedy_decoding] is used to generate predictions.
 
 For more details, please view the open-source Colaboratory notebooks at 
@@ -196,7 +196,7 @@ The following table shows accuracy results on the `swr_p_level_set` and `swr_p_s
 |---|---|---|---|---|
 | Transformer baseline ([Saxton et. al.][mathematics_dataset_paper]) [^baseline_results] | ~0.77 | ~0.73 | ~0.057 | ~0.045 |
 | Transformer with intermediate steps | 0.701 | 0.675 | 0.074 | 0.065 |
-| Transformer with intermediate steps and symbolic calculator | **0.992** | **0.982** | 0.048 | 0.045 |
+| Transformer with intermediate steps and symbolic calculator | **0.996** | **0.995** | 0.054 | 0.051 |
 
 The results for the transformer-calculator hybrid show a clear improvement over the baseline on the interpolated test set. On the extrapolated test set, it shows no significant differences from the baseline and scores just as poorly.
 
@@ -347,28 +347,53 @@ It's also interesting to see what the network focuses on when giving 1-step answ
   <a href="{{ '/images/sp/attention_6.png' | absolute_url }}"><img src="{{ '/images/sp/attention_6.png' | absolute_url }}" alt=""></a>
 </figure>
 
-### Examining the training data distribution
+## Examining the training data distribution
+
+NOTE: This section contains a bunch of statements not backed up by anything but my intuition on how deep learning works. My intuition is often wrong and these statements should be considered speculation. Please let me know in the comments if you find anything you disagree with.
+
+Something that intrigued me in [Saxton et. al.][mathematics_dataset_paper]'s paper was how high a baseline transformer scored on probability tasks (~0.77 and ~0.73), given that working these out are a multi-step process. How could basic pattern-matching score so highly on such a task? Is mere perception enough to figure out something like the probability product rule, on such a generic architecture without any prior knowledge of numbers or probability?
+
+While working on the project, I noticed something odd about the training set. I'd see the same answers over and over for different questions, and realized that even though care was taken to make sure questions are unique, the distribution of answers might be skewed towards certain values.
+
+Doing a bit of analysis on training set *questions*, we find that out of 1 million samples each, `swr_p_level_set` and `swr_p_sequence` have 977179 and 978045 unique questions, respectively. This seems okay, as duplicates are limited to <3% of the training set.
+
+Doing analysis on training set *answers* reveals that out of 1 million samples, `swr_p_level_set` and `swr_p_sequence` have 1458 and 1865 unique answers, respectively. 
+
+Counting the number of samples that share the most common answers reveals even more imbalance.
+```
+For swr_p_level_set:
+100.0% of all samples (1000000.0) share 1458 unique answers
+75.0% of all samples (750000.0) share top 269 most common answers
+50.0% of all samples (500000.0) share top 85 most common answers
+25.0% of all samples (250000.0) share top 19 most common answers
+
+For swr_p_sequence:
+100.0% of all samples (1000000.0) share 1865 unique answers
+75.0% of all samples (750000.0) share top 300 most common answers
+50.0% of all samples (500000.0) share top 88 most common answers
+25.0% of all samples (250000.0) share top 19 most common answers
+```
+
+Looking at these numbers, it almost looks like an extremely imbalanced classification problem, where separate categories are unique answers. Viewing it this way, the high performance of the baseline transformer seems more reasonable now.
+
+This also gives an explanation as to why networks consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to solve. `swr_p_sequence` simply has *more* categories/unique answers.
+
+It seems unlikely that anything trained on this data will capture any sense of the true rules of probability, without some sort of prior or external knowledge. The baseline's poor performance on the extrapolated set supports this. As soon as a network sees patterns and answers outside what it was trained on, it completely fails, unless it's something easy to spot from question structure (0 and 1 probabilities).
+
+## Related Literature
 
 
-
-almost feels like an imbalanced classification problem.
-with external calc, it is reduced to a counting and copying problem.
-this is all assuming that the only training data used is from the probability set. there might be external knowledge from using the other numerous categories that make these observations not really apply.
-
-### Related Literature
-
-
-### Conclusions and future work
+## Conclusions and future work
 
 make no mistake, this is a toy problem. the original goal was to make progress on a catgory in math_dataset i thought was interesting, probability. the experiments here and additional analysis on the actual dataset show that the space of questions is actually extremely limited and, (SPECULATION) on its own, without prior/external knowledge of probability problems, is unlikely to lead to any general knowledge of probability. in fact, one can see that with a calculator, all the network needs to learn is how to count letters, decrement small numbers, and copy intermediate outputs. beam search shows that the network can capture equivalent intermediate steps, but the hardcoded generating system is too limited for the network to capture more interesting equivalencies like this - solution might be to turk it, as already done by ling et al.
 
-### Acknowledgments
+## Acknowledgments
 
 
-### Code
+## Code
 
 
-### Citation
+## Citation
 
 If you found this work useful, please cite it as:
 
