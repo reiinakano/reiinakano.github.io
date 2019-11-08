@@ -376,7 +376,7 @@ For swr_p_sequence:
 
 Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where the categories are unique probabilities. From this perspective, the high performance of the baseline transformer seems much more reasonable.
 
-For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. We're not claiming this is the only thing the transformer is learning, but this sort of reasoning probably makes up a significant chunk of its accuracy.
+For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. We're not claiming this is the only thing the transformer is learning, but this sort of shallow reasoning probably makes up a significant chunk of its accuracy.
 
 This also gives an explanation as to why networks, regardless of architecture, consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to correctly solve. `swr_p_sequence` just happens to have *more* categories/unique answers and the classification task is harder.
 
