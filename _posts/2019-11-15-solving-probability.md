@@ -314,8 +314,42 @@ The top 3 answers found by beam search for this particular question have very cl
 
 ### Visualizing attention
 
+Another interesting way to interpret what a transformer is doing is by visualizing attention weights. This gives us a glimpse into what the transformer is focusing on at each decoding timestep.
 
-### Examining the data distribution
+<figure class="align-center">
+  <a href="{{ '/images/sp/attention_1.png' | absolute_url }}"><img src="{{ '/images/sp/attention_1.png' | absolute_url }}" alt=""></a>
+  <figcaption>Attention weights for bag of letters in bracket form. Please click or open in new tab to zoom in</figcaption>
+</figure>
+
+<figure class="align-center">
+  <a href="{{ '/images/sp/attention_2.png' | absolute_url }}"><img src="{{ '/images/sp/attention_2.png' | absolute_url }}" alt=""></a>
+  <figcaption>Attention weights for bag of letters. Please click or open in new tab to zoom in</figcaption>
+</figure>
+
+When the bag of letters is given in bracket form "{letter1: count1, letter2: count2, ...}", the network knows to simply copy counts one by one, and attention weights show this clearly.
+
+When the bag of letters is given in scrambled form, the network has to count each one. It seems to do this by grouping same letters together i.e. for each time step, the same letters seem to have the same attention weight magnitude.
+
+Interestingly, for both types of questions, it's difficult to interpret the attention weights *after* counting i.e. setting up intermediate weights. This may be because the rest of the intermediate steps depend on copying items from previous output tokens, not the input.
+
+It's also interesting to see what the network focuses on when giving 1-step answers (0 or 1 probability).
+
+<figure class="align-center">
+  <a href="{{ '/images/sp/attention_3.png' | absolute_url }}"><img src="{{ '/images/sp/attention_3.png' | absolute_url }}" alt=""></a>
+</figure>
+<figure class="align-center">
+  <a href="{{ '/images/sp/attention_4.png' | absolute_url }}"><img src="{{ '/images/sp/attention_4.png' | absolute_url }}" alt=""></a>
+</figure>
+<figure class="align-center">
+  <a href="{{ '/images/sp/attention_5.png' | absolute_url }}"><img src="{{ '/images/sp/attention_5.png' | absolute_url }}" alt=""></a>
+</figure>
+<figure class="align-center">
+  <a href="{{ '/images/sp/attention_6.png' | absolute_url }}"><img src="{{ '/images/sp/attention_6.png' | absolute_url }}" alt=""></a>
+</figure>
+
+### Examining the training data distribution
+
+
 
 almost feels like an imbalanced classification problem.
 with external calc, it is reduced to a counting and copying problem.
