@@ -9,6 +9,8 @@ date:   2019-11-01
 excerpt: Teaching a neural network to solve simple probability problems step by step with an external symbolic solver.
 ---
 
+{% include toc %}
+
 A few months ago, DeepMind released [Mathematics Dataset][mathematics_dataset], a codebase for procedurally generating pairs of mathematics questions and answers, to serve as a benchmark for the ability of modern neural architectures to learn mathematical reasoning.
 
 The data consists of a wide variety of categories, ranging from basic arithmetic to probability. Here's an example question-answer pair from the paper:
@@ -384,18 +386,21 @@ It seems unlikely that a transformer trained on this data distribution will capt
 
 ## Related Literature
 
-This work is closely related to another paper by DeepMind, Ling et. al.'s [Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems][rationales_paper]. They build a dataset of multiple-choice problems and *rationales*, which are natural language intermediate steps explaining how to solve the problem. They also train the network to use an external program with instruction primitives like addition and multiplication, and an external memory buffer for storing intermediate results. Ling et. al.'s [dataset][aqua] contains probability problems, harder and more diverse (deck of cards problems) than that available in [Mathematics Dataset][mathematics_dataset], however, their results suggest they are unable to solve them, as they are still limited to being able to solve simple one or two-step problems. We view being able to solve problems in this dataset as a future goal for the architecture laid out in this article, with the low number and difficulty of obtaining samples (~100k crowdsourced samples) and natural language understanding being the main obstacles.
+This work is closely related to another paper by DeepMind, Ling et. al.'s [Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems][rationales_paper]. They build a dataset of multiple-choice problems and *rationales*, which are natural language intermediate steps explaining how to solve the problem. They also train the network to use an external program with instruction primitives like addition and multiplication, and an external memory buffer for storing intermediate results. Ling et. al.'s [dataset][aqua] contains probability problems, harder and more diverse (deck of cards problems) than that available in [Mathematics Dataset][mathematics_dataset], however, their results suggest they are unable to solve them, as they are still limited to being able to solve simple one or two-step problems. We view being able to solve problems in this dataset as a future goal for the architecture laid out in this article, with the low number and difficulty of obtaining samples (~100k crowdsourced samples) being the main obstacle.
 
-Other related work includes work on automatically solving math problems, particularly approaches where a word problem is converted into an expression that, when evaluated by an external symbolic solver, results in the correct answer ([Wang et. al.](https://www.aclweb.org/anthology/D17-1088/), [Roy et. al.](https://arxiv.org/abs/1609.08824), [Roy and Roth](https://arxiv.org/abs/1608.01413), [Kushman, et. al.](https://www.aclweb.org/anthology/P14-1026/), [Hosseini, et. al.](https://www.emnlp2014.org/papers/pdf/EMNLP2014058.pdf)).
+Another common theme in automatically solving math problems is converting a word problem into a structured expression that, when evaluated by an external symbolic solver, results in the correct answer ([Wang et. al.](https://www.aclweb.org/anthology/D17-1088/), [Roy et. al.](https://arxiv.org/abs/1609.08824), [Roy and Roth](https://arxiv.org/abs/1608.01413), [Kushman, et. al.](https://www.aclweb.org/anthology/P14-1026/), [Hosseini, et. al.](https://www.emnlp2014.org/papers/pdf/EMNLP2014058.pdf)).
 
 ## Limitations and future work
 
-Although the results are promising, it should be noted that the given task is a toy problem for this approach. Ideally, the well-documented state-of-the-art language capabilities of the [transformer][attention_paper] is leveraged to parse natural language math problems and put together intermediate expressions, while a well-tested symbolic solver evaluates them. Given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], 
+Although the results are promising, it should be noted that the given task is a toy problem for this approach. We set out to achieve a good result on some category of [Mathematics Dataset][mathematics_dataset], and we did. However, given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], the only notable skills the transformer achieves is counting letters, correctly copying intermediate results, and decrementing numbers for setting up the product rule equation.
 
-make no mistake, this is a toy problem. the original goal was to make progress on a catgory in math_dataset i thought was interesting, probability. the experiments here and additional analysis on the actual dataset show that the space of questions is actually extremely limited and, (SPECULATION) on its own, without prior/external knowledge of probability problems, is unlikely to lead to any general knowledge of probability. in fact, one can see that with a calculator, all the network needs to learn is how to count letters, decrement small numbers, and copy intermediate outputs. beam search shows that the network can capture equivalent intermediate steps, but the hardcoded generating system is too limited for the network to capture more interesting equivalencies like this - solution might be to turk it, as already done by ling et al. ideally math is left to solvers and neural nets can stick to language understanding.
+The ideal task would leverage the well-documented state-of-the-art language capabilities of the [transformer][attention_paper] to parse natural language math problems, while a well-tested symbolic solver evaluates intermediate expressions. The main challenge here lies in generating intermediate steps. Generating intermediate steps is relatively easy for fully synthetic datasets such as [Mathematics Dataset][mathematics_dataset], but non-trivial for natural language math problems. One way is to use mechanical turking to crowdsource intermediate steps, as done by [Ling et. al.][rationales_paper] for constructing the [AQuA dataset][aqua]. 
+
+As shown in this article on a small scale, beam search can find multiple valid ways to come up with the correct answer. An interesting advantage of using crowdsourced intermediate steps is obtaining a variety of intermediate steps for the same types of problems. With enough data, the network could capture the different ways humans solve and approach problems.
 
 ## Acknowledgments
 
+Experiments were run entirely for free on [Google Colaboratory][google_colab] and [Paperspace Notebooks][paperspace]. The code is built on top of [deepmind/mathematics_dataset][mathematics_dataset] for data generation and [pytorch/fairseq][fairseq] for seq2seq training.
 
 ## Code
 
@@ -421,3 +426,5 @@ make no mistake, this is a toy problem. the original goal was to make progress o
 [dl_symb_math]: https://openreview.net/forum?id=S1eZYeHFDS
 [rationales_paper]: https://arxiv.org/abs/1705.04146
 [aqua]: https://github.com/deepmind/AQuA
+[paperspace]: https://blog.paperspace.com/paperspace-launches-gradient-community-notebooks/
+[fairseq]: https://github.com/pytorch/fairseq
