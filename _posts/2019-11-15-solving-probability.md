@@ -187,7 +187,7 @@ Experiment details are mostly based on [Saxton et. al.][mathematics_dataset_pape
 * The dataset used is a combination of the `swr_p_level_set` and `swr_p_sequence` training sets with intermediate steps, for a total of 2 million samples in the training set.
 * To quantify the effect of intermediate steps vs the use of a symbolic solver, we train two networks: one using a transformer to directly map from question to intermediate steps, and another using a transformer + external symbolic solver to evaluate intermediate expressions.
 * We measure a network's performance on two test sets: an interpolated test set, and an extrapolated test set [^polated_test_sets], each with 1000 samples. Accuracy is based solely on the final answer, not the network-generated intermediate steps.
-* We use a batch size of about ~160 on a single [free GPU][google_colab], trained with "early stopping" i.e. after I got tired of waiting and figured the results were good enough. For the baseline transformer with only intermediate steps, this was at 150k steps. For the transformer + calculator network, we use 127k steps.
+* We use a batch size of about ~160 on a single [free GPU][google_colab], trained with 150k steps.
 * Greedy decoding [^greedy_decoding] is used to generate predictions.
 
 For more details, please view the open-source Colaboratory notebooks at 
@@ -200,7 +200,7 @@ The following table shows accuracy results on the `swr_p_level_set` and `swr_p_s
 |---|---|---|---|---|
 | Transformer baseline ([Saxton et. al.][mathematics_dataset_paper]) [^baseline_results] | ~0.77 | ~0.73 | ~0.057 | ~0.045 |
 | Transformer with intermediate steps | 0.701 | 0.675 | 0.074 | 0.065 |
-| Transformer with intermediate steps and symbolic calculator | **0.996** | **0.995** | 0.054 | 0.051 |
+| Transformer with intermediate steps and symbolic calculator | **0.997** | **0.997** | 0.055 | 0.058 |
 
 The results for the transformer-calculator hybrid show a clear improvement over the baseline on the interpolated test set. On the extrapolated test set, it shows no significant differences from the baseline and scores just as poorly.
 
