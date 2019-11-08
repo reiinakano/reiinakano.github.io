@@ -404,6 +404,10 @@ Experiments were run entirely for free on [Google Colaboratory][google_colab] an
 
 ## Code
 
+* For generating train, test, and validation data with intermediate steps - <https://github.com/reiinakano/mathematics_dataset/tree/probability-intermediate-steps-2>
+* For training, evaluating, and visualizing seq2seq models - <https://github.com/reiinakano/fairseq/tree/mods>
+
+Notebooks for correctly running the above code will be available soon, though more experienced users can probably figure out how things go together.
 
 [^cross_entropy]: Usually calculated through something like cross-entropy.
 [^pad]: This can be implemented in multiple ways. For this article, we use [fairseq] as our seq2seq training framework. `<pad>` symbols in the target sequence, normally used for handling variable-length sequences in a batch, are automatically disregarded by fairseq, so there's no need to modify the loss function after replacing the target sequence with a masked target sequence. Another way to implement the same functionality is to zero out the loss function at positions occupied by a masking symbol.
