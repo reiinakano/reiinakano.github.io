@@ -330,7 +330,7 @@ When the bag of letters is given in bracket form "{letter1: count1, letter2: cou
 
 When the bag of letters is given in scrambled form, the network has to count each one. It seems to do this by grouping same letters together i.e. for each time step, the same letters seem to have the same attention weight magnitude.
 
-Interestingly, for both types of questions, it's difficult to interpret the attention weights *after* counting i.e. setting up intermediate weights. This may be because the rest of the intermediate steps depend on copying items from previous output tokens, not the input.
+Interestingly, for both types of questions, it's difficult to interpret the attention weights *after* counting i.e. setting up intermediate steps. This may be because the rest of the intermediate steps depend on copying items from previous output tokens, not the input.
 
 It's also interesting to see what the network focuses on when giving 1-step answers (0 or 1 probability).
 
@@ -376,14 +376,15 @@ For swr_p_sequence:
 
 Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where the categories are unique answers. From this perspective, the high performance of the baseline transformer seems much more reasonable.
 
+As an example, consider these questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. We can speculate that the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. We're not claiming this is the only way the transformer is learning, but it probably makes up a significant chunk of its accuracy.
+
 This also gives an explanation as to why networks consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to correctly solve. `swr_p_sequence` simply has *more* categories/unique answers and the classification task is harder.
 
-Here's a pair of questions that "look alike" and have the same probability: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. We can speculate that the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized probability, without actually going through the correct intermediate steps. We're not claiming this is the only way the transformer is learning, but it probably makes up a significant chunk of its accuracy.
-
-It seems unlikely that a transformer trained on this data will capture any sense of the true rules of probability, without some sort of prior or external knowledge. The baseline's poor performance on the extrapolated set supports this. As soon as a network sees patterns and answers outside what it was trained on, it completely fails, unless it's something easy to spot from question structure (0 and 1 probabilities).
+It seems unlikely that a transformer trained on this data distribution will capture any sense of the true rules of probability, without some sort of prior or external knowledge. The baseline's poor performance on the extrapolated set supports this. As soon as a network sees patterns and answers outside what it was trained on, it completely fails, unless it's something easy to spot from question structure (0 and 1 probabilities).
 
 ## Related Literature
 
+This work is most closely related to another paper by DeepMind, Ling et. al.'s [Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems][rationales_paper]. In that work, they build a dataset of pairs of multiple-choice problems and *rationales*, which are natural language intermediate steps explaining how to solve the problem.
 
 ## Conclusions and future work
 
@@ -420,3 +421,4 @@ If you found this work useful, please cite it as:
 [fairseq]: https://github.com/pytorch/fairseq
 [beam_search]: https://en.wikipedia.org/wiki/Beam_search
 [dl_symb_math]: https://openreview.net/forum?id=S1eZYeHFDS
+[rationales_paper]: https://arxiv.org/abs/1705.04146
