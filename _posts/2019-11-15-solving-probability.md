@@ -9,6 +9,8 @@ date:   2019-11-01
 excerpt: Teaching a neural network to solve simple probability problems step by step with an external symbolic solver.
 ---
 
+> This article explores a seq2seq architecture for solving simple probability problems in [Saxton et. al.][mathematics_dataset_paper]'s [Mathematics Dataset][mathematics_dataset]. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations. On the `swr_p_level_set` and `swr_p_sequence` categories, the architecture achieves near-perfect scores on interpolated test sets, but does not improve upon the baseline on extrapolated test sets.
+
 {% include toc %}
 
 A few months ago, DeepMind released [Mathematics Dataset][mathematics_dataset], a codebase for procedurally generating pairs of mathematics questions and answers, to serve as a benchmark for the ability of modern neural architectures to learn mathematical reasoning.
@@ -390,6 +392,8 @@ This work is closely related to another paper by DeepMind, Ling et. al.'s [Progr
 
 Another common theme in automatically solving math problems is converting a word problem into a structured expression that, when evaluated by an external symbolic solver, results in the correct answer ([Wang et. al.](https://www.aclweb.org/anthology/D17-1088/), [Roy et. al.](https://arxiv.org/abs/1609.08824), [Roy and Roth](https://arxiv.org/abs/1608.01413), [Kushman, et. al.](https://www.aclweb.org/anthology/P14-1026/), [Hosseini, et. al.](https://www.emnlp2014.org/papers/pdf/EMNLP2014058.pdf)).
 
+[Do et. al.](http://cs229.stanford.edu/proj2019spr/report/51.pdf) also attempt to solve [Mathematics Dataset][mathematics_dataset] using intermediate steps, but they do not report results [^cant_decode]. It seems that it is an unfinished class project.
+
 ## Limitations and future work
 
 Although the results are promising, it should be noted that the given task is a toy problem for this approach. We set out to achieve a good result on some category of [Mathematics Dataset][mathematics_dataset], and we did. However, given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], the only notable skills the transformer achieves is counting letters, correctly copying intermediate results, and decrementing numbers for setting up the product rule equation.
@@ -416,6 +420,7 @@ Notebooks for correctly running the above code will be available soon, though mo
 [^greedy_decoding]: The output token with the highest probability is chosen at each decoding time step. This is in contrast to methods such as [beam search][beam_search].
 [^baseline_results]: [Saxton et. al.][mathematics_dataset_paper]'s baseline does not show explicit scores per category, only a bar graph. These scores were obtained by estimating the value from the bar graph.
 [^low_variation_lang]: In fact, this was a deliberate choice by Saxton et. al., as their stated goal was to separate mathematical reasoning from language understanding.
+[^cant_decode]: In their words, they are "unable to properly decode" their own data files, so they cannot provide results. I include this reference for thoroughness.
 
 [google_colab]: https://colab.research.google.com/
 [mathematics_dataset]: https://github.com/deepmind/mathematics_dataset/
