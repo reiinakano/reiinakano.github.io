@@ -210,28 +210,28 @@ On the other hand, the transformer using intermediate steps with no calculator a
 
 The results for the transformer-calculator hybrid show a clear improvement over the baseline on the interpolated test set, and in fact scores almost perfectly on both `swr_p_level_set` and `swr_p_sequence`. This shows how easy the underlying task actually is when the network does not need to learn to accurately evaluate intermediate steps. 
 
-Since the results are only *almost* perfect, it's interesting to view a small sample of the failure cases for the network.
+Since the results are only *almost* perfect, it's interesting to view the failure cases for the network.
 
 Failure cases for `swr_p_level_set`:
 ```
-[QUESTION] Calculate_prob_of_picking_4_z_when_four_letters_picked_without_replacement_from_qqzqqqzzqzzqzzqqqqqq. 
-[TARGET ANSWER] z:7   q:13   7+13=20   (7/20)*(6/19)*(5/18)*(4/17)=7/969   7/969 
-[PREDICTION] q:14   z:7   14+7=21   (7/211)*(6/10)*(5/19)*(4/18)=14/12027   14/12027
+[QUESTION] Calculate_prob_of_picking_1_o_and_3_l_when_four_letters_picked_without_replacement_from_{o:_7,_l:_13}. 
+[TARGET ANSWER] o:7   l:13   7+13=20   (7/20)*(13/19)*(12/18)*(11/17)=1001/9690   4!/(3!)=4   4*1001/9690=2002/4845   2002/4845 
+[PREDICTION] o:7   l:13   7+13=20   (7/20)*(13/19)*(12/18)*(11/17)=1001/9690   4!/(3!)=4   4*101/9690=202/4845   202/4845
 
-[QUESTION] Two_letters_picked_without_replacement_from_{c:_1,_v:_1,_i:_3,_h:_1,_f:_2}._Give_prob_of_picking_2_h.
-[TARGET ANSWER] 0 
-[PREDICTION] c:1   v:1   i:3   h:1   f:2   1+1+3+1+2=8   (1/8)*(1/7)=1/56   1/56
+[QUESTION] What_is_prob_of_picking_1_v,_1_g_and_1_a_when_three_letters_picked_without_replacement_from_gaagggaagaaavgaavaav? 
+[TARGET ANSWER] g:6   a:11   v:3   6+11+3=20   (6/20)*(11/19)*(3/18)=11/380   3!=6   6*11/380=33/190   33/190 
+[PREDICTION] a:10   g:6   v:3   10+6+3=19   (10/19)*(6/18)*(3/17)=10/323   3!=6   6*10/323=60/323   60/323
 
-[QUESTION] Three_letters_picked_without_replacement_from_tttttvttzetttzett._What_is_prob_of_picking_1_v_and_2_e? 
-[TARGET ANSWER] e:2   t:12   z:2   v:1   2+12+2+1=17   (2/17)*(1/16)*(1/15)=1/2040   3!/(2!)=3   3*1/2040=1/680   1/680 
-[PREDICTION] e:2   v:1   z:2   t:12   2+1+2+12=17   (2/17)*(1/16)*(12/15)=1/170   3!/(2!)=3   3*1/170=3/170   3/170
+[QUESTION] Two_letters_picked_without_replacement_from_kk._What_is_prob_of_picking_2_k? 
+[TARGET ANSWER] 1 
+[PREDICTION] k:2   h:1   2+1=3   (2/3)*(1/2)=1/3   1/3
 ```
 
 Failure cases for `swr_p_sequence`:
 ```
-[QUESTION] Three_letters_picked_without_replacement_from_vfffxbffhvfhfffhfxfx._What_is_prob_of_sequence_hbb? 
-[TARGET ANSWER] 0 
-[PREDICTION] b:1   v:2   h:3   x:3   f:11   1+2+3+3+11=20   (3/20)*(1/19)*(1/18)=1/2280   1/2280
+[QUESTION] Calculate_prob_of_sequence_ujh_when_three_letters_picked_without_replacement_from_hiuuuouuueoojuu. 
+[TARGET ANSWER] o:3   h:1   j:1   e:1   i:1   u:8   3+1+1+1+1+8=15   (8/15)*(1/14)*(1/13)=4/1365   4/1365 
+[PREDICTION] o:3   h:1   u:8   i:1   e:1   3+1+8+1+1=14   (8/14)*(1/13)*(1/12)=1/273   1/273
 
 [QUESTION] Four_letters_picked_without_replacement_from_ababaababbbbaaaaaaaa._What_is_prob_of_sequence_abaa? 
 [TARGET ANSWER] b:7   a:13   7+13=20   (13/20)*(7/19)*(12/18)*(11/17)=1001/9690   1001/9690 
@@ -242,7 +242,7 @@ Failure cases for `swr_p_sequence`:
 [PREDICTION] q:1   g:1   1+1=2   (1/2)*(1/10)=1/20   1/20
 ```
 
-The most common failure case seems to be when the network makes a mistake in counting the number of letters. This happens in long sequences, and the network is usually off by 1 on the letter with the highest count. One explanation for this is that long sequences are particularly sparse in the training set and there aren't enough samples for the network to learn from reliably.
+One failure case seems to be when the network makes a mistake in counting the number of letters. This happens in long sequences, and the network is usually off by 1 on the letter with the highest count. One explanation for this is that long sequences are particularly sparse in the training set and there aren't enough long-sequence samples for the network to learn from reliably.
 
 Other failure cases are when the network fails to recognize that the event is impossible (0 probability), or simply failing to set up the correct intermediate expressions.
 
