@@ -2,12 +2,16 @@
 layout: post
 title:  "Teaching a neural network to use a calculator"
 image: 
-  path: "images/rnst/banner.jpg"
-  thumbnail: "images/rnst/banner.jpg"
+  path: "images/sp/calcnet2.gif"
+  thumbnail: "images/sp/calcnet2.gif"
   hide: true
 date:   2019-11-01
 excerpt: Teaching a neural network to solve simple probability problems step by step with an external symbolic solver.
 ---
+
+<figure class="align-center">
+  <a href="{{ '/images/sp/calcnet2.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet2.gif' | absolute_url }}" alt=""></a>
+</figure>
 
 > This article explores a seq2seq architecture for solving simple probability problems in [Saxton et. al.][mathematics_dataset_paper]'s [Mathematics Dataset][mathematics_dataset]. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations. On the `swr_p_level_set` and `swr_p_sequence` categories, the architecture achieves near-perfect scores on interpolated test sets, significantly outperforming the baseline, but does not improve scores on extrapolated test sets.
 
@@ -50,11 +54,9 @@ ANSWER: 5/114
 
 With the baseline approach used by [Saxton et. al.][mathematics_dataset_paper], the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
 
-**picture of architecture from deepmind paper. caption the rest of this article will use transformer blabla**
-
 ### Humans use intermediate steps to solve math problems
 
-To solve the same problems, a human does not just take a look at the question and immediately spit out an answer. One must go through a series of reasoning and intermediate steps, similar to the following:
+To solve the same problems, a human goes through a series of reasoning and intermediate steps, similar to the following:
 
 ```
 QUESTION: Calculate prob of sequence ko when two letters picked without replacement from yyyykkoykkyoyyokyyy.
@@ -160,7 +162,9 @@ This gives us a very natural way to integrate our SymPy calculator into the deco
 
 The animation below illustrates the decoding process.
 
-**animated gif**
+<figure class="align-center">
+  <a href="{{ '/images/sp/calcnet2.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet2.gif' | absolute_url }}" alt=""></a>
+</figure>
 
 To use a human metaphor, this is akin to a student punching keys into a calculator, writing down the result, and figuring out next steps, taking into account the calculator's output.
 
