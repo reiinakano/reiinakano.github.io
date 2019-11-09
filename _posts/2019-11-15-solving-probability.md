@@ -152,8 +152,6 @@ During decoding, the decoder outputs a single character per time step. At each t
 1. The output vector from the encoder, which encodes the input question. This is used to condition the decoder for all time steps. 
 2. The decoder *output so far*. e.g. if the decoder output up to the current time step is `2 + 2 = `, this is fed back to the decoder as an input for the next time step and used to predict the next character (perhaps a `4`).
 
-**picture of transformer generating ()**
-
 This gives us a very natural way to integrate our SymPy calculator into the decoding process of a transformer. Intermediate steps are valid SymPy expressions, so we can use the following decoding process:
 1. Decode as normal, while waiting for an `=` sign.
 2. After decoding an `=` sign, take the last expression before the `=` sign, and run it through `parse_expr`.
@@ -174,7 +172,10 @@ Decoding is very natural, but how do we *train* the network?
 
 For a regular seq2seq task, the training data comes in the form of input-target pairs of sequences, and the loss function is calculated based on how well the decoder output matches the target sequence [^cross_entropy]. For each input-target pair, the input sequence is passed through the encoder, while the target sequence shows up in two parts of the computation graph. The target sequence is used to calculate the loss function of the network, and the target sequence *right-shifted by one* is used as the decoder input.
 
-**image of training setup. caption: again, for more details check out illustrated transformer.**
+<figure class="align-center">
+  <a href="{{ '/images/sp/model_train.jpg' | absolute_url }}"><img src="{{ '/images/sp/model_train.jpg' | absolute_url }}" alt=""></a>
+  <figcaption>Training a transformer</figcaption>
+</figure>
 
 For seq2seq with a symbolic solver, the loss function must instead capture **how well the decoder output matches the target sequence, *except* at positions the solver is expected to fill**. 
 
@@ -182,7 +183,10 @@ For our implementation, our training data now consists of three sequences: input
 
 The computation graph for training is shown in the figure below. The input sequence and right-shifted target sequence play the same roles as in the original seq2seq training procedure. The input sequence is passed through the encoder, and the right-shifted target sequence is used as the decoder input. The masked target sequence is used to calculate the loss function, where the special masking symbols signify that the decoder outputs at these positions must not contribute to the loss function [^pad]. In other words, we *don't care* what the network outputs are at those positions, since they will be overwritten by the symbolic solver's output.
 
-**image of symbolic solver training setup**
+<figure class="align-center">
+  <a href="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}"><img src="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}" alt=""></a>
+  <figcaption>Training a transformer with symbolic solver</figcaption>
+</figure>
 
 ### Experiment details
 
