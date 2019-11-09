@@ -174,7 +174,7 @@ For a regular seq2seq task, the training data comes in the form of input-target 
 
 <figure class="align-center">
   <a href="{{ '/images/sp/model_train.jpg' | absolute_url }}"><img src="{{ '/images/sp/model_train.jpg' | absolute_url }}" alt=""></a>
-  <figcaption>Training a transformer</figcaption>
+  <figcaption>Conventional way of training a transformer</figcaption>
 </figure>
 
 For seq2seq with a symbolic solver, the loss function must instead capture **how well the decoder output matches the target sequence, *except* at positions the solver is expected to fill**. 
@@ -185,7 +185,7 @@ The computation graph for training is shown in the figure below. The input seque
 
 <figure class="align-center">
   <a href="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}"><img src="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}" alt=""></a>
-  <figcaption>Training a transformer with symbolic solver</figcaption>
+  <figcaption>Training a transformer with a symbolic solver. Masked positions in the target sequence are not used in the loss function, as they will be filled in by a symbolic solver.</figcaption>
 </figure>
 
 ### Experiment details
