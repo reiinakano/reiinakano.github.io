@@ -216,30 +216,30 @@ Failure cases for `swr_p_level_set`:
 ```
 [QUESTION] Calculate_prob_of_picking_1_o_and_3_l_when_four_letters_picked_without_replacement_from_{o:_7,_l:_13}. 
 [TARGET ANSWER] o:7   l:13   7+13=20   (7/20)*(13/19)*(12/18)*(11/17)=1001/9690   4!/(3!)=4   4*1001/9690=2002/4845   2002/4845 
-[PREDICTION] o:7   l:13   7+13=20   (7/20)*(13/19)*(12/18)*(11/17)=1001/9690   4!/(3!)=4   4*101/9690=202/4845   202/4845
+[PREDICTION]    o:7   l:13   7+13=20   (7/20)*(13/19)*(12/18)*(11/17)=1001/9690   4!/(3!)=4   4*101/9690=202/4845   202/4845
 
 [QUESTION] What_is_prob_of_picking_1_v,_1_g_and_1_a_when_three_letters_picked_without_replacement_from_gaagggaagaaavgaavaav? 
 [TARGET ANSWER] g:6   a:11   v:3   6+11+3=20   (6/20)*(11/19)*(3/18)=11/380   3!=6   6*11/380=33/190   33/190 
-[PREDICTION] a:10   g:6   v:3   10+6+3=19   (10/19)*(6/18)*(3/17)=10/323   3!=6   6*10/323=60/323   60/323
+[PREDICTION]    a:10   g:6   v:3   10+6+3=19   (10/19)*(6/18)*(3/17)=10/323   3!=6   6*10/323=60/323   60/323
 
 [QUESTION] Two_letters_picked_without_replacement_from_kk._What_is_prob_of_picking_2_k? 
 [TARGET ANSWER] 1 
-[PREDICTION] k:2   h:1   2+1=3   (2/3)*(1/2)=1/3   1/3
+[PREDICTION]    k:2   h:1   2+1=3   (2/3)*(1/2)=1/3   1/3
 ```
 
 Failure cases for `swr_p_sequence`:
 ```
 [QUESTION] Calculate_prob_of_sequence_ujh_when_three_letters_picked_without_replacement_from_hiuuuouuueoojuu. 
 [TARGET ANSWER] o:3   h:1   j:1   e:1   i:1   u:8   3+1+1+1+1+8=15   (8/15)*(1/14)*(1/13)=4/1365   4/1365 
-[PREDICTION] o:3   h:1   u:8   i:1   e:1   3+1+8+1+1=14   (8/14)*(1/13)*(1/12)=1/273   1/273
+[PREDICTION]    o:3   h:1   u:8   i:1   e:1   3+1+8+1+1=14   (8/14)*(1/13)*(1/12)=1/273   1/273
 
 [QUESTION] Four_letters_picked_without_replacement_from_ababaababbbbaaaaaaaa._What_is_prob_of_sequence_abaa? 
 [TARGET ANSWER] b:7   a:13   7+13=20   (13/20)*(7/19)*(12/18)*(11/17)=1001/9690   1001/9690 
-[PREDICTION] b:7   a:12   7+12=19   (12/19)*(7/18)*(11/17)*(10/16)=385/3876   385/3876
+[PREDICTION]    b:7   a:12   7+12=19   (12/19)*(7/18)*(11/17)*(10/16)=385/3876   385/3876
 
 [QUESTION] Calculate_prob_of_sequence_gq_when_two_letters_picked_without_replacement_from_{q:_1,_g:_1}. 
 [TARGET ANSWER] q:1   g:1   1+1=2   (1/2)*(1/1)=1/2   1/2 
-[PREDICTION] q:1   g:1   1+1=2   (1/2)*(1/10)=1/20   1/20
+[PREDICTION]    q:1   g:1   1+1=2   (1/2)*(1/10)=1/20   1/20
 ```
 
 One failure case seems to be when the network makes a mistake in counting the number of letters. This happens in long sequences, and the network is usually off by 1 on the letter with the highest count. One explanation for this is that long sequences are particularly sparse in the training set and there aren't enough long-sequence samples for the network to learn from reliably.
@@ -248,26 +248,26 @@ Other failure cases are when the network fails to recognize that the event is im
 
 ### Extrapolation test set performance insights
 
-The original baseline from [Saxton et. al.][mathematics_dataset_paper] scores poorly on the extrapolated test set, and the networks trained in this article do no better, measuring <5% accuracy on questions that sample more letters than seen during training.
+The original baseline from [Saxton et. al.][mathematics_dataset_paper] scores poorly on the extrapolated test set, and the networks trained in this article do no better, measuring <6% accuracy on questions that sample more letters than seen during training.
 
 Let's take a look at a few failure cases:
 
 ```
 [QUESTION] What_is_prob_of_picking_1_d,_1_s_and_3_g_when_five_letters_picked_without_replacement_from_gggggggsggdgggg?
 [TARGET ANSWER] d:1   s:1   g:13   1+1+13=15   (1/15)*(1/14)*(13/13)*(12/12)*(11/11)=1/210   5!/(3!)=20   20*1/210=2/21   2/21
-[PREDICTION] s:1   d:1   g:13   1+1+13=15   (1/15)*(13/14)*(12/13)=2/35   3!/(3!)=1   1/35
+[PREDICTION]    s:1   d:1   g:13   1+1+13=15   (1/15)*(13/14)*(12/13)=2/35   3!/(3!)=1   1/35
 
 [QUESTION] Five_letters_picked_without_replacement_from_nntdgadgggaadgtgddrg._What_is_prob_of_picking_1_t,_1_r,_1_g_and_2_d?
 [TARGET ANSWER] n:2   g:7   d:5   t:2   a:3   r:1   2+7+5+2+3+1=20   (7/20)*(5/19)*(4/18)*(2/17)*(1/16)=7/46512   5!/(2!)=60   60*7/46512=35/3876   35/3876
-[PREDICTION] d:5   a:3   g:7   r:1   n:2   t:2   5+3+7+1+2+2=20   (5/20)*(7/19)*(1/18)=7/1368   3!/(2!)=3   3*7/1368=7/456   7/456
+[PREDICTION]    d:5   a:3   g:7   r:1   n:2   t:2   5+3+7+1+2+2=20   (5/20)*(7/19)*(1/18)=7/1368   3!/(2!)=3   3*7/1368=7/456   7/456
 
 [QUESTION] What_is_prob_of_sequence_inrir_when_five_letters_picked_without_replacement_from_{n:_1,_i:_4,_r:_2}?
 [TARGET ANSWER] n:1   i:4   r:2   1+4+2=7   (4/7)*(1/6)*(2/5)*(3/4)*(1/3)=1/105   1/105
-[PREDICTION] n:1   i:4   r:2   1+4+2=7   (4/7)*(1/6)*(2/5)=4/105   4/105
+[PREDICTION]    n:1   i:4   r:2   1+4+2=7   (4/7)*(1/6)*(2/5)=4/105   4/105
 
 [QUESTION] Calculate_prob_of_sequence_yavay_when_five_letters_picked_without_replacement_from_yvaaaayyaayvavy.
 [TARGET ANSWER] v:3   y:5   a:7   3+5+7=15   (5/15)*(7/14)*(3/13)*(6/12)*(4/11)=1/143   1/143
-[PREDICTION] v:3   y:5   a:7   3+5+7=15   (5/15)*(7/14)*(3/13)=1/26   1/26
+[PREDICTION]    v:3   y:5   a:7   3+5+7=15   (5/15)*(7/14)*(3/13)=1/26   1/26
 ```
 
 While the network is still able to properly count letters (letter counts are not extrapolated and follow the same distribution as the training set), it completely fails to set up the correct equations using the probability product rule, not realizing that it's possible for these equations to have more than 4 factors.
@@ -279,19 +279,19 @@ Let's take a look at a sample of extrapolated questions the network *did* get ri
 ```
 [QUESTION] What_is_prob_of_sequence_jzttj_when_five_letters_picked_without_replacement_from_zjrrtpjjjv?
 [TARGET ANSWER] 0
-[PREDICTION] 0
+[PREDICTION]    0
 
 [QUESTION] What_is_prob_of_sequence_ccccc_when_five_letters_picked_without_replacement_from_ccccccccc?
 [TARGET ANSWER] 1
-[PREDICTION] 1
+[PREDICTION]    1
 
 [QUESTION] Five_letters_picked_without_replacement_from_{c:_1,_z:_7}._What_is_prob_of_sequence_zczzz?
 [TARGET ANSWER] c:1   z:7   1+7=8   (7/8)*(1/7)*(6/6)*(5/5)*(4/4)=1/8   1/8
-[PREDICTION] c:1   z:7   1+7=8   (7/8)*(1/7)*(6/6)=1/8   1/8
+[PREDICTION]    c:1   z:7   1+7=8   (7/8)*(1/7)*(6/6)=1/8   1/8
 
 [QUESTION] What_is_prob_of_picking_2_j,_2_p_and_1_r_when_five_letters_picked_without_replacement_from_jpruqppj?
 [TARGET ANSWER] p:3   r:1   q:1   j:2   u:1   3+1+1+2+1=8   (3/8)*(2/7)*(1/6)*(2/5)*(1/4)=1/560   5!/(2!*2!)=30   30*1/560=3/56   3/56
-[PREDICTION] p:3   j:2   u:1   r:1   q:1   3+2+1+1+1=8   (3/8)*(2/7)*(1/6)=1/56   3!/(2!)=3   3*1/56=3/56   3/56
+[PREDICTION]    p:3   j:2   u:1   r:1   q:1   3+2+1+1+1=8   (3/8)*(2/7)*(1/6)=1/56   3!/(2!)=3   3*1/56=3/56   3/56
 ```
 
 By far, the most common questions the network gets correct are ones where the answer is 0 or 1. Perhaps this is not surprising, as recognizing these special cases does seem like a fairly easy perception problem e.g. if the letter bag is composed of a single letter, then there's a good chance the answer to this question is 1.
@@ -363,7 +363,7 @@ Doing a bit of analysis on training set *questions*, we find that out of 1 milli
 
 On the other hand, doing analysis on training set *answers* reveals that out of 1 million samples, `swr_p_level_set` and `swr_p_sequence` have 1458 and 1865 unique answers, respectively. 
 
-Counting the number of samples that share the most common answers reveals even more imbalance.
+Counting the collective number of samples that share the top K most common answers reveals even more imbalance.
 ```
 For swr_p_level_set:
 100.0% of all samples (1000000.0) share 1458 unique answers
@@ -396,7 +396,7 @@ Another common theme in automatically solving math problems is converting a word
 
 ## Limitations and future work
 
-Although the results are promising, it should be noted that the given task is a toy problem for this approach. We set out to achieve a good result on some category of [Mathematics Dataset][mathematics_dataset], and we did. However, given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], the only notable skills the transformer achieves is counting letters, correctly copying intermediate results, and decrementing numbers for setting up the product rule equation.
+We set out to achieve a good result on some category of [Mathematics Dataset][mathematics_dataset], and we did. Although the results are promising, it should be noted that the given task is little more than a toy problem for this approach. Given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], the only notable skills the transformer achieves is counting letters, correctly copying intermediate results, and properly setting up the product rule equation.
 
 The ideal task would leverage the well-documented state-of-the-art language capabilities of the [transformer][attention_paper] to parse natural language math problems, while a well-tested symbolic solver evaluates intermediate expressions. The main challenge here lies in constructing a dataset with intermediate steps. Generating intermediate steps is relatively easy for fully synthetic datasets such as [Mathematics Dataset][mathematics_dataset], but non-trivial for natural language math problems. One way is to use mechanical turking to crowdsource intermediate steps, as done by [Ling et. al.][rationales_paper] for constructing the [AQuA dataset][aqua]. 
 
