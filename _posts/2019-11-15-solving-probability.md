@@ -198,8 +198,6 @@ Experiment details are mostly based on [Saxton et. al.][mathematics_dataset_pape
 * We use a batch size of about ~160 on a single [free GPU][google_colab], trained with 150k steps.
 * Greedy decoding [^greedy_decoding] is used to generate predictions.
 
-For more details, please view the open-source Colaboratory notebooks at 
-
 ## Results and Analysis
 
 The following table shows accuracy results on the `swr_p_level_set` and `swr_p_sequence` interpolation and extrapolation test sets.
