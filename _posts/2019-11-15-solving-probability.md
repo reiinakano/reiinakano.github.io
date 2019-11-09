@@ -2,15 +2,15 @@
 layout: post
 title:  "Teaching a neural network to use a calculator"
 image: 
-  path: "images/sp/calcnet2.gif"
-  thumbnail: "images/sp/calcnet2.gif"
+  path: "images/sp/calcnet3.gif"
+  thumbnail: "images/sp/calcnet3.gif"
   hide: true
 date:   2019-11-01
 excerpt: Teaching a neural network to solve simple probability problems step by step with an external symbolic solver.
 ---
 
 <figure class="align-center">
-  <a href="{{ '/images/sp/calcnet2.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet2.gif' | absolute_url }}" alt=""></a>
+  <a href="{{ '/images/sp/calcnet3.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet3.gif' | absolute_url }}" alt=""></a>
 </figure>
 
 > This article explores a seq2seq architecture for solving simple probability problems in [Saxton et. al.][mathematics_dataset_paper]'s [Mathematics Dataset][mathematics_dataset]. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations. On the `swr_p_level_set` and `swr_p_sequence` categories, the architecture achieves near-perfect scores on interpolated test sets, significantly outperforming the baseline, but does not improve scores on extrapolated test sets.
@@ -161,7 +161,7 @@ This gives us a very natural way to integrate our SymPy calculator into the deco
 The animation below illustrates the decoding process.
 
 <figure class="align-center">
-  <a href="{{ '/images/sp/calcnet2.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet2.gif' | absolute_url }}" alt=""></a>
+  <a href="{{ '/images/sp/calcnet3.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet3.gif' | absolute_url }}" alt=""></a>
 </figure>
 
 To use a human metaphor, this is akin to a student punching keys into a calculator, writing down the result, and figuring out next steps, taking into account the calculator's output.
