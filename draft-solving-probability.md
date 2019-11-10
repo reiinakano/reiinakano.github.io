@@ -13,7 +13,7 @@ excerpt: Teaching a neural network to solve simple probability problems step by 
   <a href="{{ '/images/sp/calcnet3.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet3.gif' | absolute_url }}" alt=""></a>
 </figure>
 
-> This article explores a seq2seq architecture for solving simple probability problems in [Saxton et. al.][mathematics_dataset_paper]'s [Mathematics Dataset][mathematics_dataset]. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations. On the `swr_p_level_set` and `swr_p_sequence` categories, the architecture achieves near-perfect scores on interpolated test sets, significantly outperforming the baseline, but does not improve scores on extrapolated test sets.
+> This article explores a seq2seq architecture for solving simple probability problems in [Saxton et. al.][mathematics_dataset_paper]'s [Mathematics Dataset][mathematics_dataset]. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations. On the `swr_p_level_set` and `swr_p_sequence` categories, the architecture achieves near-perfect scores on interpolated test sets [^polated_test_sets], significantly outperforming the baseline.
 
 {% include toc %}
 
@@ -278,7 +278,7 @@ Let's take a look at a few failure cases:
 
 While the network is still able to properly count letters (letter counts are not extrapolated and follow the same distribution as the training set), it completely fails to set up the correct equations using the probability product rule, not realizing that it's possible for these equations to have more than 4 factors.
 
-Perhaps this result is unsurprising, as there was really nothing in the network we designed to explicitly handle this sort of out-of-distribution generalization. We could argue, however, that this does not diminish the shown benefits of an external solver. An architecture that is able to generalize to OOD samples is still likely to benefit from not needing to evaluate intermediate expressions by itself.
+Perhaps this result is unsurprising, as there was really nothing in the network we designed to explicitly handle this sort of out-of-distribution generalization. We argue, however, that this does not diminish the shown benefits of an external solver. An architecture explicitly designed to generalize to OOD samples is just as likely to benefit from not needing to evaluate intermediate expressions by itself.
 
 Let's take a look at a sample of extrapolated questions the network *did* get right.
 
@@ -396,7 +396,7 @@ It seems unlikely that a transformer trained on this data distribution will capt
 
 This work is closely related to another paper by DeepMind, Ling et. al.'s [Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems][rationales_paper]. They build a dataset of multiple-choice problems and *rationales*, which are natural language intermediate steps explaining how to solve the problem. They also train the network to use an external program with instruction primitives like addition and multiplication, and an external memory buffer for storing intermediate results. Ling et. al.'s [dataset][aqua] contains probability problems, harder and more diverse (deck of cards problems) than that available in [Mathematics Dataset][mathematics_dataset], however, their results suggest they are unable to solve them, as they are still limited to being able to solve simple one or two-step problems. We view being able to solve problems in this dataset as a future goal for the architecture laid out in this article, with the low number and difficulty of obtaining samples (~100k crowdsourced samples) being the main obstacle.
 
-Another common theme in automatically solving math problems is converting a word problem into a structured expression that, when evaluated by an external symbolic solver, results in the correct answer ([Wang et. al.](https://www.aclweb.org/anthology/D17-1088/), [Roy et. al.](https://arxiv.org/abs/1609.08824), [Roy and Roth](https://arxiv.org/abs/1608.01413), [Kushman, et. al.](https://www.aclweb.org/anthology/P14-1026/), [Hosseini, et. al.](https://www.emnlp2014.org/papers/pdf/EMNLP2014058.pdf)).
+This work is also related to another common theme in automatically solving math problems: converting a word problem into a structured expression that, when evaluated by an external symbolic solver, results in the correct answer ([Wang et. al.](https://www.aclweb.org/anthology/D17-1088/), [Roy et. al.](https://arxiv.org/abs/1609.08824), [Roy and Roth](https://arxiv.org/abs/1608.01413), [Kushman, et. al.](https://www.aclweb.org/anthology/P14-1026/), [Hosseini, et. al.](https://www.emnlp2014.org/papers/pdf/EMNLP2014058.pdf)).
 
 [Do et. al.](http://cs229.stanford.edu/proj2019spr/report/51.pdf) also attempt to solve [Mathematics Dataset][mathematics_dataset] using intermediate steps, but they do not report results [^cant_decode]. It seems that it is an unfinished class project.
 
@@ -408,7 +408,7 @@ The ideal task would leverage the well-documented state-of-the-art language capa
 
 As shown in this article on a small scale, beam search can find multiple valid ways to come up with the correct answer. An interesting advantage of using crowdsourced intermediate steps is obtaining a variety of intermediate steps for the same types of problems. With enough data, the network could capture the different ways humans solve and approach problems.
 
-The method shown here makes no attempt to generalize to the extrapolated test set, and as a result does not improve upon the baseline. Humans generalize, but using a calculator helps them make less mistakes. In the same way, we argue that architectures explicitly designed to perform out-of-distribution generalization are just as likely to benefit from utilizing an external symbolic solver. 
+The method shown here makes no attempt to generalize to the extrapolated test set, and as a result does not improve upon the baseline. We argue that architectures explicitly designed to perform out-of-distribution generalization (in the same spirit as [Trask et. al.](https://arxiv.org/abs/1808.00508), [Weston et. al.](https://arxiv.org/abs/1410.3916), [Grefenstette et. al.](https://arxiv.org/abs/1506.02516), [Graves et. al.](https://arxiv.org/abs/1410.5401)) are just as likely to benefit from utilizing an external symbolic solver. Humans generalize, but using a calculator helps them make less mistakes.
 
 ## Acknowledgments
 
