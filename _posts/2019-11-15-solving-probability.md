@@ -5,7 +5,7 @@ image:
   path: "images/sp/calcnet3.gif"
   thumbnail: "images/sp/calcnet3.gif"
   hide: true
-date:   2019-11-01
+date:   2019-11-13
 excerpt: Teaching a neural network to solve simple probability problems step by step with an external symbolic solver.
 ---
 
@@ -408,7 +408,7 @@ The ideal task would leverage the well-documented state-of-the-art language capa
 
 As shown in this article on a small scale, beam search can find multiple valid ways to come up with the correct answer. An interesting advantage of using crowdsourced intermediate steps is obtaining a variety of intermediate steps for the same types of problems. With enough data, the network could capture the different ways humans solve and approach problems.
 
-The method shown here makes no attempt to generalize to the extrapolated test set, and as a result does not improve upon the baseline, but we argue that architectures designed to perform this kind of generalization are just as likely to benefit from utilizing an external symbolic solver. This is left for future work.
+The method shown here makes no attempt to generalize to the extrapolated test set, and as a result does not improve upon the baseline. Humans generalize, but using a calculator helps them make less mistakes. In the same way, we argue that architectures explicitly designed to perform out-of-distribution generalization are just as likely to benefit from utilizing an external symbolic solver. 
 
 ## Acknowledgments
 
