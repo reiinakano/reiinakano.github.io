@@ -30,7 +30,7 @@ excerpt: I show that adversarial robustness makes neural style transfer work on 
 </div>
 <script src="{{ '/assets/rnst/js/banner-slider.js' | absolute_url }}"></script>
 
-**UPDATE: Since August 6, 2019, this article is now part of a series of articles discussing Ilyas et. al.'s paper at Distill.pub. You can view the [full discussion here](https://distill.pub/2019/advex-bugs-discussion/) and [this particular article (together with Ilyas et. al.'s rebuttal) here](https://distill.pub/2019/advex-bugs-discussion/response-4/)**.
+> **UPDATE: Since August 6, 2019, this article is now part of a series of articles discussing Ilyas et. al.'s paper at Distill.pub. You can view the [full discussion here](https://distill.pub/2019/advex-bugs-discussion/) and [this particular article (together with Ilyas et. al.'s rebuttal) here](https://distill.pub/2019/advex-bugs-discussion/response-4/)**.
 
 I recently read an intriguing paper by Ilyas, et. al. about a radically different way to view adversarial examples [^1], titled "[Adversarial Examples Are Not Bugs, They Are Features][not_bugs_features_arxiv]". 
 
