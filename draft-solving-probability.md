@@ -359,8 +359,6 @@ It's also interesting to see what the network focuses on when giving 1-step answ
 
 ## Examining the training data distribution
 
-> NOTE: This section contains statements mostly based on intuition and should be considered speculation. Please let me know in the comments if you find anything you disagree with, I'm excited to hear other perspectives.
-
 Something that intrigued me in [Saxton et. al.][mathematics_dataset_paper]'s paper was how high a baseline transformer scored on probability tasks (~0.77 and ~0.73), given that working these out are a multi-step process. How could basic pattern-matching score so highly on such a task? Is mere perception enough to figure out something like the probability product rule, on such a generic architecture without any prior knowledge of numbers or probability?
 
 To explain this, first notice that although questions are unique, a lot of them will share the same answers. For example, `Calculate prob of sequence aad from abcda`, `Calculate prob of sequence bbz from zbbmn`, and `Calculate prob of sequence rpr from {r: 2, p: 1, x:2}` all lead to the same answer.
