@@ -13,7 +13,7 @@ excerpt: Teaching a neural network to solve simple probability problems step by 
   <a href="{{ '/images/sp/calcnet3.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet3.gif' | absolute_url }}" alt=""></a>
 </figure>
 
-> This article explores a seq2seq architecture for solving simple probability problems in [Saxton et. al.][mathematics_dataset_paper]'s [Mathematics Dataset][mathematics_dataset]. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations. On the `swr_p_level_set` and `swr_p_sequence` categories, the architecture achieves near-perfect scores on interpolated test sets, significantly outperforming the baseline, but does not improve scores on extrapolated test sets.
+> This article explores a seq2seq architecture for solving simple probability problems in [Saxton et. al.][mathematics_dataset_paper]'s [Mathematics Dataset][mathematics_dataset]. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations. On the `swr_p_level_set` and `swr_p_sequence` categories, the architecture achieves near-perfect scores on interpolated test sets [^polated_test_sets], significantly outperforming the baseline.
 
 {% include toc %}
 
@@ -52,7 +52,7 @@ QUESTION: Calculate prob of sequence ko when two letters picked without replacem
 ANSWER: 5/114
 ```
 
-With the baseline approach used by [Saxton et. al.][mathematics_dataset_paper], the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
+In the baseline approach used by [Saxton et. al.][mathematics_dataset_paper], the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
 
 ### Humans use intermediate steps to solve math problems
 
@@ -127,11 +127,11 @@ QUESTION: Four letters picked without replacement from miafjh. Give prob of sequ
 ANSWER: 0
 ```
 
-At this point, we can use the newly generated dataset as an input-output pair for a seq2seq model i.e. The question is treated as a sequence of characters for input into the model, and the model tries to generate a sequence of characters representing the intermediate steps necessary to solve the problem. This is the exact same setup as the baseline, with only the target output changed.
+We can directly use this new dataset as an input-output (question-IS) pair for a seq2seq model.
 
 ### Decoding with an external symbolic solver
 
-For our external symbolic calculator, we'll use [SymPy][sympy], "a Python library for symbolic mathematics". SymPy is both incredibly powerful and intuitive. For our purposes, we'll need only a single function from SymPy, [`sympy.parsing.sympy_parser.parse_expr`][parse_expr]. `parse_expr` reads in a Python string, parses it into a symbolic math expression, and simplifies it as much as possible. The output can easily be converted back into a string. Here's an example of it in action:
+As our external symbolic calculator, we'll use [SymPy][sympy], "a Python library for symbolic mathematics". SymPy is both incredibly powerful and intuitive. For our purposes, we'll need only a single function from SymPy, [`sympy.parsing.sympy_parser.parse_expr`][parse_expr]. `parse_expr` reads in a Python string, parses it as a symbolic math expression, and simplifies it as much as possible. Here's an example of it in action:
 
 ```python
 >>> from sympy.parsing.sympy_parser import parse_expr
@@ -145,17 +145,17 @@ SyntaxError: invalid syntax
 
 Powerful stuff. `parse_expr` can handle all kinds of operations, and is more than enough for solving intermediate steps for simple probability questions.
 
-To see how we can integrate our symbolic solver with a neural network, consider how a transformer-based seq2seq decoder generates each character of the output. If you're unfamiliar with transformers or need a review, check out this excellent article from Jay Alammar, [The Illustrated Transformer][illustrated_transformer].
+How do we integrate our symbolic solver with a neural network? Consider how a transformer-based seq2seq decoder generates each character of the output. If you're unfamiliar with transformers or need a review, check out this excellent article from Jay Alammar, [The Illustrated Transformer][illustrated_transformer].
 
 During decoding, the decoder outputs a single character per time step. At each time step, the decoder takes two inputs: 
 
 1. The output vector from the encoder, which encodes the input question. This is used to condition the decoder for all time steps. 
-2. The decoder *output so far*. e.g. if the decoder output up to the current time step is `2 + 2 = `, this is fed back to the decoder as an input for the next time step and used to predict the next character (perhaps a `4`).
+2. The decoder *output so far*. e.g. if the decoder output up to the current time step is `2 + 2 = `, this is fed back to the decoder as an input for predicting the next character (perhaps a `4`).
 
-This gives us a very natural way to integrate our SymPy calculator into the decoding process of a transformer. Intermediate steps are valid SymPy expressions, so we can use the following decoding process:
+This gives us a very natural way to integrate our SymPy calculator into the decoding process of a transformer:
 1. Decode as normal, while waiting for an `=` sign.
 2. After decoding an `=` sign, take the last expression before the `=` sign, and run it through `parse_expr`.
-3. `parse_expr`'s string output is appended to the decoder's "output so far", after which it is treated by the decoder as any other previous output token. This means that the decoder will use the calculator's output to predict the rest of the characters.
+3. `parse_expr`'s string output is appended to the decoder's "output so far". This means it is treated by the decoder as any other previous output token, and will be used to predict the rest of the characters.
 4. Repeat steps 1-3 until the end-of-sentence symbol is predicted.
 
 The animation below illustrates the decoding process.
@@ -164,28 +164,30 @@ The animation below illustrates the decoding process.
   <a href="{{ '/images/sp/calcnet3.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet3.gif' | absolute_url }}" alt=""></a>
 </figure>
 
-To use a human metaphor, this is akin to a student punching keys into a calculator, writing down the result, and figuring out next steps, taking into account the calculator's output.
+To use a human metaphor, this is akin to a student punching keys into a calculator, writing down the result, and figuring out next steps based on the calculator's output.
 
 ### Training with an external symbolic solver
 
 Decoding is very natural, but how do we *train* the network?
 
-For a regular seq2seq task, the training data comes in the form of input-target pairs of sequences, and the loss function is calculated based on how well the decoder output matches the target sequence [^cross_entropy]. For each input-target pair, the input sequence is passed through the encoder, while the target sequence shows up in two parts of the computation graph. The target sequence is used to calculate the loss function of the network, and the target sequence *right-shifted by one* is used as the decoder input.
+For a regular seq2seq task, the training data comes in the form of input-target pairs of sequences, and the loss function is calculated based on how well the decoder output matches the target sequence [^cross_entropy]. 
+
+The input sequence is passed through the encoder, while the target sequence is used to (1) calculate the loss function of the network, and (2) *right-shifted by one* to be used as the decoder input.
 
 <figure class="align-center">
   <a href="{{ '/images/sp/model_train.jpg' | absolute_url }}"><img src="{{ '/images/sp/model_train.jpg' | absolute_url }}" alt=""></a>
-  <figcaption>Conventional way of training a transformer</figcaption>
+  <figcaption>Conventional way of training a transformer. <a href="http://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a> by Jay Alammar gives a good overview of this process.</figcaption>
 </figure>
 
 For seq2seq with a symbolic solver, the loss function must instead capture **how well the decoder output matches the target sequence, *except* at positions the solver is expected to fill**. 
 
-For our implementation, our training data now consists of three sequences: input, target, and masked target. The masked target sequence is a copy of the target sequence, with a few of the tokens replaced by a special masking symbol. For example, if the target sequence is `8 + 7 = 15`, the corresponding masked target sequence is `8 + 7 = <pad><pad>`, where `<pad>` is a special masking symbol, signifying that these positions are meant to be filled in by an external solver during decoding.
+In our implementation, our training data now consists of three sequences: input, target, and masked target. The masked target sequence is a copy of the target sequence, where tokens to be filled in by the solver are replaced by a special masking symbol [^masking_example].
 
-The computation graph for training is shown in the figure below. The input sequence and right-shifted target sequence play the same roles as in the original seq2seq training procedure. The input sequence is passed through the encoder, and the right-shifted target sequence is used as the decoder input. The masked target sequence is used to calculate the loss function, where the special masking symbols signify that the decoder outputs at these positions must not contribute to the loss function [^pad]. In other words, we *don't care* what the network outputs are at those positions, since they will be overwritten by the symbolic solver's output.
+The computation graph for training is shown in the figure below. The main difference from the original seq2seq training procedure is that the masked target sequence is used to calculate the loss function. The special masking symbols signify that the decoder outputs at these positions must not contribute to the loss function [^pad]. In other words, we *don't care* what the network outputs are at those positions, since they will be overwritten by the symbolic solver's output.
 
 <figure class="align-center">
   <a href="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}"><img src="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}" alt=""></a>
-  <figcaption>Training a transformer with a symbolic solver. Masked positions in the target sequence are not used in the loss function, as they will be filled in by a symbolic solver.</figcaption>
+  <figcaption>Training a transformer with a symbolic solver. Masked positions (PAD) in the target sequence are not used in the loss function, as they will be filled in by a symbolic solver.</figcaption>
 </figure>
 
 ### Experiment details
@@ -207,10 +209,6 @@ The following table shows accuracy results on the `swr_p_level_set` and `swr_p_s
 | Transformer baseline ([Saxton et. al.][mathematics_dataset_paper]) [^baseline_results] | ~0.77 | ~0.73 | ~0.057 | ~0.045 |
 | Transformer with intermediate steps | 0.701 | 0.675 | 0.074 | 0.065 |
 | Transformer with intermediate steps and symbolic calculator | **0.997** | **0.997** | 0.055 | 0.058 |
-
-The results for the transformer-calculator hybrid show a clear improvement over the baseline on the interpolated test set. On the extrapolated test set, it shows no significant differences from the baseline and scores just as poorly.
-
-On the other hand, the transformer using intermediate steps with no calculator actually scores *lower* than the baseline on the interpolated test set.
 
 ### Interpolation test set performance insights
 
@@ -248,7 +246,7 @@ Failure cases for `swr_p_sequence`:
 [PREDICTION]    q:1   g:1   1+1=2   (1/2)*(1/10)=1/20   1/20
 ```
 
-One failure case seems to be when the network makes a mistake in counting the number of letters. This happens in long sequences, and the network is usually off by 1 on the letter with the highest count. One explanation for this is that long sequences are particularly sparse in the training set and there aren't enough long-sequence samples for the network to learn from reliably.
+One failure case seems to be when the network makes a mistake in counting the number of letters. This happens in long sequences, and the network is usually off by 1 on the letter with the highest count.
 
 Other failure cases are when the network fails to recognize that the event is impossible (0 probability), or simply failing to set up the correct intermediate expressions.
 
@@ -278,7 +276,7 @@ Let's take a look at a few failure cases:
 
 While the network is still able to properly count letters (letter counts are not extrapolated and follow the same distribution as the training set), it completely fails to set up the correct equations using the probability product rule, not realizing that it's possible for these equations to have more than 4 factors.
 
-Perhaps this result is unsurprising, as there was really nothing in the network we designed to explicitly handle this sort of out-of-distribution generalization. We could argue, however, that this does not diminish the shown benefits of an external solver. An architecture that is able to generalize to OOD samples is still likely to benefit from not needing to evaluate intermediate expressions by itself.
+Perhaps this result is unsurprising, as we did not explicitly design the network to handle this sort of out-of-distribution generalization. We argue, however, that this does not diminish the shown benefits of an external solver. An architecture explicitly designed to generalize to OOD samples is just as likely to benefit from not needing to evaluate intermediate expressions by itself.
 
 Let's take a look at a sample of extrapolated questions the network *did* get right.
 
@@ -300,11 +298,11 @@ Let's take a look at a sample of extrapolated questions the network *did* get ri
 [PREDICTION]    p:3   j:2   u:1   r:1   q:1   3+2+1+1+1=8   (3/8)*(2/7)*(1/6)=1/56   3!/(2!)=3   3*1/56=3/56   3/56
 ```
 
-By far, the most common questions the network gets correct are ones where the answer is 0 or 1. Perhaps this is not surprising, as recognizing these special cases does seem like a fairly easy perception problem e.g. if the letter bag is composed of a single letter, then there's a good chance the answer to this question is 1.
+By far, the most common questions the network gets correct are ones where the answer is 0 or 1. Perhaps this is not surprising, as recognizing these special cases seems like a fairly easy perception problem e.g. if the letter bag is comprised of a single unique letter (`rrrrrrr`), then there's a good chance the answer to this question is 1.
 
-A more interesting case is when the network fails to construct the correct intermediate equations, yet by pure coincidence, manages to get the correct answer anyway. As the saying goes, "Even a broken clock is right twice a day". 
+An interesting case is when the network fails to construct the correct intermediate equations, yet by pure coincidence, manages to get the correct answer anyway. As the saying goes, "Even a broken clock is right twice a day". 
 
-In addition, we see here a particular benefit of having the network output intermediate steps instead of a direct answer. The output itself is naturally more interpretable, and we can see whether or not the network truly worked out the correct answer, or stumbled into it by pure coincidence.
+Here we see a particular benefit of having the network output intermediate steps instead of a direct answer. The output itself is naturally more interpretable, and we can see whether or not the network truly worked out the correct answer, or stumbled into it by pure coincidence.
 
 ### Equivalent solutions
 
@@ -359,15 +357,13 @@ It's also interesting to see what the network focuses on when giving 1-step answ
 
 ## Examining the training data distribution
 
-> NOTE: This section contains statements mostly based on intuition and should be considered speculation. Please let me know in the comments if you find anything you disagree with, I'm excited to hear other perspectives.
-
 Something that intrigued me in [Saxton et. al.][mathematics_dataset_paper]'s paper was how high a baseline transformer scored on probability tasks (~0.77 and ~0.73), given that working these out are a multi-step process. How could basic pattern-matching score so highly on such a task? Is mere perception enough to figure out something like the probability product rule, on such a generic architecture without any prior knowledge of numbers or probability?
 
-To explain this, first notice that although questions are unique, a lot of them will share the same answers. For example, `Calculate prob of sequence aad from abcda`, `Calculate prob of sequence bbz from zbbmn`, and `Calculate prob of sequence rpr from {r: 2, p: 1, x:2}` all lead to the same answer.
+To try and explain this, we point out that although questions are unique, a lot of them will share the same answers. For example, `Calculate prob of sequence aad from abcda`, `Calculate prob of sequence bbz from zbbmn`, and `Calculate prob of sequence rpr from {r: 2, p: 1, x:2}` all lead to the same answer.
 
-Doing a bit of analysis on training set *questions*, we find that out of 1 million samples each, `swr_p_level_set` and `swr_p_sequence` have 977179 and 978045 unique questions, respectively. This seems okay, as duplicates are limited to <3% of the training set and the distribution over questions appears fairly uniform.
+Doing a bit of analysis on training set *questions*, we find that out of 1 million samples each, `swr_p_level_set` and `swr_p_sequence` have 977179 and 978045 unique questions, respectively. This seems reasonable, as duplicates are limited to <3% of the training set and the distribution over questions appears fairly uniform.
 
-On the other hand, doing analysis on training set *answers* reveals that out of 1 million samples, `swr_p_level_set` and `swr_p_sequence` have 1458 and 1865 unique answers, respectively. 
+On the other hand, doing analysis on training set *answers* reveals that out of 1 million samples eachs, `swr_p_level_set` and `swr_p_sequence` have 1458 and 1865 unique answers, respectively. 
 
 Counting the collective number of samples that share the top K most common answers reveals even more imbalance.
 ```
@@ -386,9 +382,9 @@ For swr_p_sequence:
 
 Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where categories are unique probabilities. From this perspective, the high performance of the baseline transformer seems much more reasonable.
 
-For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. We're not claiming this is the only thing the transformer is learning, but this sort of shallow reasoning probably makes up a significant chunk of its accuracy.
+For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. Although speculative, we feel that this sort of shallow reasoning probably makes up a significant chunk of its accuracy.
 
-This also gives an explanation as to why networks, regardless of architecture, consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to correctly solve. `swr_p_sequence` just happens to have *more* categories/unique answers and the classification task is harder.
+This also gives an explanation as to why networks, regardless of architecture, consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to correctly solve! `swr_p_sequence` just happens to have *more* categories/unique answers and the resulting classification task is harder.
 
 It seems unlikely that a transformer trained on this data distribution will capture any sense of the true rules of probability, without more data or some sort of prior or external knowledge. The baseline's poor performance on the extrapolated set supports this. As soon as a network sees patterns and answers outside what it was trained on, it completely fails, unless it's something easy to spot from question structure (0 and 1 probabilities).
 
@@ -396,7 +392,7 @@ It seems unlikely that a transformer trained on this data distribution will capt
 
 This work is closely related to another paper by DeepMind, Ling et. al.'s [Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems][rationales_paper]. They build a dataset of multiple-choice problems and *rationales*, which are natural language intermediate steps explaining how to solve the problem. They also train the network to use an external program with instruction primitives like addition and multiplication, and an external memory buffer for storing intermediate results. Ling et. al.'s [dataset][aqua] contains probability problems, harder and more diverse (deck of cards problems) than that available in [Mathematics Dataset][mathematics_dataset], however, their results suggest they are unable to solve them, as they are still limited to being able to solve simple one or two-step problems. We view being able to solve problems in this dataset as a future goal for the architecture laid out in this article, with the low number and difficulty of obtaining samples (~100k crowdsourced samples) being the main obstacle.
 
-Another common theme in automatically solving math problems is converting a word problem into a structured expression that, when evaluated by an external symbolic solver, results in the correct answer ([Wang et. al.](https://www.aclweb.org/anthology/D17-1088/), [Roy et. al.](https://arxiv.org/abs/1609.08824), [Roy and Roth](https://arxiv.org/abs/1608.01413), [Kushman, et. al.](https://www.aclweb.org/anthology/P14-1026/), [Hosseini, et. al.](https://www.emnlp2014.org/papers/pdf/EMNLP2014058.pdf)).
+This work is also related to another common theme in automatically solving math problems: converting a word problem into a structured expression that, when evaluated by an external symbolic solver, results in the correct answer ([Wang et. al.](https://www.aclweb.org/anthology/D17-1088/), [Roy et. al.](https://arxiv.org/abs/1609.08824), [Roy and Roth](https://arxiv.org/abs/1608.01413), [Kushman, et. al.](https://www.aclweb.org/anthology/P14-1026/), [Hosseini, et. al.](https://www.emnlp2014.org/papers/pdf/EMNLP2014058.pdf)).
 
 [Do et. al.](http://cs229.stanford.edu/proj2019spr/report/51.pdf) also attempt to solve [Mathematics Dataset][mathematics_dataset] using intermediate steps, but they do not report results [^cant_decode]. It seems that it is an unfinished class project.
 
@@ -408,7 +404,7 @@ The ideal task would leverage the well-documented state-of-the-art language capa
 
 As shown in this article on a small scale, beam search can find multiple valid ways to come up with the correct answer. An interesting advantage of using crowdsourced intermediate steps is obtaining a variety of intermediate steps for the same types of problems. With enough data, the network could capture the different ways humans solve and approach problems.
 
-The method shown here makes no attempt to generalize to the extrapolated test set, and as a result does not improve upon the baseline. Humans generalize, but using a calculator helps them make less mistakes. In the same way, we argue that architectures explicitly designed to perform out-of-distribution generalization are just as likely to benefit from utilizing an external symbolic solver. 
+The method shown here makes no attempt to generalize to the extrapolated test set, and as a result does not improve upon the baseline. We argue that architectures explicitly designed to perform out-of-distribution generalization (in the same spirit as [Trask et. al.](https://arxiv.org/abs/1808.00508), [Weston et. al.](https://arxiv.org/abs/1410.3916), [Grefenstette et. al.](https://arxiv.org/abs/1506.02516), [Graves et. al.](https://arxiv.org/abs/1410.5401)) are just as likely to benefit from utilizing an external symbolic solver. Humans generalize, but using a calculator helps them make less mistakes.
 
 ## Acknowledgments
 
@@ -429,6 +425,7 @@ Notebooks for correctly running the above code will be available soon, though mo
 [^baseline_results]: [Saxton et. al.][mathematics_dataset_paper]'s baseline does not show explicit scores per category, only a bar graph. These scores were obtained by estimating the value from the bar graph.
 [^low_variation_lang]: In fact, this was a deliberate choice by Saxton et. al., as their stated goal was to separate mathematical reasoning from language understanding.
 [^cant_decode]: In their words, they are "unable to properly decode" their own data files, so they cannot provide results. I include this reference for thoroughness.
+[^masking_example]: For example, if the target sequence is `8 + 7 = 15`, the corresponding masked target sequence is `8 + 7 = <pad><pad>`, where `<pad>` is a special masking symbol, signifying that these positions are meant to be filled in by an external solver during decoding.
 
 [google_colab]: https://colab.research.google.com/
 [mathematics_dataset]: https://github.com/deepmind/mathematics_dataset/
