@@ -52,7 +52,7 @@ QUESTION: Calculate prob of sequence ko when two letters picked without replacem
 ANSWER: 5/114
 ```
 
-With the baseline approach used by [Saxton et. al.][mathematics_dataset_paper], the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
+In the baseline approach used by [Saxton et. al.][mathematics_dataset_paper], the model takes in the question as a *sequence* of characters, and tries to directly map that to another *sequence* of characters, representing the correct probability. A vanilla  [transformer][attention_paper] architecture does surprisingly well, with accuracies of ~0.77 and ~0.73 on the `swr_p_level_set` and `swr_p_sequence` test sets, respectively.
 
 ### Humans use intermediate steps to solve math problems
 
@@ -127,11 +127,11 @@ QUESTION: Four letters picked without replacement from miafjh. Give prob of sequ
 ANSWER: 0
 ```
 
-At this point, we can use the newly generated dataset as an input-output pair for a seq2seq model i.e. The question is treated as a sequence of characters for input into the model, and the model tries to generate a sequence of characters representing the intermediate steps necessary to solve the problem. This is the exact same setup as the baseline, with only the target output changed.
+We can directly use this new dataset as an input-output (question-IS) pair for a seq2seq model.
 
 ### Decoding with an external symbolic solver
 
-For our external symbolic calculator, we'll use [SymPy][sympy], "a Python library for symbolic mathematics". SymPy is both incredibly powerful and intuitive. For our purposes, we'll need only a single function from SymPy, [`sympy.parsing.sympy_parser.parse_expr`][parse_expr]. `parse_expr` reads in a Python string, parses it into a symbolic math expression, and simplifies it as much as possible. The output can easily be converted back into a string. Here's an example of it in action:
+As our external symbolic calculator, we'll use [SymPy][sympy], "a Python library for symbolic mathematics". SymPy is both incredibly powerful and intuitive. For our purposes, we'll need only a single function from SymPy, [`sympy.parsing.sympy_parser.parse_expr`][parse_expr]. `parse_expr` reads in a Python string, parses it as a symbolic math expression, and simplifies it as much as possible. Here's an example of it in action:
 
 ```python
 >>> from sympy.parsing.sympy_parser import parse_expr
@@ -145,17 +145,17 @@ SyntaxError: invalid syntax
 
 Powerful stuff. `parse_expr` can handle all kinds of operations, and is more than enough for solving intermediate steps for simple probability questions.
 
-To see how we can integrate our symbolic solver with a neural network, consider how a transformer-based seq2seq decoder generates each character of the output. If you're unfamiliar with transformers or need a review, check out this excellent article from Jay Alammar, [The Illustrated Transformer][illustrated_transformer].
+How do we integrate our symbolic solver with a neural network? Consider how a transformer-based seq2seq decoder generates each character of the output. If you're unfamiliar with transformers or need a review, check out this excellent article from Jay Alammar, [The Illustrated Transformer][illustrated_transformer].
 
 During decoding, the decoder outputs a single character per time step. At each time step, the decoder takes two inputs: 
 
 1. The output vector from the encoder, which encodes the input question. This is used to condition the decoder for all time steps. 
-2. The decoder *output so far*. e.g. if the decoder output up to the current time step is `2 + 2 = `, this is fed back to the decoder as an input for the next time step and used to predict the next character (perhaps a `4`).
+2. The decoder *output so far*. e.g. if the decoder output up to the current time step is `2 + 2 = `, this is fed back to the decoder as an input for predicting the next character (perhaps a `4`).
 
-This gives us a very natural way to integrate our SymPy calculator into the decoding process of a transformer. Intermediate steps are valid SymPy expressions, so we can use the following decoding process:
+This gives us a very natural way to integrate our SymPy calculator into the decoding process of a transformer:
 1. Decode as normal, while waiting for an `=` sign.
 2. After decoding an `=` sign, take the last expression before the `=` sign, and run it through `parse_expr`.
-3. `parse_expr`'s string output is appended to the decoder's "output so far", after which it is treated by the decoder as any other previous output token. This means that the decoder will use the calculator's output to predict the rest of the characters.
+3. `parse_expr`'s string output is appended to the decoder's "output so far". This means it is treated by the decoder as any other previous output token, and will be used to predict the rest of the characters.
 4. Repeat steps 1-3 until the end-of-sentence symbol is predicted.
 
 The animation below illustrates the decoding process.
@@ -164,24 +164,26 @@ The animation below illustrates the decoding process.
   <a href="{{ '/images/sp/calcnet3.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet3.gif' | absolute_url }}" alt=""></a>
 </figure>
 
-To use a human metaphor, this is akin to a student punching keys into a calculator, writing down the result, and figuring out next steps, taking into account the calculator's output.
+To use a human metaphor, this is akin to a student punching keys into a calculator, writing down the result, and figuring out next steps based on the calculator's output.
 
 ### Training with an external symbolic solver
 
 Decoding is very natural, but how do we *train* the network?
 
-For a regular seq2seq task, the training data comes in the form of input-target pairs of sequences, and the loss function is calculated based on how well the decoder output matches the target sequence [^cross_entropy]. For each input-target pair, the input sequence is passed through the encoder, while the target sequence shows up in two parts of the computation graph. The target sequence is used to calculate the loss function of the network, and the target sequence *right-shifted by one* is used as the decoder input.
+For a regular seq2seq task, the training data comes in the form of input-target pairs of sequences, and the loss function is calculated based on how well the decoder output matches the target sequence [^cross_entropy]. 
+
+The input sequence is passed through the encoder, while the target sequence is used to (1) calculate the loss function of the network, and (2) *right-shifted by one* to be used as the decoder input.
 
 <figure class="align-center">
   <a href="{{ '/images/sp/model_train.jpg' | absolute_url }}"><img src="{{ '/images/sp/model_train.jpg' | absolute_url }}" alt=""></a>
-  <figcaption>Conventional way of training a transformer</figcaption>
+  <figcaption>Conventional way of training a transformer. <a href="http://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a> by Jay Alammar gives a good overview of this process.</figcaption>
 </figure>
 
 For seq2seq with a symbolic solver, the loss function must instead capture **how well the decoder output matches the target sequence, *except* at positions the solver is expected to fill**. 
 
-For our implementation, our training data now consists of three sequences: input, target, and masked target. The masked target sequence is a copy of the target sequence, with a few of the tokens replaced by a special masking symbol. For example, if the target sequence is `8 + 7 = 15`, the corresponding masked target sequence is `8 + 7 = <pad><pad>`, where `<pad>` is a special masking symbol, signifying that these positions are meant to be filled in by an external solver during decoding.
+In our implementation, our training data now consists of three sequences: input, target, and masked target. The masked target sequence is a copy of the target sequence, where tokens to be filled in by the solver are replaced by a special masking symbol [^masking_example].
 
-The computation graph for training is shown in the figure below. The input sequence and right-shifted target sequence play the same roles as in the original seq2seq training procedure. The input sequence is passed through the encoder, and the right-shifted target sequence is used as the decoder input. The masked target sequence is used to calculate the loss function, where the special masking symbols signify that the decoder outputs at these positions must not contribute to the loss function [^pad]. In other words, we *don't care* what the network outputs are at those positions, since they will be overwritten by the symbolic solver's output.
+The computation graph for training is shown in the figure below. The main difference from the original seq2seq training procedure is that the masked target sequence is used to calculate the loss function. The special masking symbols signify that the decoder outputs at these positions must not contribute to the loss function [^pad]. In other words, we *don't care* what the network outputs are at those positions, since they will be overwritten by the symbolic solver's output.
 
 <figure class="align-center">
   <a href="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}"><img src="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}" alt=""></a>
@@ -427,6 +429,7 @@ Notebooks for correctly running the above code will be available soon, though mo
 [^baseline_results]: [Saxton et. al.][mathematics_dataset_paper]'s baseline does not show explicit scores per category, only a bar graph. These scores were obtained by estimating the value from the bar graph.
 [^low_variation_lang]: In fact, this was a deliberate choice by Saxton et. al., as their stated goal was to separate mathematical reasoning from language understanding.
 [^cant_decode]: In their words, they are "unable to properly decode" their own data files, so they cannot provide results. I include this reference for thoroughness.
+[^masking_example]: For example, if the target sequence is `8 + 7 = 15`, the corresponding masked target sequence is `8 + 7 = <pad><pad>`, where `<pad>` is a special masking symbol, signifying that these positions are meant to be filled in by an external solver during decoding.
 
 [google_colab]: https://colab.research.google.com/
 [mathematics_dataset]: https://github.com/deepmind/mathematics_dataset/
