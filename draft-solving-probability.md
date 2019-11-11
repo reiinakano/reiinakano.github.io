@@ -187,7 +187,7 @@ The computation graph for training is shown in the figure below. The main differ
 
 <figure class="align-center">
   <a href="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}"><img src="{{ '/images/sp/model_calc_train.jpg' | absolute_url }}" alt=""></a>
-  <figcaption>Training a transformer with a symbolic solver. Masked positions in the target sequence are not used in the loss function, as they will be filled in by a symbolic solver.</figcaption>
+  <figcaption>Training a transformer with a symbolic solver. Masked positions (PAD) in the target sequence are not used in the loss function, as they will be filled in by a symbolic solver.</figcaption>
 </figure>
 
 ### Experiment details
@@ -209,10 +209,6 @@ The following table shows accuracy results on the `swr_p_level_set` and `swr_p_s
 | Transformer baseline ([Saxton et. al.][mathematics_dataset_paper]) [^baseline_results] | ~0.77 | ~0.73 | ~0.057 | ~0.045 |
 | Transformer with intermediate steps | 0.701 | 0.675 | 0.074 | 0.065 |
 | Transformer with intermediate steps and symbolic calculator | **0.997** | **0.997** | 0.055 | 0.058 |
-
-The results for the transformer-calculator hybrid show a clear improvement over the baseline on the interpolated test set. On the extrapolated test set, it shows no significant differences from the baseline and scores just as poorly.
-
-On the other hand, the transformer using intermediate steps with no calculator actually scores *lower* than the baseline on the interpolated test set.
 
 ### Interpolation test set performance insights
 
@@ -250,7 +246,7 @@ Failure cases for `swr_p_sequence`:
 [PREDICTION]    q:1   g:1   1+1=2   (1/2)*(1/10)=1/20   1/20
 ```
 
-One failure case seems to be when the network makes a mistake in counting the number of letters. This happens in long sequences, and the network is usually off by 1 on the letter with the highest count. One explanation for this is that long sequences are particularly sparse in the training set and there aren't enough long-sequence samples for the network to learn from reliably.
+One failure case seems to be when the network makes a mistake in counting the number of letters. This happens in long sequences, and the network is usually off by 1 on the letter with the highest count.
 
 Other failure cases are when the network fails to recognize that the event is impossible (0 probability), or simply failing to set up the correct intermediate expressions.
 
