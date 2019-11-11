@@ -359,11 +359,11 @@ It's also interesting to see what the network focuses on when giving 1-step answ
 
 Something that intrigued me in [Saxton et. al.][mathematics_dataset_paper]'s paper was how high a baseline transformer scored on probability tasks (~0.77 and ~0.73), given that working these out are a multi-step process. How could basic pattern-matching score so highly on such a task? Is mere perception enough to figure out something like the probability product rule, on such a generic architecture without any prior knowledge of numbers or probability?
 
-To explain this, first notice that although questions are unique, a lot of them will share the same answers. For example, `Calculate prob of sequence aad from abcda`, `Calculate prob of sequence bbz from zbbmn`, and `Calculate prob of sequence rpr from {r: 2, p: 1, x:2}` all lead to the same answer.
+To try and explain this, we point out that although questions are unique, a lot of them will share the same answers. For example, `Calculate prob of sequence aad from abcda`, `Calculate prob of sequence bbz from zbbmn`, and `Calculate prob of sequence rpr from {r: 2, p: 1, x:2}` all lead to the same answer.
 
-Doing a bit of analysis on training set *questions*, we find that out of 1 million samples each, `swr_p_level_set` and `swr_p_sequence` have 977179 and 978045 unique questions, respectively. This seems okay, as duplicates are limited to <3% of the training set and the distribution over questions appears fairly uniform.
+Doing a bit of analysis on training set *questions*, we find that out of 1 million samples each, `swr_p_level_set` and `swr_p_sequence` have 977179 and 978045 unique questions, respectively. This seems reasonable, as duplicates are limited to <3% of the training set and the distribution over questions appears fairly uniform.
 
-On the other hand, doing analysis on training set *answers* reveals that out of 1 million samples, `swr_p_level_set` and `swr_p_sequence` have 1458 and 1865 unique answers, respectively. 
+On the other hand, doing analysis on training set *answers* reveals that out of 1 million samples eachs, `swr_p_level_set` and `swr_p_sequence` have 1458 and 1865 unique answers, respectively. 
 
 Counting the collective number of samples that share the top K most common answers reveals even more imbalance.
 ```
@@ -382,9 +382,9 @@ For swr_p_sequence:
 
 Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where categories are unique probabilities. From this perspective, the high performance of the baseline transformer seems much more reasonable.
 
-For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. We're not claiming this is the only thing the transformer is learning, but this sort of shallow reasoning probably makes up a significant chunk of its accuracy.
+For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. Although speculative, we feel that this sort of shallow reasoning probably makes up a significant chunk of its accuracy.
 
-This also gives an explanation as to why networks, regardless of architecture, consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to correctly solve. `swr_p_sequence` just happens to have *more* categories/unique answers and the classification task is harder.
+This also gives an explanation as to why networks, regardless of architecture, consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to correctly solve! `swr_p_sequence` just happens to have *more* categories/unique answers and the resulting classification task is harder.
 
 It seems unlikely that a transformer trained on this data distribution will capture any sense of the true rules of probability, without more data or some sort of prior or external knowledge. The baseline's poor performance on the extrapolated set supports this. As soon as a network sees patterns and answers outside what it was trained on, it completely fails, unless it's something easy to spot from question structure (0 and 1 probabilities).
 
