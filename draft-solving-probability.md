@@ -432,7 +432,7 @@ Testing this network on `1 + 1 + 1 + 1 + 1 + 1 + 1`, here's what happened:
 [PREDICTION]    1 + 1 + 1 + 1 + 1 + 1 + 1=7    7
 ```
 
-Success! The network is able to solve (copy) up to sequences of length 11 with a calculator. Beyond that, we run into THE aforementioned out-of-distribution problem, and the network fails to generalize to extrapolated sequence lengths.
+Success! The network is able to solve (copy) up to sequences of length 11 with a calculator. Beyond that, we run into the aforementioned out-of-distribution problem, and the network fails to generalize to extrapolated sequence lengths.
 
 [^cross_entropy]: Usually calculated through something like cross-entropy.
 [^pad]: This can be implemented in multiple ways. For this article, we use [fairseq] as our seq2seq training framework. `<pad>` symbols in the target sequence, normally used for handling variable-length sequences in a batch, are automatically disregarded by fairseq, so there's no need to modify the loss function after replacing the target sequence with a masked target sequence. Another way to implement the same functionality is to zero out the loss function at positions occupied by a masking symbol.
