@@ -5,15 +5,15 @@ image:
   path: "images/sp/calcnet3.gif"
   thumbnail: "images/sp/calcnet3.gif"
   hide: true
-date:   2019-11-13
-excerpt: Teaching a neural network to solve simple probability problems step by step with an external symbolic solver.
+date:   2019-11-12
+excerpt: This article explores a seq2seq architecture for solving simple probability problems in Deepmind's Mathematics Dataset. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations.
 ---
 
 <figure class="align-center">
   <a href="{{ '/images/sp/calcnet3.gif' | absolute_url }}"><img src="{{ '/images/sp/calcnet3.gif' | absolute_url }}" alt=""></a>
 </figure>
 
-> This article explores a seq2seq architecture for solving simple probability problems in [Saxton et. al.][mathematics_dataset_paper]'s [Mathematics Dataset][mathematics_dataset]. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations. On the `swr_p_level_set` and `swr_p_sequence` categories, the architecture achieves near-perfect scores on interpolated test sets [^polated_test_sets], significantly outperforming the baseline.
+> This article explores a seq2seq architecture for solving simple probability problems in [Saxton et. al.][mathematics_dataset_paper]'s [Mathematics Dataset][mathematics_dataset]. A transformer is used to map questions to intermediate steps, while an external symbolic calculator evaluates intermediate expressions. This approach emulates how a student might solve math problems, by setting up intermediate equations, using a calculator to solve them, and using those results to construct further equations.
 
 {% include toc %}
 
@@ -31,7 +31,7 @@ Answer:
 −70x − 165
 ```
 
-Both questions and answers are in the form of free-form text, making [seq2seq][seq2seq_paper] models a natural first step for solving this dataset. In fact, the [paper][mathematics_dataset_paper] released alongside the dataset includes baseline performance metrics for today's [state-of-the-art seq2seq][attention_paper] models, applied naively to the dataset.
+Both questions and answers are in the form of free-form text, making [seq2seq][seq2seq_paper] models a natural first step for solving this dataset. In fact, the [paper by Saxton et. al.][mathematics_dataset_paper] released alongside the dataset includes baseline performance metrics for today's [state-of-the-art seq2seq][attention_paper] models, applied naively to the dataset.
 
 For more details, I highly recommend reading the [accompanying paper by Saxton et. al.][mathematics_dataset_paper].
 
@@ -368,16 +368,16 @@ On the other hand, doing analysis on training set *answers* reveals that out of 
 Counting the collective number of samples that share the top K most common answers reveals even more imbalance.
 ```
 For swr_p_level_set:
-100.0% of all samples (1000000.0) share 1458 unique answers
-75.0% of all samples (750000.0) share top 269 most common answers
-50.0% of all samples (500000.0) share top 85 most common answers
-25.0% of all samples (250000.0) share top 19 most common answers
+1000000 samples (100.0%) share 1458 unique answers
+750000 samples (75.0%) share top 269 most common answers
+500000 samples (50.0%) share top 85 most common answers
+250000 samples (25.0%) share top 19 most common answers
 
 For swr_p_sequence:
-100.0% of all samples (1000000.0) share 1865 unique answers
-75.0% of all samples (750000.0) share top 300 most common answers
-50.0% of all samples (500000.0) share top 88 most common answers
-25.0% of all samples (250000.0) share top 19 most common answers
+1000000 samples (100.0%) share 1865 unique answers
+750000 samples (75.0%) share top 300 most common answers
+500000 samples (50.0%) share top 88 most common answers
+250000 samples (25.0%) share top 19 most common answers
 ```
 
 Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where categories are unique probabilities. From this perspective, the high performance of the baseline transformer seems much more reasonable.
@@ -390,7 +390,7 @@ It seems unlikely that a transformer trained on this data distribution will capt
 
 ## Related Literature
 
-This work is closely related to another paper by DeepMind, Ling et. al.'s [Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems][rationales_paper]. They build a dataset of multiple-choice problems and *rationales*, which are natural language intermediate steps explaining how to solve the problem. They also train the network to use an external program with instruction primitives like addition and multiplication, and an external memory buffer for storing intermediate results. Ling et. al.'s [dataset][aqua] contains probability problems, harder and more diverse (deck of cards problems) than that available in [Mathematics Dataset][mathematics_dataset], however, their results suggest they are unable to solve them, as they are still limited to being able to solve simple one or two-step problems. We view being able to solve problems in this dataset as a future goal for the architecture laid out in this article, with the low number and difficulty of obtaining samples (~100k crowdsourced samples) being the main obstacle.
+This work is closely related to another paper by DeepMind, Ling et. al.'s [Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems][rationales_paper]. They build a dataset of multiple-choice problems and *rationales*, which are natural language intermediate steps explaining how to solve the problem. They also train the network to use an external program with instruction primitives like addition and multiplication, and an external memory buffer for storing intermediate results. Ling et. al.'s [dataset][aqua] contains probability problems, harder and more diverse (deck of cards problems) than that available in [Mathematics Dataset][mathematics_dataset], however, their results state they are only able to solve simple one or two-step problems. We view being able to solve problems in this dataset as a future goal for the architecture laid out in this article, with the low number and difficulty of obtaining samples (~100k crowdsourced samples) being the main obstacle.
 
 This work is also related to another common theme in automatically solving math problems: converting a word problem into a structured expression that, when evaluated by an external symbolic solver, results in the correct answer ([Wang et. al.](https://www.aclweb.org/anthology/D17-1088/), [Roy et. al.](https://arxiv.org/abs/1609.08824), [Roy and Roth](https://arxiv.org/abs/1608.01413), [Kushman, et. al.](https://www.aclweb.org/anthology/P14-1026/), [Hosseini, et. al.](https://www.emnlp2014.org/papers/pdf/EMNLP2014058.pdf)).
 
@@ -406,7 +406,7 @@ The ideal task would leverage the well-documented state-of-the-art language capa
 
 As shown in this article on a small scale, beam search can find multiple valid ways to come up with the correct answer. An interesting advantage of using crowdsourced intermediate steps is obtaining a variety of intermediate steps for the same types of problems. With enough data, the network could capture the different ways humans solve and approach problems.
 
-The method shown here makes no attempt to generalize to the extrapolated test set, and as a result does not improve upon the baseline. We argue that architectures explicitly designed to perform out-of-distribution generalization (in the same spirit as [Trask et. al.](https://arxiv.org/abs/1808.00508), [Weston et. al.](https://arxiv.org/abs/1410.3916), [Grefenstette et. al.](https://arxiv.org/abs/1506.02516), [Graves et. al.](https://arxiv.org/abs/1410.5401)) are just as likely to benefit from utilizing an external symbolic solver. Humans generalize, but using a calculator helps them make less mistakes.
+The method shown here makes no attempt to generalize to the extrapolated test set, and as a result does not improve upon the baseline. We argue that architectures explicitly designed to perform out-of-distribution generalization (in the same spirit as [Trask et. al.](https://arxiv.org/abs/1808.00508), [Weston et. al.](https://arxiv.org/abs/1410.3916), [Grefenstette et. al.](https://arxiv.org/abs/1506.02516), [Graves et. al.](https://arxiv.org/abs/1410.5401), [Kaiser et. al.](https://arxiv.org/abs/1511.08228)) are just as likely to benefit from utilizing an external symbolic solver. Humans generalize, but using a calculator helps them make less mistakes.
 
 ## Acknowledgments
 
