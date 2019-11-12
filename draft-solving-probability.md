@@ -359,7 +359,7 @@ It's also interesting to see what the network focuses on when giving 1-step answ
 
 Something that intrigued me in [Saxton et. al.][mathematics_dataset_paper]'s paper was how high a baseline transformer scored on probability tasks (~0.77 and ~0.73), given that working these out are a multi-step process. How could basic pattern-matching score so highly on such a task? Is mere perception enough to figure out something like the probability product rule, on such a generic architecture without any prior knowledge of numbers or probability?
 
-To try and explain this, we point out that although questions are unique, a lot of them will share the same answers. For example, `Calculate prob of sequence aad from abcda`, `Calculate prob of sequence bbz from zbbmn`, and `Calculate prob of sequence rpr from {r: 2, p: 1, x:2}` all lead to the same answer.
+To try and explain this, we point out that although questions are unique, a lot of them will share the same answers. For example, `Calculate prob of sequence aad from abcda`, `Calculate prob of sequence bbz from zbbmn`, and `Calculate prob of sequence rpr from {r: 2, p: 1, x:2}` all lead to the same answer, `1/30`.
 
 Doing a bit of analysis on training set *questions*, we find that out of 1 million samples each, `swr_p_level_set` and `swr_p_sequence` have 977179 and 978045 unique questions, respectively. This seems reasonable, as duplicates are limited to <3% of the training set and the distribution over questions appears fairly uniform.
 
@@ -382,7 +382,7 @@ For swr_p_sequence:
 
 Looking at these numbers, the task almost looks like an extremely imbalanced classification problem, where categories are unique probabilities. From this perspective, the high performance of the baseline transformer seems much more reasonable.
 
-For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability, without actually going through the correct intermediate steps. Although speculative, we feel that this sort of shallow reasoning probably makes up a significant chunk of its accuracy.
+For instance, consider questions that "look alike" and have the same final answer: `Calculate prob of sequence aad from aadb`, `Calculate prob of sequence bbz from bbzm`. It's not a stretch to imagine the transformer is simply learning the easy task of recognizing this pattern and spitting out the memorized category/probability (in this case, `1/12`), without actually going through the correct intermediate steps. Although speculative, we feel that this sort of shallow reasoning probably makes up a significant chunk of its accuracy.
 
 This also gives an explanation as to why networks, regardless of architecture, consistently score higher on `swr_p_level_set` than `swr_p_sequence`, even though `swr_p_level_set` actually requires *more* intermediate steps to correctly solve! `swr_p_sequence` just happens to have *more* categories/unique answers and the resulting classification task is harder.
 
@@ -398,7 +398,9 @@ This work is also related to another common theme in automatically solving math 
 
 ## Limitations and future work
 
-We set out to achieve a good result on some category of [Mathematics Dataset][mathematics_dataset], and we did. Although the results are promising, it should be noted that the given task is little more than a toy problem for this approach. Given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], the only notable skills the transformer achieves is counting letters, correctly copying intermediate results, and properly setting up the product rule equation.
+We explored a seq2seq architecture that is able to solve simple probability problems from [Mathematics Dataset][mathematics_dataset] using intermediate steps and an external symbolic solver. Inference and training with a symbolic solver turns out to be fairly intuitive and easy to integrate into regular seq2seq frameworks.
+
+Although the results are promising, it should be noted that the given task is little more than a toy problem for this approach. Given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], the only notable skills the transformer achieves is counting letters, correctly copying intermediate results, and properly setting up the product rule equation.
 
 The ideal task would leverage the well-documented state-of-the-art language capabilities of the [transformer][attention_paper] to parse natural language math problems, while a well-tested symbolic solver evaluates intermediate expressions. The main challenge here lies in constructing a dataset with intermediate steps. Generating intermediate steps is relatively easy for fully synthetic datasets such as [Mathematics Dataset][mathematics_dataset], but non-trivial for natural language math problems. One way is to use mechanical turking to crowdsource intermediate steps, as done by [Ling et. al.][rationales_paper] for constructing the [AQuA dataset][aqua]. 
 
@@ -416,6 +418,23 @@ Experiments were run entirely for free on [Google Colaboratory][google_colab] an
 * For training, evaluating, and visualizing seq2seq models - <https://github.com/reiinakano/fairseq/tree/mods>
 
 Notebooks for correctly running the above code will be available soon, though more experienced users can probably figure out how things go together.
+
+## BONUS: Solving 1 + 1 + 1 + 1 + 1 + 1 + 1
+
+[Saxton et. al.][mathematics_dataset_paper] observed the curious case that a network could not properly solve `1+1+1...+1` for n>6, even though the train set contained longer sequences and larger numbers.
+
+Naturally, solving expressions in this category would be extremely trivial with a calculator, as the network would only need to correctly copy the expression. We thought it would be a fun demonstration to finally "solve" this problem with the help of a calculator.
+
+Training the network on the `add_sub_multiple` category, we very quickly achieved 100% on the test set, as the network only needs to correctly copy the expression into the calculator.
+
+Testing this network on `1 + 1 + 1 + 1 + 1 + 1 + 1`, here's what happened:
+```
+[QUESTION] 1 + 1 + 1 + 1 + 1 + 1 + 1
+[TARGET ANSWER] 1 + 1 + 1 + 1 + 1 + 1 + 1=7    7
+[PREDICTION]    1 + 1 + 1 + 1 + 1 + 1 + 1=7    7
+```
+
+Success! The network is able to solve (copy) up to sequences of length 11 with a calculator. Beyond that, we run into the aforementioned out-of-distribution problem, and the network fails to generalize to extrapolated sequence lengths.
 
 [^cross_entropy]: Usually calculated through something like cross-entropy.
 [^pad]: This can be implemented in multiple ways. For this article, we use [fairseq] as our seq2seq training framework. `<pad>` symbols in the target sequence, normally used for handling variable-length sequences in a batch, are automatically disregarded by fairseq, so there's no need to modify the loss function after replacing the target sequence with a masked target sequence. Another way to implement the same functionality is to zero out the loss function at positions occupied by a masking symbol.
