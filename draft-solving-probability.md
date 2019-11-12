@@ -429,7 +429,7 @@ Testing this network on `1 + 1 + 1 + 1 + 1 + 1 + 1`, here's what happened:
 ```
 [QUESTION] What is the value of 1 + 1 + 1 + 1 + 1 + 1 + 1?
 [TARGET ANSWER] 1 + 1 + 1 + 1 + 1 + 1 + 1=7    7
-[PREDICTION]    1 + 1 + 1 + 1 + 1 + 1 + 11 + 1=18    18
+[PREDICTION]    1 + 1 + 1 + 1 + 1 + 1 + 11=17    17
 ```
 
 The network is *still* wrong for sequences n>6, despite getting the correct answer for n<=7. Like [Saxton et. al.][mathematics_dataset_paper], we do not have a good explanation for this result, and leave it as is.
