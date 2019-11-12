@@ -427,12 +427,12 @@ Training the network on the `add_sub_multiple` category, we very quickly achieve
 
 Testing this network on `1 + 1 + 1 + 1 + 1 + 1 + 1`, here's what happened:
 ```
-[QUESTION] What is the value of 1 + 1 + 1 + 1 + 1 + 1 + 1?
+[QUESTION] 1 + 1 + 1 + 1 + 1 + 1 + 1
 [TARGET ANSWER] 1 + 1 + 1 + 1 + 1 + 1 + 1=7    7
-[PREDICTION]    1 + 1 + 1 + 1 + 1 + 1 + 11=17    17
+[PREDICTION]    1 + 1 + 1 + 1 + 1 + 1 + 1=7    7
 ```
 
-The network is *still* wrong for sequences n>6, despite getting the correct answer for n<=6. Like [Saxton et. al.][mathematics_dataset_paper], we do not have a good explanation for this result, and leave it as is.
+Success! The network is able to solve (copy) up to sequences of length 11 with a calculator. Beyond that, we run into THE aforementioned out-of-distribution problem, and the network fails to generalize to extrapolated sequence lengths.
 
 [^cross_entropy]: Usually calculated through something like cross-entropy.
 [^pad]: This can be implemented in multiple ways. For this article, we use [fairseq] as our seq2seq training framework. `<pad>` symbols in the target sequence, normally used for handling variable-length sequences in a batch, are automatically disregarded by fairseq, so there's no need to modify the loss function after replacing the target sequence with a masked target sequence. Another way to implement the same functionality is to zero out the loss function at positions occupied by a masking symbol.
