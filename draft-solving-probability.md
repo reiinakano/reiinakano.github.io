@@ -398,7 +398,9 @@ This work is also related to another common theme in automatically solving math 
 
 ## Limitations and future work
 
-We set out to achieve a good result on some category of [Mathematics Dataset][mathematics_dataset], and we did. Although the results are promising, it should be noted that the given task is little more than a toy problem for this approach. Given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], the only notable skills the transformer achieves is counting letters, correctly copying intermediate results, and properly setting up the product rule equation.
+We explored a seq2seq architecture that is able to solve simple probability problems from [Mathematics Dataset][mathematics_dataset] using intermediate steps and an external symbolic solver. Inference and training with a symbolic solver turns out to be fairly intuitive and easy to integrate into regular seq2seq frameworks.
+
+Although the results are promising, it should be noted that the given task is little more than a toy problem for this approach. Given the low variation of language [^low_variation_lang] in [Mathematics Dataset][mathematics_dataset], the only notable skills the transformer achieves is counting letters, correctly copying intermediate results, and properly setting up the product rule equation.
 
 The ideal task would leverage the well-documented state-of-the-art language capabilities of the [transformer][attention_paper] to parse natural language math problems, while a well-tested symbolic solver evaluates intermediate expressions. The main challenge here lies in constructing a dataset with intermediate steps. Generating intermediate steps is relatively easy for fully synthetic datasets such as [Mathematics Dataset][mathematics_dataset], but non-trivial for natural language math problems. One way is to use mechanical turking to crowdsource intermediate steps, as done by [Ling et. al.][rationales_paper] for constructing the [AQuA dataset][aqua]. 
 
